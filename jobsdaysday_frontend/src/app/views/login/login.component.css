@@ -1,0 +1,25 @@
+.login-container {
+  width: 300px;
+  margin: 100px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+.login-container h2 {
+  text-align: center;
+}
+.login-container div {
+  margin-bottom: 10px;
+}
+.login-container input {
+  width: 100%;
+  padding: 5px;
+}
+.login-container button {
+  width: 100%;
+  padding: 8px;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}

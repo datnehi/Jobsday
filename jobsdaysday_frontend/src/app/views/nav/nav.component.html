@@ -1,0 +1,67 @@
+<nav class="navbar">
+  <div class="navbar-logo">
+    <a routerLink="/">
+      <img src="baner.png" alt="Logo">
+    </a>
+  </div>
+
+  <ul class="navbar-menu">
+    <li class="navbar-item dropdown">
+      <a routerLink="/jobs">Việc làm <i class="bi bi-chevron-down"></i></a>
+      <ul class="dropdown-menu">
+        <li><a routerLink="/jobs/all">Tất cả việc làm</a></li>
+        <li><a routerLink="/jobs/saved">Việc làm đã lưu</a></li>
+        <li><a routerLink="/jobs/recommended">Việc làm gợi ý</a></li>
+      </ul>
+    </li>
+    <li class="navbar-item dropdown">
+      <a routerLink="/cv">Tạo CV <i class="bi bi-chevron-down"></i></a>
+      <ul class="dropdown-menu">
+        <li><a routerLink="/cv/create">Tạo CV mới</a></li>
+        <li><a routerLink="/cv/my-cv">CV của tôi</a></li>
+        <li><a routerLink="/cv/templates">Mẫu CV</a></li>
+      </ul>
+    </li>
+  </ul>
+
+  <ul class="navbar-right">
+    <ng-container *ngIf="isLogging; else loggedOut">
+        <li class="icon-item">
+          <button class="icon-content">
+            <div class="icon-container">
+              <i class="bi bi-bell"></i>
+            </div>
+          </button>
+        </li>
+        <li class="icon-item">
+          <a class="icon-content" routerLink="/messages">
+            <div class="icon-container">
+              <i class="bi bi-chat-dots"></i>
+            </div>
+          </a>
+        </li>
+        <li class="icon-item dropdown">
+          <a routerLink="/profile" class="user-link">
+            <img src="user.jpg" alt="Avatar" class="avatar">
+            <div class="small-icon">
+              <i class="bi bi-chevron-down"></i>
+            </div>
+          </a>
+          <ul class="dropdown-menu">
+            <li><a routerLink="/profile">Hồ sơ</a></li>
+            <li><a routerLink="/settings">Cài đặt</a></li>
+            <li><a (click)="logout()">Đăng xuất</a></li>
+          </ul>
+        </li>
+      </ng-container>
+
+    <ng-template #loggedOut>
+      <li>
+        <a class="btn btn-outline" routerLink="/sign-up">Đăng ký</a>
+      </li>
+      <li>
+        <a class="btn btn-primary" routerLink="/login">Đăng nhập</a>
+      </li>
+    </ng-template>
+  </ul>
+</nav>
