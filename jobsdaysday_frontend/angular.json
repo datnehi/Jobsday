@@ -26,10 +26,8 @@
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "css",
             "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
+              "src/assets",
+              "src/favicon.ico"
             ],
             "styles": [
               "node_modules/primeicons/primeicons.css",
@@ -37,7 +35,9 @@
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
+            ]
           },
           "configurations": {
             "production": {

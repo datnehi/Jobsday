@@ -105,6 +105,7 @@ nav.navbar {
   color: #333;
   text-decoration: none;
   transition: background 0.3s, color 0.3s;
+  cursor: pointer;
 }
 
 .dropdown-menu li a:hover {

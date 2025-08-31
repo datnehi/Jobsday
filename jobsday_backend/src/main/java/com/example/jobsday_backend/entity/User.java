@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // BIGSERIAL
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true, length = 255)
@@ -27,10 +27,8 @@ public class User {
     @Column(name = "full_name", nullable = false, length = 255)
     private String fullName;
 
-    @Column(length = 20)
     private String phone;
 
-    @Column(nullable = false)
     private LocalDate dob;
 
     @Column(name = "avatar_url")
@@ -50,6 +48,10 @@ public class User {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    private Boolean emailVerified = false;
+    private String verificationCode;
+    private LocalDateTime verificationExpiry;
+
     @PrePersist
     public void prePersist() {
         LocalDateTime now = LocalDateTime.now();
@@ -64,7 +66,7 @@ public class User {
 
     public enum Role {
         ADMIN,
-        RECRUITER,
+        HR,
         CANDIDATE
     }
 

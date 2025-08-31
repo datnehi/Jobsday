@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
@@ -10,7 +10,8 @@ import { CommonModule } from '@angular/common';
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    RouterModule
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
@@ -20,7 +21,7 @@ export class LoginComponent {
   loginForm!: FormGroup;
 
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private router: Router, private authService: AuthService) {}
+  constructor(private fb: FormBuilder, private router: Router, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({

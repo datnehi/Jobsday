@@ -14,4 +14,20 @@ public class UserService {
     public User findById(long id){
         return userRepository.findById(id);
     }
+
+    public User findByEmail(String email){
+        return userRepository.findByEmail(email);
+    }
+
+    public boolean existsByEmail(String email){
+        return userRepository.existsByEmail(email);
+    }
+
+    public void createUser(User user){
+        userRepository.save(user);
+    }
+
+    public void updateUser(User user){
+        userRepository.save(user);
+    }
 }

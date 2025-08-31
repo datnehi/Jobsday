@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, map } from 'rxjs';
+import { BehaviorSubject, map, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { LoginRequest } from '../dto/loginRequestDto';
 import { User } from '../models/user';
-import { TokenService } from './token.service';
 import { UserService } from './user.service';
+import { RegisterRequest } from '../dto/registerRequest';
+import { ResponseDto } from '../dto/responseDto';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -18,15 +19,14 @@ export class AuthService {
   currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private http: HttpClient,
-              private tokenService: TokenService,
-              private userService: UserService) {
+    private userService: UserService) {
     if (this.userToken.value) {
       this.setUser(this.userToken.value);
     }
   }
 
-  login(payload: LoginRequest) {
-    return this.http.post<any>(this.api + '/login', payload).pipe(
+  login(payload: LoginRequest): Observable<ResponseDto> {
+    return this.http.post<ResponseDto>(this.api + '/login', payload).pipe(
       map(response => {
         if (response.data?.token) {
           this.clearUser();
@@ -35,6 +35,10 @@ export class AuthService {
         return response;
       })
     );
+  }
+
+  register(body: RegisterRequest): Observable<ResponseDto> {
+    return this.http.post<ResponseDto>(`${this.api}/register`, body);
   }
 
   logout() {
@@ -53,16 +57,9 @@ export class AuthService {
     localStorage.setItem('token', token);
     this.userToken.next(token);
 
-    // Lấy thông tin user từ API
-    this.tokenService.getToken(token).subscribe(tokenData => {
-      if (tokenData) {
-        this.userService.getUserById(tokenData.userId).subscribe(user => {
-          if (user) {
-            this.currentUserSubject.next(user);
-          } else {
-            this.clearUser();
-          }
-        });
+    this.userService.getCurrentUser().subscribe(res => {
+      if (res.data) {
+        this.currentUserSubject.next(res.data);
       } else {
         this.clearUser();
       }
@@ -77,5 +74,13 @@ export class AuthService {
 
   get token(): string | null {
     return this.userToken.value;
+  }
+
+  resendOtp(data: { email: string }): Observable<any> {
+    return this.http.post(`${this.api}/resend-otp`, data);
+  }
+
+  verifyOtp(request: any): Observable<any> {
+    return this.http.post(`${this.api}/verify-otp`, request);
   }
 }

@@ -1,9 +1,7 @@
 package com.example.jobsday_backend.config;
 
-import com.example.jobsday_backend.entity.AuthToken;
 import com.example.jobsday_backend.entity.User;
 import com.example.jobsday_backend.service.TokenService;
-import com.example.jobsday_backend.service.TokensService;
 import com.example.jobsday_backend.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,9 +26,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private TokensService tokensService;
-
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -48,9 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
 
-            AuthToken tokens = tokensService.findByToken(token);
-
-            if (tokens != null && tokenService.validateToken(token)) {
+            if (tokenService.validateToken(token)) {
                 Long userId = tokenService.extractUserId(token);
 
                 User user = userService.findById(userId);

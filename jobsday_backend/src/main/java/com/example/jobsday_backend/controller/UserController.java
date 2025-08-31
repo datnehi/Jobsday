@@ -1,12 +1,14 @@
 package com.example.jobsday_backend.controller;
 
 import com.example.jobsday_backend.dto.ResponseDto;
+import com.example.jobsday_backend.dto.UserResponseDto;
 import com.example.jobsday_backend.entity.User;
 import com.example.jobsday_backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,5 +30,30 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ResponseDto(HttpStatus.OK.value(), "Find successfully", user));
+    }
+    @GetMapping("/{email}")
+    public ResponseEntity<ResponseDto> getUserByEmail(@PathVariable String email){
+        User user = userService.findByEmail(email);
+
+        if(user == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "User not found", null));
+        }
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ResponseDto(HttpStatus.OK.value(), "Find successfully", user));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<ResponseDto> getCurrentUser(@AuthenticationPrincipal User user) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ResponseDto(HttpStatus.UNAUTHORIZED.value(), "Unauthorized", null));
+        }
+
+        UserResponseDto userDto = new UserResponseDto(user);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ResponseDto(HttpStatus.OK.value(), "Get current user successfully", userDto));
     }
 }

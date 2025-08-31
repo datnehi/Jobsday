@@ -1,60 +1,23 @@
-.job-search-container {
-  background: #08007c;
-  color: #fff;
-  padding: 20px;
-  font-family: Arial, sans-serif;
+.form-bg-wrapper {
+  height: 250px;
+  background: url('/assets/baner4.jpg') center/cover no-repeat;
 }
 
-.search-bar {
-  display: flex;
-  gap: 10px;
-  margin: 10px auto;
-  width: 60%;
-
+input.form-control:focus {
+  border: none !important;
+  box-shadow: none !important;
 }
 
-.search-input {
-  flex: 1;
-  padding: 5px 10px;
-  width: 50px;
+.dropdown-menu, .dropdown-toggle {
+  background-color: #fff !important;
+  color: #333 !important;
 }
 
-.search-btn, .category-btn {
-  background: #2a6dff;
-  color: #fff;
-  border: none;
-  padding: 5px 15px;
-  cursor: pointer;
+.dropdown-toggle.active {
+  background-color: #212529 !important;
+  color: #fff !important;
 }
 
-.job-list ul {
-  list-style: none;
-  padding: 0;
-}
-
-.job-list li {
-  display: flex;
-  gap: 10px;
-  background: #fff;
-  color: #000;
-  padding: 10px;
-  margin-bottom: 5px;
-  border-radius: 4px;
-}
-
-.job-logo {
-  width: 60px;
-  height: 60px;
-  background: #ddd;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-}
-
-.job-info strong {
-  display: block;
-}
-.salary {
-  color: green;
+.form-check{
+  padding-left: 2rem;
 }

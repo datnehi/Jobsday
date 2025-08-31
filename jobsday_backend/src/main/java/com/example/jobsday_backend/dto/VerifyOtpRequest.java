@@ -1,19 +1,13 @@
 package com.example.jobsday_backend.dto;
 
-import com.example.jobsday_backend.entity.User;
 import lombok.Data;
 
-import java.time.LocalDate;
-
 @Data
-public class RegisterRequestDto {
+public class VerifyOtpRequest {
     private String email;
-    private String password;
-    private String fullName;
-    private String phone;
-    private LocalDate dob;
-    private String avatarUrl;
-    private User.Role role;
+    private String otp;
+
+    // cho HR nếu cần tạo công ty sau verify
     private String companyCode;
     private String companyName;
     private String companyAddress;

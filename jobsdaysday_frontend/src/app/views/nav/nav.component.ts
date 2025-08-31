@@ -15,7 +15,7 @@ import { AuthService } from '../../services/auth.service';
 export class NavComponent {
   isLogging: boolean | undefined;
 
-  constructor(public authService: AuthService, private routerL: Router) { }
+  constructor(public authService: AuthService, private router: Router) { }
 
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
@@ -25,7 +25,7 @@ export class NavComponent {
 
   logout() {
     this.authService.logout().subscribe(() => {
-      this.routerL.navigate(['/login']);
+      this.router.navigate(['/dashboard']);
     });
   }
 }

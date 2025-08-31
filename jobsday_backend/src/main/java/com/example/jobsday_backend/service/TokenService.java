@@ -17,11 +17,14 @@ public class TokenService {
     // Sinh token mới
     public String generateToken(User user) {
         Date now = new Date();
+        long expiryInMs = 1000L * 60 * 60 * 24 * 30;
+        Date expiryDate = new Date(now.getTime() + expiryInMs);
 
         return Jwts.builder()
                 .claim("id", user.getId())
                 .claim("role", user.getRole().name())
                 .setIssuedAt(now)
+                .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS256, jwtSecret)
                 .compact();
     }

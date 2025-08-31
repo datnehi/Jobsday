@@ -13,24 +13,20 @@ CREATE TYPE notification_type_enum AS ENUM ('APPLICATION_STATUS','NEW_MESSAGE','
 
 -- USERS
 CREATE TABLE users (
-    id              BIGSERIAL PRIMARY KEY,
-    email           TEXT NOT NULL UNIQUE,
-    password_hash   TEXT NOT NULL,
-    full_name       TEXT NOT NULL,
-    phone           TEXT,
-    dob             DATE NOT NULL,
-    avatar_url      TEXT,
-    role            user_role_enum NOT NULL DEFAULT 'CANDIDATE',
-    status          user_status_enum NOT NULL DEFAULT 'ACTIVE',
-    created_at      TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    updated_at      TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-);
-
--- TOKENS
-CREATE TABLE tokens (
-    id              BIGSERIAL PRIMARY KEY,
-    user_id         BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    token			TEXT
+    id              		BIGSERIAL PRIMARY KEY,
+    email           		TEXT NOT NULL UNIQUE,
+    password_hash  			TEXT NOT NULL,
+    full_name       		TEXT NOT NULL,
+    phone           		TEXT,
+    dob             		DATE,
+    avatar_url      		TEXT,
+    role            		user_role_enum NOT NULL,
+    status          		user_status_enum NOT NULL DEFAULT 'ACTIVE',
+    created_at      		TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at      		TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+	email_verified  		BOOLEAN NOT NULL DEFAULT FALSE,
+	verification_code 		TEXT,
+	verification_expiry 	TIMESTAMP 
 );
 
 -- COMPANIES
@@ -135,7 +131,7 @@ VALUES
 ('tranthib@example.com', 'hashedpass456', 'Trần Thị B', '0912345678', '1998-09-20', 'https://randomuser.me/api/portraits/women/45.jpg', 'CANDIDATE', 'ACTIVE'),
 ('hr1@techcorp.vn', 'hashedpass789', 'Phạm Quốc C', '0907654321', '1990-03-15', 'https://randomuser.me/api/portraits/men/56.jpg', 'HR', 'ACTIVE'),
 ('hr2@techcorp.vn', 'hashedpass101', 'Lê Thị D', '0934567890', '1992-12-01', 'https://randomuser.me/api/portraits/women/23.jpg', 'HR', 'ACTIVE'),
-('admin@jobportal.vn', 'hashedpass202', 'Admin System', NULL, '1985-01-01', NULL, 'ADMIN', 'ACTIVE');
+('admin@jobportal.vn', 'hashedpass202', 'Admin System', NULL, NULL, NULL, 'ADMIN', 'ACTIVE');
 
 -- 2. COMPANIES
 INSERT INTO companies (name, address, tax_code, website, description, status)

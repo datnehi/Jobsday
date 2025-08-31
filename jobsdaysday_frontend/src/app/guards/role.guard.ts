@@ -11,7 +11,7 @@ export function roleGuard(roles: UserRole[]): CanMatchFn {
     const router = inject(Router);
 
     return auth.currentUser$.pipe(
-      take(1), // Lấy giá trị hiện tại rồi hoàn thành
+      take(1),
       map(user => {
         if (user && roles.includes(user.role)) {
           return true;

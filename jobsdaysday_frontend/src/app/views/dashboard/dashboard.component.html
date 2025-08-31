@@ -1,65 +1,208 @@
-<div class="job-search-container">
-  <!-- Tiêu đề -->
-  <div style="text-align: center;">
-    <h2 style="color: #1976d2;">Tìm việc làm nhanh 24h, việc làm mới nhất trên toàn quốc</h2>
-    <p>Tiếp cận 60.000+ tin tuyển dụng việc làm mỗi ngày từ hàng nghìn doanh nghiệp uy tín tại Việt Nam</p>
+<div class="py-4 bg-light">
+  <div class="form-bg-wrapper d-flex justify-content-center align-items-center">
+    <form autocomplete="off" class="container">
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <div class="row g-2 align-items-center">
+            <div class="col">
+              <input type="text" class="form-control border-0"
+                placeholder="Tìm kiếm theo các Kỹ năng, Vị trí, Công ty,..." name="search">
+            </div>
+            <div class="col-auto">
+              <button type="button" class="btn btn-primary">
+                <i class="bi bi-search"></i> Tìm kiếm
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row g-2 mb-4">
+        <!-- Địa điểm -->
+        <div class="col">
+          <div class="dropdown w-100">
+            <button class="btn w-100 dropdown-toggle"
+              [ngClass]="{
+                'btn-dark text-white': selectedLocations.length > 0,
+                'btn-outline-secondary': selectedLocations.length === 0
+              }"
+              type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+              {{ selectedLocations.length > 0 ? selectedLocations.join(', ') : 'Chọn địa điểm' }}
+            </button>
+            <ul class="dropdown-menu w-100">
+              <li *ngFor="let location of locations">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox"
+                    [checked]="selectedLocations.includes(location)"
+                    (click)="toggleLocation(location)">
+                  <label class="form-check-label" (click)="toggleLocation(location)">
+                    {{ location }}
+                  </label>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- Cấp bậc -->
+        <div class="col">
+          <div class="dropdown w-100">
+            <button class="btn w-100 dropdown-toggle"
+              [ngClass]="{
+                'btn-dark text-white': selectedLevels.length > 0,
+                'btn-outline-secondary': selectedLevels.length === 0
+              }"
+              type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+              {{ selectedLevels.length > 0 ? selectedLevels.join(', ') : 'Chọn cấp bậc' }}
+            </button>
+            <ul class="dropdown-menu w-100">
+              <li *ngFor="let level of levels">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox"
+                    [checked]="selectedLevels.includes(level)"
+                    (click)="toggleLevel(level)">
+                  <label class="form-check-label" (click)="toggleLevel(level)">
+                    {{ level }}
+                  </label>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- Loại công việc -->
+        <div class="col">
+          <div class="dropdown w-100">
+            <button class="btn w-100 dropdown-toggle"
+              [ngClass]="{
+                'btn-dark text-white': selectedJobTypes.length > 0,
+                'btn-outline-secondary': selectedJobTypes.length === 0
+              }"
+              type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+              {{ selectedJobTypes.length > 0 ? selectedJobTypes.join(', ') : 'Chọn loại công việc' }}
+            </button>
+            <ul class="dropdown-menu w-100">
+              <li *ngFor="let jobType of jobTypes">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox"
+                    [checked]="selectedJobTypes.includes(jobType)"
+                    (click)="toggleJobType(jobType)">
+                  <label class="form-check-label" (click)="toggleJobType(jobType)">
+                    {{ jobType }}
+                  </label>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- Loại hợp đồng -->
+        <div class="col">
+          <div class="dropdown w-100">
+            <button class="btn w-100 dropdown-toggle"
+              [ngClass]="{
+                'btn-dark text-white': selectedContracts.length > 0,
+                'btn-outline-secondary': selectedContracts.length === 0
+              }"
+              type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+              {{ selectedContracts.length > 0 ? selectedContracts.join(', ') : 'Chọn loại hợp đồng' }}
+            </button>
+            <ul class="dropdown-menu w-100">
+              <li *ngFor="let contract of contracts">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox"
+                    [checked]="selectedContracts.includes(contract)"
+                    (click)="toggleContract(contract)">
+                  <label class="form-check-label" (click)="toggleContract(contract)">
+                    {{ contract }}
+                  </label>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- Xóa bộ lọc -->
+        <div class="col-auto">
+          <button type="button" class="btn btn-secondary w-100" (click)="clearFilters()">
+            <i class="bi bi-x-circle"></i> Xóa bộ lọc
+          </button>
+        </div>
+      </div>
+    </form>
   </div>
-
-  <!-- Thanh tìm kiếm -->
-  <div class="search-bar">
-    <button class="category-btn">Danh mục Nghề</button>
-    <input type="text" placeholder="Tìm kiếm" class="search-input" value="intern">
-    <select class="location-select">
-      <option>Địa điểm</option>
-      <!-- Thêm các địa điểm -->
-    </select>
-    <button class="search-btn">Tìm kiếm</button>
+  <div class="container">
+    <div class="bg-white p-3 rounded mb-4">
+      <div class="nav nav-tabs">
+        <span class="nav-link active">Tất cả</span>
+        <span class="nav-link fw-bold text-primary">Việc làm</span>
+        <span class="nav-link">Công ty</span>
+      </div>
+    </div>
+    <div class="py-4 bg-light">
+      <div class="row">
+        <div class="col-lg-8">
+          <section>
+            <div class="mb-4">
+              <h1 class="h5 fw-bold">
+                <span class="text-primary">1348</span> việc làm
+                <span class="mx-2 fw-normal"> - Cấp bậc: </span>
+                <span class="badge bg-info text-dark">Fresher</span>
+              </h1>
+              <ul class="list-unstyled mt-3">
+                <li class="mb-4">
+                  <div class="card border-primary bg-light">
+                    <div class="card-body d-flex gap-4">
+                      <div>
+                        <img alt="MBBANK" width="160" height="112" class="img-fluid rounded bg-white p-2"
+                          src="https://salt.topdev.vn/RWOft2PpYGiMrHDzYHjZbXirchGSEbdZ_BUnVvVwqg8/fit/384/1000/ce/1/aHR0cHM6Ly9hc3NldHMudG9wZGV2LnZuL2ltYWdlcy8yMDIzLzEwLzA2L1RvcERldi1NQi1Mb2dvLW1haW4tMDEtMTY5NjU2MTU2MS5wbmc">
+                      </div>
+                      <div class="flex-grow-1">
+                        <h3 class="h6 fw-bold text-primary mb-1">
+                          MB Trainee - BackEnd Engineer (Intern, Fresher) - Khối Công nghệ thông tin (HOLT.09)
+                        </h3>
+                        <div class="text-muted mb-2">MBBANK</div>
+                        <div class="d-flex gap-4 mb-2">
+                          <div class="text-primary">Thương lượng</div>
+                          <div class="text-muted">Fresher, Intern</div>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 text-secondary mb-2">
+                          <span>Quận Cầu Giấy, Hà Nội</span>
+                          <span>(In Office)</span>
+                        </div>
+                        <ul class="ps-3 mb-2">
+                          <li>Thưởng tháng lương 13; Thưởng thành tích 06 tháng, 1 năm; Thưởng các dịp lễ tết trong năm;
+                            Thưởng theo danh hiệu cá nhân và tập thể…</li>
+                          <li>Du lịch nghỉ dưỡng hàng năm, Khám sức khỏe định kì; Gói bảo hiểm sức khỏe cá nhân và người
+                            thân (MIC);</li>
+                          <li>Quà tặng và ngày nghỉ sinh nhật hưởng nguyên lương</li>
+                        </ul>
+                        <hr>
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div>
+                            <span class="badge bg-primary me-1">Oracle</span>
+                            <span class="badge bg-primary me-1">SQL Server</span>
+                            <span class="badge bg-primary me-1">Back-End</span>
+                            <span class="badge bg-primary me-1">Spring</span>
+                            <span class="badge bg-primary me-1">Spring Boot</span>
+                          </div>
+                          <span class="text-muted small">Đăng 18 giờ trước</span>
+                        </div>
+                      </div>
+                      <div>
+                        <button class="btn btn-outline-primary" aria-label="Follow button">
+                          <i class="bi bi-bookmark"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+              <div class="text-center mt-4">
+                <button type="button" class="btn btn-outline-primary w-100">
+                  Xem thêm
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+        <!-- Bạn có thể thêm cột bên phải ở đây nếu cần -->
+      </div>
+    </div>
   </div>
-
-  <!-- Việc làm gợi ý -->
-</div>
-<div class="job-list">
-  <h3>Việc làm có thể bạn quan tâm</h3>
-  <ul>
-    <li>
-      <div class="job-logo">MISEN</div>
-      <div class="job-info">
-        <strong>Performance Marketing Intern - Digital &...</strong>
-        <span>CÔNG TY TNHH MISEN</span>
-        <span class="salary">Thoả thuận</span>
-      </div>
-    </li>
-    <li>
-      <div class="job-logo">THAPHACO</div>
-      <div class="job-info">
-        <strong>Nhân Viên Văn Phòng – Internet Marketing Đư...</strong>
-        <span>CÔNG TY TNHH THẢO DƯỢC THAPHACO</span>
-        <span class="salary">6 - 15 triệu</span>
-      </div>
-    </li>
-    <li>
-      <div class="job-logo">TOP TALENT</div>
-      <div class="job-info">
-        <strong>Social Media Intern / Fresher</strong>
-        <span>CÔNG TY TNHH TOP TALENT</span>
-        <span class="salary">3 - 6 triệu</span>
-      </div>
-    </li>
-    <li>
-      <div class="job-logo">IVC</div>
-      <div class="job-info">
-        <strong>Intern C/C++ Developer</strong>
-        <span>CÔNG TY TNHH ISB VIỆT NAM</span>
-        <span class="salary">4.2 - 6.9 triệu</span>
-      </div>
-    </li>
-    <li>
-      <div class="job-logo">MATBAO</div>
-      <div class="job-info">
-        <strong>Odoo Fullstack Developer | Internal Development...</strong>
-        <span>CÔNG TY CỔ PHẦN BPO MẮT BẢO</span>
-        <span class="salary">Thoả thuận</span>
-      </div>
-    </li>
-  </ul>
 </div>
