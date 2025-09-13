@@ -31,9 +31,9 @@ public class SecurityConfig {
                 .cors(cors -> {})
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/api/company/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/company/**", "/api/search/**", "/api/job/**", "/api/jobskill/**", "/api/applications/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+//                        .requestMatchers("/applications/**").hasRole("CANDIDATE")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

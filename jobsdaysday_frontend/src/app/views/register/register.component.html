@@ -159,7 +159,8 @@
                 </div>
                 <div class="mb-3">
                   <label for="dob" class="form-label">Ngày sinh</label>
-                  <input type="date" id="dob" class="form-control" formControlName="dob" required>
+                  <input type="date" max="{{ today | date: 'yyyy-MM-dd' }}" min="1900-01-01" id="dob"
+                    class="form-control" formControlName="dob" required>
                   <div *ngIf="registerForm.get('dob')?.invalid && registerForm.get('dob')?.touched" class="text-danger">
                     Ngày sinh không được để trống
                   </div>
@@ -196,19 +197,28 @@
             </div>
           </div>
 
-          <div *ngIf="step === 'VERIFY'">
-            <h3 class="mb-4 text-center">Xác minh email</h3>
-            <p class="text-center">Nhập mã OTP đã được gửi đến email của bạn</p>
+          <div *ngIf="step === 'VERIFY'" class="text-center">
+            <h5 class="fw-bold text-success mb-3">Vui lòng kiểm tra email để xác thực tài khoản!</h5>
+            <div class="mb-2">Chúng tôi đã gửi một email xác thực tới <b>{{ emailToVerify }}</b>.</div>
+            <div class="mb-3">Hãy nhập mã xác thực để hoàn tất đăng ký.</div>
             <form [formGroup]="otpForm" (ngSubmit)="onVerifyOtp()">
-              <div class="mb-3">
-                <label for="otp" class="form-label">Mã OTP</label>
-                <input type="text" id="otp" class="form-control" formControlName="otp" required>
+              <div class="row justify-content-center align-items-center mb-3">
+                <div class="col-7">
+                  <input type="text" id="otp" class="form-control" placeholder="Nhập mã OTP" formControlName="otp" required>
+                </div>
+                <div class="col-5">
+                  <button type="button"
+                          class="btn btn-outline-primary w-100"
+                          [disabled]="otpCountdown > 0"
+                          (click)="resendOtp()">
+                    Gửi lại mã OTP
+                    <span *ngIf="otpCountdown > 0">({{ otpCountdown }}s)</span>
+                  </button>
+                </div>
               </div>
               <button type="submit" class="btn btn-success w-100" [disabled]="otpForm.invalid">Xác minh</button>
-              <button type="button" class="btn btn-outline-primary w-100 mt-2" (click)="resendOtp()">Gửi lại mã OTP</button>
             </form>
           </div>
-
           <div *ngIf="message" class="alert alert-info mt-3">{{ message }}</div>
 
         </div>

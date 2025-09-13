@@ -1,23 +1,44 @@
-.form-bg-wrapper {
-  height: 250px;
-  background: url('/assets/baner4.jpg') center/cover no-repeat;
+.tab-hover {
+  transition: color 0.3s, border-bottom-color 0.3s;
+  border-bottom: 3px solid transparent;
+}
+.tab-hover.text-primary {
+  border-bottom-color: #0d6efd;
+}
+.tab-hover.text-dark {
+  border-bottom-color: transparent;
+}
+.tab-hover:hover {
+  color: #0d6efd !important;
 }
 
-input.form-control:focus {
-  border: none !important;
+/* Loại bỏ border xanh khi select được chọn hoặc focus */
+.input-group .form-select:focus,
+.input-group .form-select:active,
+.input-group .form-select {
   box-shadow: none !important;
+  border: none !important;
+  outline: none !important;
 }
 
-.dropdown-menu, .dropdown-toggle {
-  background-color: #fff !important;
-  color: #333 !important;
+.job-card, .company-card {
+  border: none;
+  transition: background 0.2s, border 0.2s;
 }
 
-.dropdown-toggle.active {
-  background-color: #212529 !important;
-  color: #fff !important;
+.job-card:hover, .company-card:hover {
+  background: #eaf6ff;
+  border: 1.5px solid #0d6efd;
+  cursor: pointer;
 }
 
-.form-check{
-  padding-left: 2rem;
+.search-bar-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.sidebar-sticky {
+  position: sticky;
+  top: 10rem;
 }

@@ -1,5 +1,6 @@
 package com.example.jobsday_backend.config;
 
+import com.example.jobsday_backend.dto.CustomUserDetail;
 import com.example.jobsday_backend.entity.User;
 import com.example.jobsday_backend.service.TokenService;
 import com.example.jobsday_backend.service.UserService;
@@ -33,7 +34,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String path = request.getRequestURI();
         if ("OPTIONS".equalsIgnoreCase(request.getMethod()) ||
-                path.startsWith("/api/auth")) {
+                path.startsWith("/api/auth") ||
+                path.startsWith("/api/search") ||
+                path.startsWith("/api/company") ||
+                path.startsWith("/api/job") ||
+                path.startsWith("/api/jobskill")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -49,11 +54,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 User user = userService.findById(userId);
 
                 if (user != null) {
+                    CustomUserDetail userDetails = new CustomUserDetail(user);
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
-                                    user,
+                                    userDetails,
                                     null,
-                                    List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+                                    List.of(new SimpleGrantedAuthority(user.getRole().name()))
                             );
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);

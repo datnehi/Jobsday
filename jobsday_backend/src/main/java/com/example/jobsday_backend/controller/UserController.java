@@ -1,5 +1,6 @@
 package com.example.jobsday_backend.controller;
 
+import com.example.jobsday_backend.dto.CustomUserDetail;
 import com.example.jobsday_backend.dto.ResponseDto;
 import com.example.jobsday_backend.dto.UserResponseDto;
 import com.example.jobsday_backend.entity.User;
@@ -45,13 +46,20 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ResponseDto> getCurrentUser(@AuthenticationPrincipal User user) {
+    public ResponseEntity<ResponseDto> getCurrentUser(@AuthenticationPrincipal CustomUserDetail user) {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ResponseDto(HttpStatus.UNAUTHORIZED.value(), "Unauthorized", null));
         }
 
-        UserResponseDto userDto = new UserResponseDto(user);
+        User currentUser = userService.findById(user.getId());
+
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "User not found", null));
+        }
+
+        UserResponseDto userDto = new UserResponseDto(currentUser);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ResponseDto(HttpStatus.OK.value(), "Get current user successfully", userDto));

@@ -29,6 +29,10 @@ export class RegisterComponent {
   companyExists: boolean | null = null;
   companyInfo: any = null;
 
+  today: string = new Date().toISOString().split('T')[0];
+  otpCountdown = 0;
+  otpInterval: any;
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -120,11 +124,11 @@ export class RegisterComponent {
         next: () => {
           const loginData = {
             email: this.emailToVerify,
-            password: this.otpForm.value.otp
+            password: this.registerForm.value.password
           };
           this.authService.login(loginData).subscribe({
             next: () => {
-              this.router.navigate(['/login']);
+              this.router.navigate(['/dashboard']);
             },
             error: (err) => {
               this.message = err.error.message || 'Đăng nhập thất bại.';
@@ -164,13 +168,22 @@ export class RegisterComponent {
   }
 
   resendOtp() {
-  this.authService.resendOtp({ email: this.emailToVerify }).subscribe({
-    next: () => {
-      this.message = 'Mã OTP mới đã được gửi đến email của bạn!';
-    },
-    error: () => {
-      this.message = 'Gửi lại mã OTP thất bại!';
-    }
-  });
-}
+    this.authService.resendOtp({ email: this.emailToVerify }).subscribe({
+      next: () => {
+        this.message = 'Mã OTP mới đã được gửi đến email của bạn!';
+      },
+      error: () => {
+        this.message = 'Gửi lại mã OTP thất bại!';
+      }
+    });
+    this.otpCountdown = 120;
+    if (this.otpInterval) clearInterval(this.otpInterval);
+    this.otpInterval = setInterval(() => {
+      if (this.otpCountdown > 0) {
+        this.otpCountdown--;
+      } else {
+        clearInterval(this.otpInterval);
+      }
+    }, 1000);
+  }
 }

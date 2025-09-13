@@ -1,0 +1,430 @@
+<div class="container py-4" style="max-width:1200px;">
+  <div class="row">
+    <!-- LEFT: Job main info -->
+    <div class="col-lg-8 mb-4">
+      <div class="card shadow-sm mb-3">
+        <div class="card-body d-flex align-items-center">
+          <div>
+            <h2 class="fw-bold text-primary mb-2">{{ job?.title }}</h2>
+            <div class="d-flex align-items-center mb-3 gap-5">
+              <div class="d-flex align-items-center gap-2">
+                <span class="rounded-circle d-flex align-items-center justify-content-center"
+                  style="background:#007bff; width:40px; height:40px;">
+                  <i class="bi bi-currency-dollar text-white fs-4"></i>
+                </span>
+                <div>
+                  <div class="text-muted small">Mức lương</div>
+                  <div class="fw-bold">{{ job?.salary }}</div>
+                </div>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="rounded-circle d-flex align-items-center justify-content-center"
+                  style="background:#007bff; width:40px; height:40px;">
+                  <i class="bi bi-geo-alt text-white fs-4"></i>
+                </span>
+                <div>
+                  <div class="text-muted small">Địa điểm</div>
+                  <div class="fw-bold">{{ job?.location }}</div>
+                </div>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="rounded-circle d-flex align-items-center justify-content-center"
+                  style="background:#007bff; width:40px; height:40px;">
+                  <i class="bi bi-hourglass-split text-white fs-4"></i>
+                </span>
+                <div>
+                  <div class="text-muted small">Kinh nghiệm</div>
+                  <div class="fw-bold">{{ job?.experience }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <span class="bg-body-secondary text-muted px-2 py-1 rounded d-inline-flex align-items-center gap-1"
+                style="font-size:15px;">
+                <i class="bi bi-clock"></i>
+                Hạn nộp hồ sơ: {{ job?.deadline | date:'dd/MM/yyyy' }}
+              </span>
+            </div>
+            <!-- Button group nằm dưới thông tin -->
+            <div class="d-flex align-items-center gap-3 flex-nowrap mt-2" style="width: 740px;">
+              <button class="btn btn-primary flex-grow-1 fw-bold" style="font-size: 18px;" (click)="onApplyClick()">
+                <i [ngClass]="application ? 'bi bi-arrow-clockwise' : 'bi bi-send'"></i>
+                {{ application ? 'Ứng tuyển lại' : 'Ứng tuyển ngay' }}
+              </button>
+              <button *ngIf="!application" class="btn btn-outline-primary fw-bold flex-shrink-0"
+                style="font-size: 18px; min-width: 120px;" (click)="onSaveClick()">
+                <i class="bi bi-heart"></i> Lưu tin
+              </button>
+              <button *ngIf="application" class="btn btn-outline-primary fw-bold flex-shrink-0"
+                style="font-size: 18px; min-width: 120px;" (click)="onMessageClick()">
+                <i class="bi bi-chat-dots"></i> Nhắn tin
+              </button>
+            </div>
+            <div>
+              <div *ngIf="application" class="mt-3">
+                <i class="bi bi-check-circle"></i>
+                Bạn đã ứng tuyển vị trí này vào ngày: <span class="fw-bold">{{ application.updatedAt | date:'dd/MM/yyyy'
+                  }}</span>.
+                <a class="text-primary" style="text-decoration: none;" (click)="onViewCVClick()"> Xem CV đã nộp</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="fw-bold mb-3 text-primary">Chi tiết tin tuyển dụng</h5>
+          <h6 class="fw-bold mt-3">Mô tả công việc</h6>
+          <div [innerHTML]="job?.description"></div>
+          <h6 class="fw-bold mt-3">Yêu cầu ứng viên</h6>
+          <div [innerHTML]="job?.requirement"></div>
+          <h6 class="fw-bold mt-3">Quyền lợi</h6>
+          <div [innerHTML]="job?.benefit"></div>
+          <h6 class="fw-bold mt-3">Địa điểm làm việc</h6>
+          <div>{{ job?.address }}</div>
+          <h6 class="fw-bold mt-3">Thời gian làm việc</h6>
+          <div>{{ job?.workingTime }}</div>
+          <h6 class="fw-bold mt-3">Cách thức ứng tuyển</h6>
+          <div>Ứng viên nộp hồ sơ trực tuyến bằng cách bấm <b>Ứng tuyển ngay</b> bên trên.</div>
+          <br>
+          <div>Hạn nộp hồ sơ: {{ job?.deadline | date:'dd/MM/yyyy' }}</div>
+          <br>
+          <div class="d-flex align-items-center gap-3 mt-2">
+            <button class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#applyModal"
+              style="font-size: 18px;">
+              {{ application ? 'Ứng tuyển lại' : 'Ứng tuyển' }}
+            </button>
+            <button *ngIf="!application" class="btn btn-outline-primary fw-bold flex-shrink-0"
+              style="font-size: 18px; min-width: 120px;" (click)="onSaveClick()">
+              Lưu tin
+            </button>
+            <button *ngIf="application" class="btn btn-outline-primary fw-bold flex-shrink-0"
+              style="font-size: 18px; min-width: 120px;" (click)="onMessageClick()">
+              Nhắn tin
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sau card chi tiết tuyển dụng -->
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="fw-bold mb-3 text-primary">Việc làm liên quan</h5>
+          <div *ngFor="let job of relatedJobs; let i = index" class="card job-card mb-3"
+            style="position: relative; cursor: pointer;" (click)="openJobDetail(job.id)">
+            <div class="card-body d-flex gap-4">
+              <div
+                style="width: 120px; height: 120px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border:1px solid #eee;">
+                <img [src]="job.companyLogo || 'assets/logo1.png'" alt="{{ job.companyName }}" width="100%"
+                  height="100%" class="img-fluid rounded bg-white p-2">
+              </div>
+              <div class="flex-grow-1">
+                <h3 class="h6 fw-bold text-primary mb-1">
+                  {{ job.title }}
+                </h3>
+                <div class="text-muted mb-2">{{ job.companyName }}</div>
+                <div class="d-flex gap-4 mb-2">
+                  <div class="text-muted">{{ job.location }}</div>
+                  <div class="text-primary">{{ job.salary }}</div>
+                </div>
+                <hr class="w-100 my-2">
+                <div class="d-flex justify-content-between align-items-center" style="height: 34px;">
+                  <div>
+                    <span class="badge bg-primary me-1" *ngFor="let skill of job.skills.slice(0, 3)">{{ skill }}</span>
+                    <span *ngIf="job.skills.length > 3" class="badge bg-primary me-1"
+                      [title]="job.skills.slice(3).join(', ')" style="cursor: pointer;">
+                      +{{ job.skills.length - 3 }}
+                    </span>
+                  </div>
+                  <button class="btn"
+                    style="position: absolute; bottom: 10px; right: 70px; background: #007bff; color: #fff; font-weight: bold; border-radius: 20px; min-width: 90px;"
+                    (click)="openJobDetail(job.id)">
+                    Ứng tuyển
+                  </button>
+                  <button class="btn btn-outline-primary" aria-label="Follow button"
+                    style="position: absolute; bottom: 10px; right: 16px;">
+                    <i class="bi bi-bookmark"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Company & related info -->
+    <div class="col-lg-4 mb-4">
+      <div class="card mb-3">
+        <div class="card-body d-flex align-items-center">
+          <img [src]="company?.logo || 'assets/logo1.png'" alt="{{ company?.name }}" width="64" height="64"
+            class="rounded bg-white me-3" style="border:1px solid #eee;">
+          <div>
+            <h5 class="fw-bold mb-2">{{ company?.name }}</h5>
+            <div class="text-muted mb-1"
+              style="max-width: 250px; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden;">
+              <i class="bi bi-geo-alt"></i>
+              Địa điểm: <span class="fw-bold">{{ company?.address }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer bg-white" style="border-top: none;">
+          <div class="text-center">
+            <a [href]="company?.website" target="_blank" class="fw-bold text-primary" style="text-decoration:none;">
+              Xem trang công ty <i class="bi bi-box-arrow-up-right"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-body">
+          <h6 class="fw-bold mb-2 text-primary">Thông tin chung</h6>
+          <div class="mb-2"><i class="bi bi-person"></i> Cấp bậc: {{ job?.level }}</div>
+          <div class="mb-2"><i class="bi bi-people"></i> Số lượng tuyển: {{ job?.quantity }}</div>
+          <div class="mb-2"><i class="bi bi-clock"></i> Hình thức làm việc: {{ job?.contractType }}</div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-body">
+          <h6 class="fw-bold mb-2 text-primary">Kỹ năng cần có</h6>
+          <span class="badge bg-primary text-white me-1 mb-1" *ngFor="let skill of skills">{{ skill }}</span>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-body">
+          <h6 class="fw-bold mb-2 text-primary">Khu vực: <span class="text-dark" style="font-weight: normal;">{{
+              job?.location }}</span></h6>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ứng tuyển -->
+<div class="modal fade" id="applyModal" tabindex="-1" aria-labelledby="applyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" style="width: 35%;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="applyModalLabel">
+          Ứng tuyển <span class="text-primary">{{ job?.title }}</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Chọn CV -->
+        <div class="mb-3">
+          <label class="fw-bold mb-2"><i class="bi bi-folder"></i> Chọn CV để ứng tuyển</label>
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="cvOption" id="cvUploaded" [(ngModel)]="cvOption"
+              value="uploaded">
+            <label class="form-check-label" for="cvUploaded">
+              Chọn CV đã upload
+            </label>
+          </div>
+          <div *ngIf="cvOption === 'uploaded'" class="mb-2">
+            <select class="form-select" [(ngModel)]="selectedCV">
+              <option *ngFor="let cv of userCVs" [value]="cv">{{ cv }}</option>
+            </select>
+            <div class="form-text">Chọn một CV đã upload trước đó.</div>
+          </div>
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="cvOption" id="cvUploadNew" [(ngModel)]="cvOption"
+              value="uploadNew">
+            <label class="form-check-label" for="cvUploadNew">
+              Tải file CV từ máy tính
+            </label>
+          </div>
+          <!-- Option tải lên CV từ máy tính -->
+          <div *ngIf="cvOption === 'uploadNew'" class="mb-2 border border-primary rounded p-3"
+            style="background: #fafefe; cursor: pointer;" (click)="cvInput.click()" (dragover)="onDragOver($event)"
+            (drop)="onDrop($event)" (dragleave)="onDragLeave($event)" [class.bg-light]="isDragOver">
+            <div class="d-flex flex-column align-items-center mb-2">
+              <i class="bi bi-cloud-arrow-up text-primary" style="font-size: 48px;"></i>
+              <span class="fw-bold text-center">Tải lên CV từ máy tính, chọn hoặc kéo thả</span>
+            </div>
+            <div class="text-muted mb-2 text-center">
+              Hỗ trợ định dạng .doc, .docx, pdf có kích thước dưới 5MB
+            </div>
+            <input #cvInput type="file" class="d-none" accept=".pdf,.doc,.docx" (change)="onCVFileChange($event)">
+            <div *ngIf="uploadedCVName" class="d-flex justify-content-center align-items-center gap-2 mb-3">
+              <span class="text-primary fw-bold">
+                <i class="bi bi-file-earmark-text"></i> {{ uploadedCVName }}
+              </span>
+              <button type="button" class="btn btn-link text-danger p-0"
+                (click)="removeUploadedCV(); $event.stopPropagation();">
+                <i class="bi bi-trash"></i>
+              </button>
+              <button type="button" class="btn btn-primary btn-sm" (click)="cvInput.click(); $event.stopPropagation();">
+                Chọn CV
+              </button>
+            </div>
+            <div *ngIf="!uploadedCVName" class="d-flex justify-content-center">
+              <button type="button" class="btn btn-primary btn-sm" (click)="cvInput.click(); $event.stopPropagation();">
+                Chọn CV
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Thư giới thiệu -->
+        <div class="mb-3">
+          <label class="fw-bold mb-2"><i class="bi bi-pencil"></i> Thư giới thiệu:</label>
+          <textarea class="form-control" rows="4" placeholder="Viết thư giới thiệu ngắn gọn..."
+            [(ngModel)]="coverLetter"></textarea>
+        </div>
+        <!-- Lưu ý -->
+        <div class="alert alert-warning">
+          <b>Lưu ý: </b> Jobsday khuyên tất cả các bạn hãy luôn cẩn trọng trong quá trình tìm việc và chủ động nghiên
+          cứu
+          về thông tin công ty, vị trí việc làm trước khi ứng tuyển. Ứng viên cần có trách nhiệm với hành vi ứng tuyển
+          của mình.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-primary" style="width: 89%;" (click)="onSubmitApplication()">Nộp hồ sơ ứng
+          tuyển</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Đăng nhập -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header" style="border-bottom:none; padding-bottom: 0;">
+        <ul class="nav nav-tabs w-100">
+          <li class="nav-item">
+            <button type="button" class="nav-link fw-bold text-dark" [class.active]="loginTab === 'login'"
+              (click)="showLoginTab()">Đăng Nhập</button>
+          </li>
+          <li class="nav-item">
+            <button type="button" class="nav-link fw-bold text-dark" [class.active]="loginTab === 'register'"
+              (click)="showRegisterTab()">Đăng Ký</button>
+          </li>
+        </ul>
+        <button type="button" class="btn-close" (click)="closeModalLogin()"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Đăng nhập -->
+        <ng-container *ngIf="loginTab === 'login'">
+          <form [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()">
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                <input type="email" class="form-control" formControlName="email" placeholder="Nhập email của bạn">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Mật khẩu</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
+                <input type="password" class="form-control" formControlName="password" placeholder="Nhập mật khẩu">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 mb-2" [disabled]="loginForm.invalid">Đăng nhập</button>
+            <p *ngIf="errorMessage" class="mt-3 text-danger text-center">{{ errorMessage }}</p>
+            <div class="text-center">
+              Bạn chưa có tài khoản? <a href="javascript:void(0)" routerLink="/register">Đăng ký ngay</a> | <a
+                href="#">Quên mật khẩu</a>
+            </div>
+          </form>
+        </ng-container>
+        <!-- Đăng ký -->
+        <ng-container *ngIf="loginTab === 'register'">
+          <ng-container *ngIf="registerStep === 'form'; else verifyBlock">
+            <form [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit()">
+              <div class="mb-3">
+                <label for="fullName" class="form-label">Họ và tên</label>
+                <input type="text" id="fullName" class="form-control" formControlName="fullName" required>
+                <div *ngIf="registerForm.get('fullName')?.invalid && registerForm.get('fullName')?.touched"
+                  class="text-danger">
+                  Họ và tên không được để trống
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" id="email" class="form-control" formControlName="email" required>
+                <div *ngIf="registerForm.get('email')?.errors?.['required'] && registerForm.get('email')?.touched"
+                  class="text-danger">
+                  Email không được để trống
+                </div>
+                <div *ngIf="registerForm.get('email')?.errors?.['email'] && registerForm.get('email')?.touched"
+                  class="text-danger">
+                  Email không hợp lệ
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="phone" class="form-label">Số điện thoại</label>
+                <input type="text" id="phone" class="form-control" formControlName="phone">
+              </div>
+              <div class="mb-3">
+                <label for="dob" class="form-label">Ngày sinh</label>
+                <input type="date" max="{{ today | date: 'yyyy-MM-dd' }}" min="1900-01-01" id="dob" class="form-control"
+                  formControlName="dob" required>
+                <div *ngIf="registerForm.get('dob')?.invalid && registerForm.get('dob')?.touched" class="text-danger">
+                  Ngày sinh không được để trống
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Mật khẩu</label>
+                <input type="password" id="password" class="form-control" formControlName="password" required>
+                <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+                  class="text-danger">
+                  Mật khẩu không được để trống
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="confirmPassword" class="form-label">Xác nhận mật khẩu</label>
+                <input type="password" id="confirmPassword" class="form-control" formControlName="confirmPassword"
+                  required>
+                <div
+                  *ngIf="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched"
+                  class="text-danger">
+                  Xác nhận mật khẩu không được để trống
+                </div>
+                <div
+                  *ngIf="registerForm.get('confirmPassword')?.value !== registerForm.get('password')?.value && registerForm.get('confirmPassword')?.touched"
+                  class="text-danger">
+                  Mật khẩu xác nhận không khớp
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary w-100 mb-2" [disabled]="registerForm.invalid">Đăng
+                ký</button>
+              <div *ngIf="registerErrorMessage" class="alert alert-danger mt-3">{{ registerErrorMessage }}</div>
+            </form>
+          </ng-container>
+          <ng-template #verifyBlock>
+            <div class="text-center py-4">
+              <h5 class="fw-bold text-success mb-3">Vui lòng kiểm tra email để xác thực tài khoản!</h5>
+              <div class="mb-2">Chúng tôi đã gửi một email xác thực tới <b>{{ emailToVerify }}</b>.</div>
+              <div class="mb-3">Hãy nhập mã xác thực để hoàn tất đăng ký.</div>
+              <div class="row justify-content-center align-items-center mb-2">
+                <div class="col-7">
+                  <input type="text" class="form-control" placeholder="Nhập mã xác thực" [(ngModel)]="verifyCode">
+                </div>
+                <div class="col-5">
+                  <button class="btn btn-outline-primary w-100" [disabled]="otpCountdown > 0" (click)="resendOtp()">
+                    Gửi lại mã OTP
+                    <span *ngIf="otpCountdown > 0">({{ otpCountdown }}s)</span>
+                  </button>
+                </div>
+              </div>
+              <button class="btn btn-success w-100 mb-2" (click)="onVerifyEmail()">Xác thực</button>
+              <div class="mt-3">
+                <a href="javascript:void(0)" (click)="registerStep = 'form'">Quay lại đăng ký</a>
+              </div>
+            </div>
+            <div *ngIf="verifyErrorMessage" class="alert alert-info mt-3">{{ verifyErrorMessage }}</div>
+          </ng-template>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>
+

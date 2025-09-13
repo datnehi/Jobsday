@@ -17,15 +17,16 @@ public class Company {
     @Column( nullable = false)
     private String name;
 
-    @Column( nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Location location;
 
+    @Column( nullable = false)
     private String address;
 
     @Column(name = "tax_code", nullable = false)
     private String taxCode;
 
     @Column( nullable = false)
-
     private String website;
 
     @Column( nullable = false)
@@ -42,6 +43,12 @@ public class Company {
 
     public enum CompanyStatusEnum {
         PENDING, APPROVED, REJECTED
+    }
+
+    public enum Location {
+        HANOI,
+        DANANG,
+        HOCHIMINH
     }
 
     @PrePersist
