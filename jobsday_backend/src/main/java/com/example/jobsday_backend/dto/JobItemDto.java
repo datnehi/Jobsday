@@ -18,4 +18,7 @@ public class JobItemDto {
     private Job.JobType jobType;
     private String postedAt;
     private String[] skills;
+    private boolean applied;
+    private String savedAt;
+    private boolean saved;
 }

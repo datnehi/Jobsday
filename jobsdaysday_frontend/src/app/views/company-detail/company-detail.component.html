@@ -1,0 +1,202 @@
+<div class="container py-4" style="max-width:1200px;">
+  <!-- Banner + Box thông tin + Logo công ty -->
+  <div class="position-relative mb-4" style="min-height: 250px;">
+    <!-- Banner -->
+    <div style="
+      background: url('assets/baner4.jpg') center center/cover no-repeat;
+      height: 180px;
+      border-radius: 8px;
+      ">
+    </div>
+    <!-- Box thông tin chồng lên banner -->
+    <div style="
+      background: #1b19a4;
+      border-radius: 0 0 8px 8px;
+      padding: 16px 18px 16px 180px;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 140px;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 100px;
+      ">
+      <div>
+        <h3 class="text-white fw-bold mb-2">{{ company?.name }}</h3>
+        <div class="d-flex align-items-center gap-4 mb-2">
+          <a *ngIf="company?.website" [href]="company?.website" target="_blank" class="text-white text-decoration-none">
+            <i class="bi bi-globe2"></i> {{ company?.website }}
+          </a>
+        </div>
+      </div>
+      <!-- Logo công ty: dùng position absolute để nổi lên trên góc trái -->
+      <img [src]="company?.logo || 'assets/logo1.png'" alt="Logo công ty" class="rounded-4 bg-white shadow" style="
+             width:120px;
+             height:120px;
+             object-fit:contain;
+             border: 6px solid #fff;
+             position: absolute;
+             left: 36px;
+             top: -65px;
+             z-index: 3;
+           ">
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Giới thiệu công ty -->
+    <div class="col-lg-8 mb-4">
+      <div class="card mb-3 shadow-sm">
+        <div class="card-header bg-primary text-white fw-bold" style="font-size: 18px;">
+          Giới thiệu về {{ company?.name }}
+        </div>
+        <div class="card-body" style="font-size: 15px; min-height: 60px;">
+          {{ shortDescription || 'Chưa có thông tin giới thiệu về công ty.' }}
+          <a *ngIf="isLongDescription && !showFullDescription"
+             class="text-primary fw-bold ms-2"
+             style="cursor:pointer;"
+             (click)="showFullDescription = true">Xem thêm</a>
+          <a *ngIf="isLongDescription && showFullDescription"
+             class="text-primary fw-bold ms-2"
+             style="cursor:pointer;"
+             (click)="showFullDescription = false">Thu gọn</a>
+        </div>
+      </div>
+      <!-- Danh sách tuyển dụng -->
+      <div class="card mb-3 shadow-sm">
+        <div class="card-header bg-primary text-white fw-bold" style="font-size: 18px;">
+          Tuyển dụng
+        </div>
+        <div class="card-body">
+          <div class="mb-3 d-flex gap-2">
+            <input type="text" class="form-control" placeholder="Tên công việc, vị trí tuyển..."
+              style="max-width: 610px;" [(ngModel)]="searchText">
+            <button class="btn btn-primary rounded-pill px-4 fw-bold" (click)="searchJobs()">Tìm kiếm</button>
+          </div>
+          <div *ngFor="let job of jobs; let i = index" class="card job-card mb-3" style="position: relative;"
+            (mouseenter)="hoveredJobIndex = i" (mouseleave)="hoveredJobIndex = null" (click)="openJobDetail(job.id)">
+            <div class="card-body d-flex gap-4">
+              <div
+                style="width: 120px; height: 120px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 1px solid #d1d1d1;">
+                <img [src]="company?.logo || 'assets/logo1.png'" alt="{{ company?.name }}" width="100%" height="100%"
+                  class="img-fluid rounded bg-white p-2">
+              </div>
+              <div class="flex-grow-1">
+                <h3 class="h6 fw-bold text-primary mb-1">
+                  {{ job.title }}
+                </h3>
+                <div class="d-flex gap-4 mb-2">
+                  <div class="text-primary">{{ job.salary }}</div>
+                  <div class="text-muted">{{ job.level }}</div>
+                </div>
+                <div class="d-flex flex-wrap gap-2 text-secondary mb-2">
+                  <span>{{ job.location }}</span>
+                  <span *ngIf="job.jobType">({{ job.jobType }})</span>
+                </div>
+                <hr class="w-100 my-2">
+                <div class="d-flex justify-content-between align-items-center"
+                  style="height: 34px; position: relative;">
+                  <div>
+                    <span class="badge bg-primary me-1" *ngFor="let skill of job.skills.slice(0, 3)">{{ skill
+                      }}</span>
+                    <span *ngIf="job.skills.length > 3" class="badge bg-primary me-1"
+                      [title]="job.skills.slice(3).join(', ')" style="cursor: pointer;">
+                      +{{ job.skills.length - 3 }}
+                    </span>
+                  </div>
+                  <!-- Đặt cả hai trường hợp vào cùng một vị trí tuyệt đối -->
+                  <div *ngIf="job.applied || (!job.applied && hoveredJobIndex === i)"
+                    style="position: absolute; right: 0; bottom: -5px; display: flex; align-items: center;">
+                    <span class="text-muted small" style="margin-right: 8px;">
+                      {{ getPostedLabel(job.postedAt) }}
+                    </span>
+                    <button *ngIf="job.applied" class="btn"
+                      style="background: #6c757d; color: #fff; font-weight: bold; border-radius: 20px; min-width: 90px;"
+                      disabled>
+                      Đã ứng tuyển <i class="bi bi-check-lg"></i>
+                    </button>
+                    <button *ngIf="!job.applied && hoveredJobIndex === i" class="btn"
+                      style="background: #007bff; color: #fff; font-weight: bold; border-radius: 20px; min-width: 90px;"
+                      (click)="openJobDetail(job.id); $event.stopPropagation()">
+                      Ứng tuyển
+                    </button>
+                  </div>
+                  <!-- Nếu chưa ứng tuyển và không hover: ngày đăng ở góc phải -->
+                  <span *ngIf="!job.applied && hoveredJobIndex !== i" class="text-muted small"
+                    style="position: absolute; right: 0; bottom: 0;">
+                    {{ getPostedLabel(job.postedAt) }}
+                  </span>
+                </div>
+              </div>
+              <button *ngIf="!job.saved" class="btn btn-outline-primary" aria-label="Lưu tin"
+                style="position: absolute; top: 16px; right: 16px; z-index: 2;"
+                (click)="onSaveClick(job); $event.stopPropagation()">
+                <i class="bi bi-heart"></i>
+              </button>
+              <button *ngIf="job.saved" class="btn btn-outline-primary" aria-label="Bỏ lưu"
+                style="position: absolute; top: 16px; right: 16px; z-index: 2;"
+                (click)="onUnsaveClick(job); $event.stopPropagation()">
+                <i class="bi bi-heart-fill"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="jobs.length === 0" class="text-center text-muted py-4">
+          Chưa có tin tuyển dụng nào.
+        </div>
+
+        <!-- Phân trang -->
+        <div class="d-flex justify-content-center align-items-center gap-3 my-3">
+          <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage === 0"
+            (click)="changePage(currentPage - 1)" style="width: 36px; height: 36px;" aria-label="Trang trước">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          <span class="fw-bold text-primary" style="font-size: 1.1rem;">
+            {{ currentPage + 1 }} <span class="text-muted">/ {{ totalPages }} trang</span>
+          </span>
+          <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage + 1 >= totalPages"
+            (click)="changePage(currentPage + 1)" style="width: 36px; height: 36px;" aria-label="Trang sau">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Thông tin liên hệ + bản đồ + chia sẻ -->
+    <div class="col-lg-4 mb-4">
+      <div class="card mb-3 shadow-sm">
+        <div class="card-header bg-primary text-white fw-bold" style="font-size: 18px;">
+          Thông tin liên hệ
+        </div>
+        <div class="card-body" style="font-size: 15px;">
+          <div class="mb-2"><i class="bi bi-geo-alt-fill text-primary me-2"></i> <b>Địa chỉ công ty</b></div>
+          <div class="mb-2">{{ company?.address }}</div>
+          <div class="mb-2" *ngIf="company?.email"><i class="bi bi-envelope-fill text-primary me-2"></i> <b>Email</b>
+          </div>
+          <div class="mb-2" *ngIf="company?.email">{{ company?.email }}</div>
+          <div class="mb-2"><i class="bi bi-map text-primary me-2"></i> <b>Xem bản đồ</b></div>
+          <div class="mb-2">
+            <iframe *ngIf="mapUrl" [src]="mapUrl" width="100%" height="200" style="border:0; border-radius:8px;"
+              allowfullscreen="" loading="lazy">
+            </iframe>
+          </div>
+        </div>
+      </div>
+      <div class="card mb-3 shadow-sm">
+        <div class="card-header bg-primary text-white fw-bold" style="font-size: 18px;">
+          Chia sẻ công ty tới bạn bè
+        </div>
+        <div class="card-body d-flex align-items-center gap-2">
+          <input type="text" class="form-control mb-2" [value]="'http://localhost:4200/company-detail/' + company?.id"
+            readonly id="companyShareLink">
+          <button class="btn btn-outline-primary mb-2" type="button" (click)="copyCompanyLink()">
+            <i class="bi bi-copy"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-login-dialog [show]="showLoginDialog" (close)="showLoginDialog = false"></app-login-dialog>

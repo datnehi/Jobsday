@@ -5,9 +5,8 @@ import lombok.*;
 import java.util.List;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@AllArgsConstructor
 public class PageResultDto<T> {
     private List<T> content;
     private int page;
@@ -16,3 +15,4 @@ public class PageResultDto<T> {
     private int totalPages;
     private boolean last;
 }
+

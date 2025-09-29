@@ -124,11 +124,11 @@ export class ConvertEnumService {
     switch (experience) {
       case 'KHONG_YEU_CAU': return 'Không yêu cầu';
       case 'DUOI_1_NAM': return 'Dưới 1 năm';
-      case 'NAM_1': return '1 năm';
-      case 'NAM_2': return '2 năm';
-      case 'NAM_3': return '3 năm';
-      case 'NAM_4': return '4 năm';
-      case 'NAM_5': return '5 năm';
+      case 'MOT_NAM': return '1 năm';
+      case 'HAI_NAM': return '2 năm';
+      case 'BA_NAM': return '3 năm';
+      case 'BON_NAM': return '4 năm';
+      case 'NAM_NAM': return '5 năm';
       case 'TREN_5_NAM': return 'Trên 5 năm';
       default: return experience;
     }

@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { NavComponent } from './views/nav/nav.component';
-import { AuthService } from './services/auth.service';
 import { CommonModule } from '@angular/common';
 
 @Component({

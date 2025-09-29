@@ -76,6 +76,10 @@ export class AuthService {
     return this.userToken.value;
   }
 
+  get currentUser(): User | null {
+    return this.currentUserSubject.value;
+  }
+
   resendOtp(data: { email: string }): Observable<any> {
     return this.http.post(`${this.api}/resend-otp`, data);
   }

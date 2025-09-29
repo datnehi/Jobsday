@@ -1,9 +1,6 @@
 package com.example.jobsday_backend.controller;
 
-import com.example.jobsday_backend.dto.CompanyItemDto;
-import com.example.jobsday_backend.dto.JobItemDto;
-import com.example.jobsday_backend.dto.PageResultDto;
-import com.example.jobsday_backend.dto.ResponseDto;
+import com.example.jobsday_backend.dto.*;
 import com.example.jobsday_backend.entity.Company;
 import com.example.jobsday_backend.entity.Job;
 import com.example.jobsday_backend.service.SearchService;
@@ -11,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,12 +28,13 @@ public class SearchController {
             @RequestParam(value = "salary", required = false) Job.Salary salary,
             @RequestParam(value = "jobType", required = false) Job.JobType jobType,
             @RequestParam(value = "contractType", required = false) Job.ContractType contractType,
+            @RequestParam(value = "userId", required = false) Long userId,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", required = false) Integer size
     ) {
         int pageSize = (size == null ? 10 : size);
         PageResultDto<JobItemDto> jobs = searchService.findJobs(
-                q, location, experience, level, salary, jobType, contractType, page, pageSize
+                q, location, experience, level, salary, jobType, contractType, userId, page, pageSize
         );
         return ResponseEntity.ok(
                 new ResponseDto(HttpStatus.OK.value(), "Find jobs successfully", jobs)

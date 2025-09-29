@@ -20,6 +20,8 @@ public class Company {
     @Enumerated(EnumType.STRING)
     private Location location;
 
+    private String logo;
+
     @Column( nullable = false)
     private String address;
 

@@ -30,7 +30,8 @@ CREATE TABLE users (
     updated_at      		TIMESTAMP NOT NULL DEFAULT NOW(),
 	email_verified  		BOOLEAN NOT NULL DEFAULT FALSE,
 	verification_code 		TEXT,
-	verification_expiry 	TIMESTAMP 
+	verification_expiry 	TIMESTAMP,
+	ntd_search BOOLEAN 		NOT NULL DEFAULT FALSE
 );
 
 -- =====================
@@ -40,9 +41,11 @@ CREATE TABLE companies (
     id              BIGSERIAL PRIMARY KEY,
     name            TEXT NOT NULL,
 	location		location_enum NOT NULL,
+	logo			TEXT,
     address         TEXT NOT NULL,
-    tax_code        TEXT,
     website         TEXT,
+    tax_code        TEXT,
+	email			TEXT,
     description     TEXT,
     status          company_status_enum NOT NULL DEFAULT 'PENDING',
     created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -51,7 +54,6 @@ CREATE TABLE companies (
 
 ALTER TABLE companies ADD COLUMN search_tsv tsvector;
 
--- Hàm cập nhật search_tsv cho companies
 CREATE OR REPLACE FUNCTION companies_search_trigger() RETURNS trigger AS $$
 BEGIN
   NEW.search_tsv :=
@@ -61,17 +63,10 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
--- Trigger tự động update khi insert/update
 CREATE TRIGGER companies_tsvector_update
 BEFORE INSERT OR UPDATE ON companies
 FOR EACH ROW EXECUTE FUNCTION companies_search_trigger();
 
--- Chạy update 1 lần cho dữ liệu cũ
-UPDATE companies
-SET search_tsv = to_tsvector('english', coalesce(name, '')) ||
-                 to_tsvector('simple', coalesce(name, ''));
-
--- Index GIN để search nhanh
 CREATE INDEX companies_search_tsv_idx ON companies USING gin(search_tsv);
 
 -- =====================
@@ -81,11 +76,20 @@ CREATE TABLE company_members (
     id              BIGSERIAL PRIMARY KEY,
     company_id      BIGINT NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     user_id         BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+	position		TEXT,
     is_admin        BOOLEAN NOT NULL DEFAULT FALSE,
     status          member_status_enum NOT NULL DEFAULT 'PENDING',
     created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMP NOT NULL DEFAULT NOW(),
     UNIQUE (company_id, user_id)
+);
+
+CREATE TABLE hr_view_candidate (
+    id              BIGSERIAL PRIMARY KEY,
+    hr_id      		BIGINT NOT NULL REFERENCES company_members(id) ON DELETE CASCADE,
+    candidate_id    BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    updated_at      TIMESTAMP NOT NULL DEFAULT NOW(),
+    UNIQUE (hr_id, candidate_id)
 );
 
 -- =====================
@@ -96,12 +100,35 @@ CREATE TABLE cvs (
     user_id         BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     title           TEXT NOT NULL,
     file_url        TEXT NOT NULL,
-	level			level_enum,
-	key_word		TEXT[],
+	file_type       TEXT NOT NULL,
+    address         TEXT,
+    level           level_enum, 
+    experience      experience_enum,     
+    job_title       TEXT,               
+    content         TEXT,                    
+    content_tsv     tsvector, 
     is_public       BOOLEAN NOT NULL DEFAULT FALSE,
     created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+CREATE INDEX idx_cvs_content_tsv ON cvs USING GIN (content_tsv);
+
+CREATE FUNCTION cvs_tsvector_update() RETURNS trigger AS $$
+BEGIN
+  NEW.content_tsv :=
+    to_tsvector('english', coalesce(NEW.content, '')) || 
+	to_tsvector('simple', coalesce(NEW.content, ''));
+  RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_cvs_tsvector_update
+BEFORE INSERT OR UPDATE OF content
+ON cvs
+FOR EACH ROW
+EXECUTE FUNCTION cvs_tsvector_update();
+
 
 -- =====================
 -- JOBS
@@ -130,7 +157,6 @@ CREATE TABLE jobs (
 
 ALTER TABLE jobs ADD COLUMN search_tsv tsvector;
 
--- Hàm cập nhật search_tsv cho jobs
 CREATE OR REPLACE FUNCTION jobs_search_trigger() RETURNS trigger AS $$
 BEGIN
   NEW.search_tsv :=
@@ -140,17 +166,10 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
--- Trigger tự động update khi insert/update
 CREATE TRIGGER jobs_tsvector_update
 BEFORE INSERT OR UPDATE ON jobs
 FOR EACH ROW EXECUTE FUNCTION jobs_search_trigger();
 
--- Chạy update 1 lần cho dữ liệu cũ
-UPDATE jobs
-SET search_tsv = to_tsvector('english', coalesce(title, '')) ||
-                 to_tsvector('simple', coalesce(title, ''));
-
--- Index GIN để search nhanh
 CREATE INDEX jobs_search_tsv_idx ON jobs USING gin(search_tsv);
 
 -- =====================
@@ -168,30 +187,6 @@ CREATE TABLE applications (
     applied_at      TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMP NOT NULL DEFAULT NOW(),
     UNIQUE (job_id, candidate_id)
-);
-
--- =====================
--- CONVERSATIONS
--- =====================
-CREATE TABLE conversations (
-    id              BIGSERIAL PRIMARY KEY,
-    company_id      BIGINT NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
-    candidate_id    BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at      TIMESTAMP NOT NULL DEFAULT NOW(),
-    UNIQUE (company_id, candidate_id)
-);
-
--- =====================
--- MESSAGES
--- =====================
-CREATE TABLE messages (
-    id              BIGSERIAL PRIMARY KEY,
-    conversation_id BIGINT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
-    sender_id       BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    content         TEXT NOT NULL,
-    is_read         BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at      TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- =====================
@@ -232,154 +227,145 @@ CREATE TABLE cv_skills (
     PRIMARY KEY (cv_id, skill_id)
 );
 
+CREATE TABLE saved_jobs (
+    id 				BIGSERIAL PRIMARY KEY,
+    candidate_id 	BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    job_id 			BIGINT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+    saved_at 		TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(candidate_id, job_id)
+);
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 -- =====================
--- USERS (10 users)
+-- CONVERSATIONS
 -- =====================
-INSERT INTO users (email, password_hash, full_name, phone, dob, role, email_verified)
+CREATE TABLE conversations (
+    id              BIGSERIAL PRIMARY KEY,
+    company_id      BIGINT NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    candidate_id    BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMP NOT NULL DEFAULT NOW(),
+    UNIQUE (company_id, candidate_id)
+);
+
+-- =====================
+-- MESSAGES
+-- =====================
+CREATE TABLE messages (
+    id              BIGSERIAL PRIMARY KEY,
+    conversation_id BIGINT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+    sender_id       BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    content         TEXT NOT NULL,
+    is_read         BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at      TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+-- USERS (HR cho 10 công ty)
+INSERT INTO users (id, email, password_hash, full_name, role, status)
 VALUES
-('candidate1@example.com', 'pwd1', 'Nguyễn Văn A', '0900000001', '1999-01-01', 'CANDIDATE', TRUE),
-('candidate2@example.com', 'pwd2', 'Trần Thị B', '0900000002', '1998-02-02', 'CANDIDATE', TRUE),
-('candidate3@example.com', 'pwd3', 'Lê Văn C', '0900000003', '1997-03-03', 'CANDIDATE', TRUE),
-('candidate4@example.com', 'pwd4', 'Phạm Thị D', '0900000004', '1996-04-04', 'CANDIDATE', TRUE),
-('candidate5@example.com', 'pwd5', 'Hoàng Văn E', '0900000005', '1995-05-05', 'CANDIDATE', TRUE),
-('hr1@company.com', 'pwd6', 'HR 1', '0900000006', '1985-06-06', 'HR', TRUE),
-('hr2@company.com', 'pwd7', 'HR 2', '0900000007', '1986-07-07', 'HR', TRUE),
-('hr3@company.com', 'pwd8', 'HR 3', '0900000008', '1987-08-08', 'HR', TRUE),
-('hr4@company.com', 'pwd9', 'HR 4', '0900000009', '1988-09-09', 'HR', TRUE),
-('admin@jobsday.com', 'pwd10', 'System Admin', NULL, NULL, 'ADMIN', TRUE);
+ (100, 'hr1@c1.com', 'hash', 'HR C1', 'HR', 'ACTIVE'),
+ (101, 'hr2@c2.com', 'hash', 'HR C2', 'HR', 'ACTIVE'),
+ (102, 'hr3@c3.com', 'hash', 'HR C3', 'HR', 'ACTIVE'),
+ (103, 'hr4@c4.com', 'hash', 'HR C4', 'HR', 'ACTIVE'),
+ (104, 'hr5@c5.com', 'hash', 'HR C5', 'HR', 'ACTIVE'),
+ (105, 'hr6@c6.com', 'hash', 'HR C6', 'HR', 'ACTIVE'),
+ (106, 'hr7@c7.com', 'hash', 'HR C7', 'HR', 'ACTIVE'),
+ (107, 'hr8@c8.com', 'hash', 'HR C8', 'HR', 'ACTIVE'),
+ (108, 'hr9@c9.com', 'hash', 'HR C9', 'HR', 'ACTIVE'),
+ (109, 'hr10@c10.com', 'hash', 'HR C10', 'HR', 'ACTIVE');
 
--- =====================
--- COMPANIES (10 companies)
--- =====================
-INSERT INTO companies (name, location, address, website, description, status)
+-- COMPANIES
+INSERT INTO companies (id, name, location, address, status)
 VALUES
-('FPT Software', 'HANOI', 'Số 17 Duy Tân, Cầu Giấy', 'https://fpt.com.vn', 'Công ty CNTT hàng đầu', 'APPROVED'),
-('VNG Corporation', 'HOCHIMINH', '273 Điện Biên Phủ, Bình Thạnh', 'https://vng.com.vn', 'Công ty Internet & Game', 'APPROVED'),
-('CMC Corp', 'HANOI', 'Tòa nhà CMC, Duy Tân', 'https://cmc.com.vn', 'Công ty CNTT & Viễn thông', 'APPROVED'),
-('VinGroup', 'HOCHIMINH', 'Vinhomes Central Park', 'https://vingroup.net', 'Tập đoàn đa ngành', 'APPROVED'),
-('Sun Group', 'DANANG', 'Bà Nà Hills', 'https://sungroup.com.vn', 'Tập đoàn du lịch & giải trí', 'APPROVED'),
-('TMA Solutions', 'HOCHIMINH', 'Quận 12', 'https://tmasolutions.com', 'Gia công phần mềm', 'APPROVED'),
-('KMS Technology', 'HOCHIMINH', 'Quận 7', 'https://kms-technology.com', 'Outsourcing & sản phẩm', 'APPROVED'),
-('Axon Active', 'DANANG', 'Hải Châu', 'https://axonactive.com', 'Công ty phần mềm Thụy Sĩ', 'APPROVED'),
-('NashTech', 'HANOI', 'Hoàn Kiếm', 'https://nashtechglobal.com', 'Công ty gia công phần mềm', 'APPROVED'),
-('Momo', 'HOCHIMINH', 'Tân Bình', 'https://momo.vn', 'Ví điện tử số 1 VN', 'APPROVED');
+ (1, 'Company 1', 'HANOI', 'Hà Nội', 'APPROVED'),
+ (2, 'Company 2', 'HOCHIMINH', 'Hồ Chí Minh', 'APPROVED'),
+ (3, 'Company 3', 'DANANG', 'Đà Nẵng', 'APPROVED'),
+ (4, 'Company 4', 'HANOI', 'Hà Nội', 'APPROVED'),
+ (5, 'Company 5', 'HOCHIMINH', 'Hồ Chí Minh', 'APPROVED'),
+ (6, 'Company 6', 'DANANG', 'Đà Nẵng', 'APPROVED'),
+ (7, 'Company 7', 'HANOI', 'Hà Nội', 'APPROVED'),
+ (8, 'Company 8', 'HOCHIMINH', 'Hồ Chí Minh', 'APPROVED'),
+ (9, 'Company 9', 'DANANG', 'Đà Nẵng', 'APPROVED'),
+ (10, 'Company 10', 'HANOI', 'Hà Nội', 'APPROVED');
 
--- =====================
--- SKILLS (15 skills)
--- =====================
-INSERT INTO skills (name)
+-- COMPANY MEMBERS (HR -> Company)
+INSERT INTO company_members (company_id, user_id, is_admin, status)
 VALUES
-('Java'),('Spring Boot'),('SQL'),('Python'),('Django'),
-('JavaScript'),('React'),('NodeJS'),('Angular'),('VueJS'),
-('AWS'),('Docker'),('Kubernetes'),('DevOps'),('Machine Learning');
+ (1, 100, TRUE, 'APPROVED'),
+ (2, 101, TRUE, 'APPROVED'),
+ (3, 102, TRUE, 'APPROVED'),
+ (4, 103, TRUE, 'APPROVED'),
+ (5, 104, TRUE, 'APPROVED'),
+ (6, 105, TRUE, 'APPROVED'),
+ (7, 106, TRUE, 'APPROVED'),
+ (8, 107, TRUE, 'APPROVED'),
+ (9, 108, TRUE, 'APPROVED'),
+ (10, 109, TRUE, 'APPROVED');
 
--- =====================
--- COMPANY SKILLS (3–5 skills mỗi company)
--- =====================
-INSERT INTO company_skills (company_id, skill_id) VALUES
-(1,1),(1,2),(1,3),(1,11),      -- FPT
-(2,6),(2,7),(2,8),(2,12),      -- VNG
-(3,1),(3,3),(3,4),(3,5),       -- CMC
-(4,6),(4,9),(4,10),(4,13),     -- Vingroup
-(5,6),(5,7),(5,9),             -- Sun Group
-(6,1),(6,2),(6,3),(6,12),      -- TMA
-(7,6),(7,7),(7,8),(7,11),(7,12), -- KMS
-(8,4),(8,5),(8,6),(8,14),      -- Axon
-(9,1),(9,2),(9,3),(9,11),      -- NashTech
-(10,6),(10,7),(10,15);         -- Momo
+-- SKILLS (15 kỹ năng)
+INSERT INTO skills (id, name)
+VALUES
+ (1, 'Java'),
+ (2, 'Spring Boot'),
+ (3, 'Angular'),
+ (4, 'React'),
+ (5, 'Vue.js'),
+ (6, 'Node.js'),
+ (7, 'Python'),
+ (8, 'Django'),
+ (9, 'SQL'),
+ (10, 'PostgreSQL'),
+ (11, 'MongoDB'),
+ (12, 'Docker'),
+ (13, 'Kubernetes'),
+ (14, 'AWS'),
+ (15, 'Git');
 
--- =====================
--- JOBS (25 jobs, 2–3 jobs mỗi company)
--- =====================
-INSERT INTO jobs (
-    company_id, title, location, address, description, requirement, benefit, working_time,
-    job_type, level, contract_type, salary, experience, quantity, deadline, status
-) VALUES
--- FPT Software
-(1, 'Java Developer', 'HANOI', 'Số 17 Duy Tân', 'Phát triển Java backend', 'Java, Spring Boot', 'Lương thưởng hấp dẫn', '8h-17h',
- 'IN_OFFICE', 'JUNIOR', 'FULL_TIME', 'TU_15_DEN_20_TRIEU', 'HAI_NAM', 3, '2025-12-31', 'ACTIVE'),
-(1, 'DevOps Engineer', 'HANOI', 'Số 17 Duy Tân', 'Triển khai CI/CD', 'AWS, Docker, Kubernetes', 'Chế độ tốt', '8h-17h',
- 'HYBRID', 'SENIOR', 'FULL_TIME', 'TU_30_DEN_50_TRIEU', 'TREN_5_NAM', 2, '2025-10-30', 'ACTIVE'),
+-- JOBS (20 job, 2 job mỗi công ty)
+INSERT INTO jobs (id, company_id, title, location, address, description, requirement, benefit, working_time, job_type, level, contract_type, salary, experience, quantity, deadline, status)
+VALUES
+ (1, 1, 'Backend Developer', 'HANOI', 'Hà Nội', 'Backend dev', 'Java, Spring', 'Bonus', '8-17h', 'IN_OFFICE', 'JUNIOR', 'FULL_TIME', 'TU_15_DEN_20_TRIEU', 'MOT_NAM', 2, '2025-12-31', 'ACTIVE'),
+ (2, 1, 'Frontend Developer', 'HANOI', 'Hà Nội', 'Frontend dev', 'React, Angular', 'Insurance', '8-17h', 'HYBRID', 'JUNIOR', 'FULL_TIME', 'TU_10_DEN_15_TRIEU', 'MOT_NAM', 1, '2025-11-30', 'ACTIVE'),
+ (3, 2, 'Fullstack Developer', 'HOCHIMINH', 'HCM', 'FS dev', 'Node, React', 'OT pay', '9-18h', 'REMOTE', 'JUNIOR', 'FULL_TIME', 'TU_15_DEN_20_TRIEU', 'HAI_NAM', 3, '2025-12-15', 'ACTIVE'),
+ (4, 2, 'Data Engineer', 'HOCHIMINH', 'HCM', 'Data pipeline', 'Python, SQL', 'Laptop', '9-18h', 'IN_OFFICE', 'SENIOR', 'FULL_TIME', 'TU_25_DEN_30_TRIEU', 'BA_NAM', 2, '2025-12-31', 'ACTIVE'),
+ (5, 3, 'DevOps Engineer', 'DANANG', 'Đà Nẵng', 'DevOps', 'Docker, K8s', 'Cloud credits', '9-18h', 'REMOTE', 'SENIOR', 'FULL_TIME', 'TU_30_DEN_50_TRIEU', 'NAM_NAM', 2, '2025-10-30', 'ACTIVE'),
+ (6, 3, 'QA Engineer', 'DANANG', 'Đà Nẵng', 'QA test', 'Automation', 'Team building', '8-17h', 'IN_OFFICE', 'FRESHER', 'FULL_TIME', 'DUOI_10_TRIEU', 'KHONG_YEU_CAU', 1, '2025-12-20', 'ACTIVE'),
+ (7, 4, 'Mobile Dev', 'HANOI', 'Hà Nội', 'Android/iOS', 'React Native', 'Bonus', '9-18h', 'HYBRID', 'JUNIOR', 'FULL_TIME', 'TU_10_DEN_15_TRIEU', 'MOT_NAM', 2, '2025-11-25', 'ACTIVE'),
+ (8, 4, 'System Admin', 'HANOI', 'Hà Nội', 'SysAdmin', 'Linux, AWS', 'Insurance', '8-17h', 'IN_OFFICE', 'SENIOR', 'FULL_TIME', 'TU_20_DEN_25_TRIEU', 'BON_NAM', 1, '2025-12-05', 'ACTIVE'),
+ (9, 5, 'UI/UX Designer', 'HOCHIMINH', 'HCM', 'Design UI/UX', 'Figma', 'Healthcare', '9-18h', 'REMOTE', 'JUNIOR', 'FULL_TIME', 'TU_15_DEN_20_TRIEU', 'HAI_NAM', 1, '2025-11-15', 'ACTIVE'),
+ (10, 5, 'Security Engineer', 'HOCHIMINH', 'HCM', 'Cybersecurity', 'Pentest', 'Bonus', '8-17h', 'IN_OFFICE', 'SENIOR', 'FULL_TIME', 'TU_25_DEN_30_TRIEU', 'NAM_NAM', 2, '2025-12-25', 'ACTIVE'),
+ (11, 6, 'AI Engineer', 'DANANG', 'Đà Nẵng', 'ML models', 'Python, Tensorflow', 'GPU server', '9-18h', 'REMOTE', 'SENIOR', 'FULL_TIME', 'TREN_50_TRIEU', 'TREN_5_NAM', 1, '2025-12-31', 'ACTIVE'),
+ (12, 6, 'Business Analyst', 'DANANG', 'Đà Nẵng', 'Analyze req', 'BA skill', 'Healthcare', '9-18h', 'IN_OFFICE', 'JUNIOR', 'FULL_TIME', 'TU_15_DEN_20_TRIEU', 'HAI_NAM', 1, '2025-10-31', 'ACTIVE'),
+ (13, 7, 'Project Manager', 'HANOI', 'Hà Nội', 'PM', 'Agile, Scrum', 'Bonus', '9-18h', 'HYBRID', 'SENIOR', 'FULL_TIME', 'TU_30_DEN_50_TRIEU', 'NAM_NAM', 1, '2025-12-31', 'ACTIVE'),
+ (14, 7, 'Support Engineer', 'HANOI', 'Hà Nội', 'Customer support', 'English', 'OT pay', '8-17h', 'IN_OFFICE', 'FRESHER', 'FULL_TIME', 'DUOI_10_TRIEU', 'KHONG_YEU_CAU', 2, '2025-11-30', 'ACTIVE'),
+ (15, 8, 'Game Developer', 'HOCHIMINH', 'HCM', 'Unity game', 'C#, Unity', 'Free games', '9-18h', 'REMOTE', 'JUNIOR', 'FULL_TIME', 'TU_15_DEN_20_TRIEU', 'MOT_NAM', 2, '2025-12-20', 'ACTIVE'),
+ (16, 8, 'Marketing Specialist', 'HOCHIMINH', 'HCM', 'Digital marketing', 'SEO/SEM', 'Bonus', '8-17h', 'IN_OFFICE', 'JUNIOR', 'FULL_TIME', 'TU_10_DEN_15_TRIEU', 'MOT_NAM', 1, '2025-11-25', 'ACTIVE'),
+ (17, 9, 'Embedded Engineer', 'DANANG', 'Đà Nẵng', 'IoT devices', 'C, C++', 'Insurance', '8-17h', 'IN_OFFICE', 'JUNIOR', 'FULL_TIME', 'TU_20_DEN_25_TRIEU', 'BA_NAM', 2, '2025-12-10', 'ACTIVE'),
+ (18, 9, 'Cloud Engineer', 'DANANG', 'Đà Nẵng', 'Cloud infra', 'AWS, Docker', 'OT pay', '9-18h', 'REMOTE', 'SENIOR', 'FULL_TIME', 'TU_30_DEN_50_TRIEU', 'TREN_5_NAM', 1, '2025-12-30', 'ACTIVE'),
+ (19, 10, 'Tech Lead', 'HANOI', 'Hà Nội', 'Lead dev', 'Leadership', 'Bonus', '9-18h', 'HYBRID', 'SENIOR', 'FULL_TIME', 'TREN_50_TRIEU', 'TREN_5_NAM', 1, '2025-12-31', 'ACTIVE'),
+ (20, 10, 'Intern Developer', 'HANOI', 'Hà Nội', 'Intern dev', 'Basic coding', 'Training', '8-17h', 'IN_OFFICE', 'INTERN', 'PART_TIME', 'DUOI_10_TRIEU', 'KHONG_YEU_CAU', 5, '2025-11-15', 'ACTIVE');
 
--- VNG
-(2, 'Frontend Developer', 'HOCHIMINH', '273 Điện Biên Phủ', 'Phát triển UI ReactJS', 'React, Redux', 'Team trẻ trung', '9h-18h',
- 'HYBRID', 'FRESHER', 'FULL_TIME', 'TU_10_DEN_15_TRIEU', 'DUOI_1_NAM', 2, '2025-11-30', 'ACTIVE'),
-(2, 'NodeJS Developer', 'HOCHIMINH', '273 Điện Biên Phủ', 'Backend NodeJS', 'NodeJS, MongoDB', 'Môi trường năng động', '9h-18h',
- 'REMOTE', 'JUNIOR', 'FULL_TIME', 'TU_15_DEN_20_TRIEU', 'MOT_NAM', 2, '2025-09-30', 'ACTIVE'),
-
--- CMC
-(3, 'Python Developer', 'HANOI', 'Duy Tân', 'Phát triển dịch vụ Python', 'Python, Django', 'Đãi ngộ tốt', '8h-17h',
- 'IN_OFFICE', 'JUNIOR', 'FULL_TIME', 'TU_15_DEN_20_TRIEU', 'MOT_NAM', 2, '2025-08-31', 'ACTIVE'),
-(3, 'Data Engineer', 'HANOI', 'Duy Tân', 'Xử lý big data', 'SQL, Python', 'Môi trường chuyên nghiệp', '8h-17h',
- 'HYBRID', 'SENIOR', 'FULL_TIME', 'TU_30_DEN_50_TRIEU', 'TREN_5_NAM', 2, '2025-12-15', 'ACTIVE'),
-
--- VinGroup
-(4, 'Angular Developer', 'HOCHIMINH', 'Central Park', 'Xây dựng hệ thống web', 'Angular, TypeScript', 'Phúc lợi đầy đủ', '8h30-17h30',
- 'IN_OFFICE', 'JUNIOR', 'FULL_TIME', 'TU_20_DEN_25_TRIEU', 'HAI_NAM', 3, '2025-09-20', 'ACTIVE'),
-(4, 'Cloud Engineer', 'HOCHIMINH', 'Central Park', 'Triển khai hệ thống Cloud', 'AWS, Docker', 'Môi trường hiện đại', '8h30-17h30',
- 'REMOTE', 'SENIOR', 'FULL_TIME', 'TU_30_DEN_50_TRIEU', 'BON_NAM', 2, '2025-12-01', 'ACTIVE'),
-
--- Sun Group
-(5, 'Web Developer', 'DANANG', 'Bà Nà Hills', 'Phát triển hệ thống nội bộ', 'JavaScript, VueJS', 'Team trẻ', '9h-18h',
- 'IN_OFFICE', 'JUNIOR', 'FULL_TIME', 'TU_15_DEN_20_TRIEU', 'MOT_NAM', 2, '2025-07-31', 'ACTIVE'),
-(5, 'Mobile Developer', 'DANANG', 'Bà Nà Hills', 'Ứng dụng mobile', 'React Native, JS', 'Môi trường năng động', '9h-18h',
- 'HYBRID', 'FRESHER', 'FULL_TIME', 'DUOI_10_TRIEU', 'KHONG_YEU_CAU', 2, '2025-09-01', 'ACTIVE'),
-
--- TMA
-(6, 'Java Developer', 'HOCHIMINH', 'Quận 12', 'Backend Java', 'Java, SQL', 'Lương thưởng hấp dẫn', '8h-17h',
- 'IN_OFFICE', 'JUNIOR', 'FULL_TIME', 'TU_15_DEN_20_TRIEU', 'MOT_NAM', 2, '2025-11-01', 'ACTIVE'),
-(6, 'QA Engineer', 'HOCHIMINH', 'Quận 12', 'Kiểm thử phần mềm', 'Automation Testing', 'Đãi ngộ tốt', '8h-17h',
- 'HYBRID', 'JUNIOR', 'FULL_TIME', 'TU_10_DEN_15_TRIEU', 'MOT_NAM', 2, '2025-09-01', 'ACTIVE'),
-
--- KMS
-(7, 'React Developer', 'HOCHIMINH', 'Quận 7', 'Phát triển ReactJS', 'React, Redux', 'Cơ hội onsite', '9h-18h',
- 'HYBRID', 'JUNIOR', 'FULL_TIME', 'TU_20_DEN_25_TRIEU', 'HAI_NAM', 2, '2025-10-01', 'ACTIVE'),
-(7, 'DevOps Engineer', 'HOCHIMINH', 'Quận 7', 'CI/CD pipelines', 'Docker, Kubernetes', 'Đãi ngộ cao', '9h-18h',
- 'REMOTE', 'SENIOR', 'FULL_TIME', 'TU_30_DEN_50_TRIEU', 'NAM_NAM', 2, '2025-12-20', 'ACTIVE'),
-
--- Axon
-(8, 'Python Developer', 'DANANG', 'Hải Châu', 'Xây dựng ứng dụng Python', 'Django, SQL', 'Môi trường chuyên nghiệp', '8h30-17h30',
- 'IN_OFFICE', 'JUNIOR', 'FULL_TIME', 'TU_15_DEN_20_TRIEU', 'MOT_NAM', 2, '2025-11-15', 'ACTIVE'),
-(8, 'Fullstack Developer', 'DANANG', 'Hải Châu', 'React + NodeJS', 'JS, React, Node', 'Onsite Thụy Sĩ', '8h30-17h30',
- 'HYBRID', 'SENIOR', 'FULL_TIME', 'TU_30_DEN_50_TRIEU', 'BON_NAM', 2, '2025-10-15', 'ACTIVE'),
-
--- NashTech
-(9, 'Java Developer', 'HANOI', 'Hoàn Kiếm', 'Java + Spring Boot', 'Java, Spring Boot', 'Môi trường quốc tế', '8h-17h',
- 'HYBRID', 'JUNIOR', 'FULL_TIME', 'TU_20_DEN_25_TRIEU', 'MOT_NAM', 2, '2025-09-30', 'ACTIVE'),
-(9, 'Data Scientist', 'HANOI', 'Hoàn Kiếm', 'Machine Learning', 'Python, ML', 'Cơ hội nghiên cứu', '8h-17h',
- 'REMOTE', 'SENIOR', 'FULL_TIME', 'TU_30_DEN_50_TRIEU', 'TREN_5_NAM', 2, '2025-12-31', 'ACTIVE'),
-
--- Momo
-(10, 'Backend Developer', 'HOCHIMINH', 'Tân Bình', 'Backend dịch vụ thanh toán', 'Java, SQL', 'Thưởng theo dự án', '8h-17h',
- 'IN_OFFICE', 'JUNIOR', 'FULL_TIME', 'TU_15_DEN_20_TRIEU', 'HAI_NAM', 2, '2025-11-11', 'ACTIVE'),
-(10, 'Mobile Engineer', 'HOCHIMINH', 'Tân Bình', 'Ứng dụng ví điện tử', 'Kotlin/Swift', 'Lương cạnh tranh', '8h-17h',
- 'HYBRID', 'JUNIOR', 'FULL_TIME', 'TU_20_DEN_25_TRIEU', 'HAI_NAM', 2, '2025-10-10', 'ACTIVE'),
-(10, 'Data Engineer', 'HOCHIMINH', 'Tân Bình', 'Dữ liệu lớn', 'SQL, Python', 'Thưởng hiệu suất', '8h-17h',
- 'REMOTE', 'SENIOR', 'FULL_TIME', 'TU_30_DEN_50_TRIEU', 'TREN_5_NAM', 2, '2025-12-20', 'ACTIVE');
-
--- =====================
--- JOB SKILLS (3–5 skill/job, ví dụ)
--- =====================
-INSERT INTO job_skills (job_id, skill_id) VALUES
-(1,1),(1,2),(1,3),             -- Java Developer
-(2,11),(2,12),(2,13),          -- DevOps Engineer
-(3,6),(3,7),(3,9),             -- Frontend Dev
-(4,8),(4,6),(4,12),            -- NodeJS Dev
-(5,4),(5,5),(5,3),             -- Python Dev
-(6,4),(6,3),(6,15),            -- Data Engineer
-(7,9),(7,6),(7,13),            -- Angular Dev
-(8,11),(8,12),(8,13),          -- Cloud Engineer
-(9,6),(9,10),(9,7),            -- Web Dev
-(10,6),(10,7),(10,9),          -- Mobile Dev
-(11,1),(11,3),(11,2),          -- Java Dev
-(12,6),(12,7),(12,8),          -- QA
-(13,7),(13,6),(13,9),          -- React Dev
-(14,12),(14,13),(14,11),       -- DevOps
-(15,4),(15,5),(15,3),          -- Python Dev
-(16,6),(16,7),(16,8),          -- Fullstack
-(17,1),(17,2),(17,3),          -- Java Dev
-(18,15),(18,4),(18,6),         -- Data Scientist
-(19,1),(19,3),(19,2),          -- Backend Dev
-(20,6),(20,7),(20,9),          -- Mobile Engineer
-(21,4),(21,3),(21,15);         -- Data Engineer
-
+-- JOB SKILLS (>= 3 skill/job)
+INSERT INTO job_skills (job_id, skill_id)
+VALUES
+ (1,1),(1,2),(1,9),(1,10),
+ (2,3),(2,4),(2,15),
+ (3,6),(3,4),(3,15),
+ (4,7),(4,9),(4,10),
+ (5,12),(5,13),(5,14),
+ (6,7),(6,9),(6,15),
+ (7,4),(7,5),(7,15),
+ (8,7),(8,14),(8,12),
+ (9,3),(9,5),(9,15),
+ (10,12),(10,13),(10,14),
+ (11,7),(11,8),(11,14),
+ (12,9),(12,10),(12,15),
+ (13,1),(13,2),(13,15),
+ (14,9),(14,10),(14,15),
+ (15,1),(15,5),(15,15),
+ (16,3),(16,5),(16,15),
+ (17,1),(17,9),(17,15),
+ (18,12),(18,13),(18,14),
+ (19,1),(19,2),(19,4),
+ (20,1),(20,3),(20,5);

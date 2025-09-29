@@ -5,7 +5,8 @@ export interface Company {
   address: string;
   website: string;
   taxCode: string;
-  detail: string;
+  email?: string;
+  description: string;
   status?: CompanyStatus;
   createdAt?: string;
   updatedAt?: string;

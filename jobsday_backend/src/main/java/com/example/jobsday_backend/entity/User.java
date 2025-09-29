@@ -51,6 +51,7 @@ public class User {
     private Boolean emailVerified = false;
     private String verificationCode;
     private LocalDateTime verificationExpiry;
+    private Boolean ntdSearch = false;
 
     @PrePersist
     public void prePersist() {

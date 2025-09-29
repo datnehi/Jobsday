@@ -3,8 +3,6 @@ package com.example.jobsday_backend.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.stream.DoubleStream;
-
 @Entity
 @Table(name = "skills")
 @Data

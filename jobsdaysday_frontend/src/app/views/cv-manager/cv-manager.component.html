@@ -1,0 +1,104 @@
+<div class="container py-4" style="max-width:1200px;">
+  <div class="row">
+    <!-- CV đã tải lên Jobsday -->
+    <div class="col-lg-8 mb-4">
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold text-primary mb-0">CV đã tải lên Jobsday</h2>
+            <button class="btn btn-primary fw-bold px-4 py-2" style="border-radius: 20px;" routerLink="/upload-cv">+ Tải CV lên</button>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-4" *ngFor="let cv of uploadedCVs; let i = index">
+              <div class="card shadow-sm rounded h-100 text-center p-3 position-relative"
+                   (mouseenter)="hoveredIndex = i" (mouseleave)="hoveredIndex = null" style="cursor: pointer;"
+                   (click)="viewCv(cv.id)">
+                <img src="assets/cv.png" alt="CV Folder" width="96" height="96" class="mx-auto mb-3" />
+                <div class="fw-bold mb-1">{{ cv.title }}</div>
+                <div class="text-muted small mb-2">Cập nhật {{ cv.updatedAt | date:'dd-MM-yyyy HH:mm' }}</div>
+                <div class="d-flex justify-content-center gap-2 mb-2">
+                  <button class="btn btn-primary btn-sm px-3" (click)="downloadCv(cv.id)">Tải về</button>
+                  <div class="dropdown" (mouseenter)="showDropdown[i]=true" (mouseleave)="showDropdown[i]=false" [class.show]="showDropdown[i]">
+                    <button class="btn btn-outline-secondary btn-sm px-3" type="button"
+                      [attr.aria-expanded]="showDropdown[i]" (click)="showDropdown[i]=!showDropdown[i]; $event.stopPropagation()">
+                      ...
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" [class.show]="showDropdown[i]">
+                      <li>
+                        <a class="dropdown-item" (click)="changeTitle(cv.id, cv.title)">Đổi tên CV</a>
+                      </li>
+                      <li>
+                        <a class="dropdown-item text-danger" (click)="deleteCv(cv.id)">Xóa CV</a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <span *ngIf="cv.isPublic" class="position-absolute top-0 m-2 text-warning fs-3 cv-tooltip-parent">
+                  <i class="bi bi-star-fill"></i>
+                  <span class="cv-tooltip">
+                    CV chính, CV này sẽ được hiển thị cho Nhà tuyển dụng khi tìm kiếm ứng viên
+                  </span>
+                </span>
+                <span
+                  *ngIf="!cv.isPublic && hoveredIndex === i"
+                  class="position-absolute top-0 m-2 text-muted fs-3 cv-tooltip-parent"
+                  (click)="setAsMain(cv.id)"
+                >
+                  <i class="bi bi-star"></i>
+                  <span class="cv-tooltip">
+                    Đặt làm CV chính, CV này sẽ được hiển thị cho Nhà tuyển dụng khi tìm kiếm ứng viên
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar thông tin tài khoản và trạng thái tìm việc -->
+    <div class="col-lg-4 mb-4">
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <div class="mb-3 d-flex align-items-center gap-3">
+            <img [src]="user.avatarUrl || 'assets/user.jpg'" alt=" Avatar" width="48" height="48"
+              class="rounded-circle border" />
+            <h4 class="fw-bold text-primary mb-1 mb-0">Chào bạn trở lại, <b>{{ user.fullName }}</b></h4>
+          </div>
+          <div>
+            <div class="form-check form-switch d-flex align-items-center mb-2">
+              <input class="form-check-input me-2" type="checkbox" style="cursor: pointer;" [(ngModel)]="allowNTDSearch" id="ntdSearch" (change)="toggleSearchChange()" />
+              <label class="form-check-label fw-bold text-primary" for="ntdSearch">
+                Cho phép NTD tìm kiếm hồ sơ
+              </label>
+            </div>
+            <ul class="mt-2 text-muted ps-3">
+              <li>Nhắn tin qua Jobsday</li>
+              <li>Email và Số điện thoại của bạn</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showRenameDialog" class="modal-backdrop fade show" style="z-index: 1050;"></div>
+<div class="modal fade" tabindex="-1" [class.show]="showRenameDialog" [style.display]="showRenameDialog ? 'block' : 'none'">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Chỉnh sửa CV Upload</h5>
+        <button type="button" class="btn-close" (click)="closeRenameDialog()"></button>
+      </div>
+      <div class="modal-body">
+        <label class="fw-bold mb-2">Tên CV <span class="text-muted">(thường là vị trí ứng tuyển)</span></label>
+        <input type="text" class="form-control" [(ngModel)]="renameTitle" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="closeRenameDialog()">Hủy</button>
+        <button type="button" class="btn btn-primary" (click)="confirmRename()">Cập nhật</button>
+      </div>
+    </div>
+  </div>
+</div>

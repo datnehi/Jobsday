@@ -10,16 +10,16 @@
       <a routerLink="/dashboard">Việc làm <i class="bi bi-chevron-down"></i></a>
       <ul class="dropdown-menu">
         <li><a routerLink="/dashboard">Tìm việc làm</a></li>
-        <li><a routerLink="/jobs/saved">Việc làm đã lưu</a></li>
-        <li><a routerLink="/jobs/recommended">Việc làm gợi ý</a></li>
+        <li><a routerLink="/saved-jobs">Việc làm đã lưu</a></li>
+        <li><a routerLink="/applied-history">Việc làm đã ứng tuyển</a></li>
       </ul>
     </li>
     <li class="navbar-item dropdown">
-      <a routerLink="/cv">Tạo CV <i class="bi bi-chevron-down"></i></a>
+      <a routerLink="/cv">Quản lý CV <i class="bi bi-chevron-down"></i></a>
       <ul class="dropdown-menu">
-        <li><a routerLink="/cv/create">Tạo CV mới</a></li>
-        <li><a routerLink="/cv/my-cv">CV của tôi</a></li>
-        <li><a routerLink="/cv/templates">Mẫu CV</a></li>
+        <li><a routerLink="/quan-ly-cv">CV của tôi</a></li>
+        <li><a routerLink="/upload-cv">Tải CV lên</a></li>
+        <li><a routerLink="/xem-ho-so">Nhà tuyển dụng xem hồ sơ</a></li>
       </ul>
     </li>
   </ul>
@@ -42,15 +42,33 @@
         </li>
         <li class="icon-item dropdown">
           <a routerLink="/profile" class="user-link">
-            <img src="assets/user.jpg" alt="Avatar" class="avatar">
+            <img [src]="user?.avatarUrl || 'assets/user.jpg'" alt="Avatar" class="avatar">
             <div class="small-icon">
               <i class="bi bi-chevron-down"></i>
             </div>
           </a>
-          <ul class="dropdown-menu">
-            <li><a routerLink="/profile">Hồ sơ</a></li>
-            <li><a routerLink="/settings">Cài đặt</a></li>
-            <li><a (click)="logout()">Đăng xuất</a></li>
+          <ul class="dropdown-menu p-0" style="min-width: 260px;">
+            <!-- Thông tin cá nhân -->
+            <li class="px-3 py-3 border-bottom">
+              <div class="d-flex align-items-center gap-3">
+                <img [src]="user?.avatarUrl || 'assets/user.jpg'" alt="Avatar" width="48" height="48" class="rounded-circle border" />
+                <div>
+                  <div class="fw-bold">{{ user?.fullName }}</div>
+                  <div class="text-muted small">
+                    ID {{ user?.id }} | {{ user?.email }}
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="py-1"></li>
+            <!-- Các menu chức năng -->
+            <li><a routerLink="/personal-info" class="fw-bold">Thông tin cá nhân</a></li>
+            <li><a routerLink="/change-password" class="fw-bold">Đổi mật khẩu</a></li>
+            <li class="px-3 py-3">
+              <button (click)="logout()" class="btn btn-light w-100 py-2 fw-bold d-flex align-items-center justify-content-center gap-2 rounded-pill">
+                <i class="bi bi-box-arrow-right"></i> Đăng xuất
+              </button>
+            </li>
           </ul>
         </li>
       </ng-container>

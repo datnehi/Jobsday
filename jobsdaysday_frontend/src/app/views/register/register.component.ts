@@ -45,7 +45,13 @@ export class RegisterComponent {
       email: ['', [Validators.required, Validators.email]],
       phone: [''],
       dob: [''],
-      password: ['', Validators.required],
+      password: [
+        '', [
+          Validators.required,
+          Validators.minLength(6),
+          Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).+$/)
+        ]
+      ],
       confirmPassword: ['', Validators.required],
       companyCode: [''],
       companyName: [''],

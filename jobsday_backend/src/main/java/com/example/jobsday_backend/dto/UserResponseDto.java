@@ -19,6 +19,7 @@ public class UserResponseDto {
     private String avatarUrl;
     private User.Role role;
     private User.Status status;
+    private Boolean ntdSearch;
 
     public UserResponseDto(User user) {
         this.id = user.getId();
@@ -29,5 +30,6 @@ public class UserResponseDto {
         this.avatarUrl = user.getAvatarUrl();
         this.role = user.getRole();
         this.status = user.getStatus();
+        this.ntdSearch = user.getNtdSearch();
     }
 }

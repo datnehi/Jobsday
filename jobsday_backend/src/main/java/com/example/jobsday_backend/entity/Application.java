@@ -56,9 +56,9 @@ public class Application {
 
     public enum ApplicationStatus {
         APPLIED,
-        REVIEWED,
-        ACCEPTED,
-        REJECTED
+        VIEWED,
+        SUITABLE,
+        UNSUITABLE
     }
 
 }

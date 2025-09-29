@@ -69,6 +69,7 @@ public class AuthController {
                 userCheck.setVerificationCode(otp);
                 userCheck.setVerificationExpiry(LocalDateTime.now().plusMinutes(10));
                 userCheck.setEmailVerified(false);
+                userCheck.setNtdSearch(false);
 
                 userService.updateUser(userCheck);
 
@@ -96,6 +97,7 @@ public class AuthController {
                 user.setVerificationCode(otp);
                 user.setVerificationExpiry(LocalDateTime.now().plusMinutes(10));
                 user.setEmailVerified(false);
+                user.setNtdSearch(false);
 
                 userService.createUser(user);
 

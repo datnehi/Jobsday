@@ -18,12 +18,22 @@ export class JobService {
     return this.http.get<ResponseDto>(`${this.apiUrl}/${id}`);
   }
 
-  getSimilarJobsById(id: number, filters: any): Observable<ResponseDto> {
-    let params = new HttpParams();
-    if (filters.keyword) params = params.set('title', filters.keyword);
-    if (filters.level) params = params.set('level', filters.level);
-    if (filters.location) params = params.set('location', filters.location);
+  getSimilarJobsById(jobId: number, userId: number): Observable<ResponseDto> {
+    return this.http.get<ResponseDto>(`${this.apiUrl}/${jobId}/similar`, {
+      params: new HttpParams().set('userId', userId)
+    });
+  }
 
-    return this.http.get<ResponseDto>(`${this.apiUrl}/${id}/similar`, { params });
+  getJobsByCompanyId(filter: any): Observable<ResponseDto> {
+    let params = new HttpParams();
+    if (filter.keyword) params = params.set('q', filter.keyword);
+    if (filter.location) params = params.set('location', filter.location);
+    if (filter.userId) params = params.set('userId', filter.userId);
+    if (filter.companyId) params = params.set('companyId', filter.companyId);
+
+    // Phân trang cho jobs
+    if (filter.jobsPage !== undefined) params = params.set('page', filter.jobsPage);
+    if (filter.size !== undefined) params = params.set('size', filter.size);
+    return this.http.get<ResponseDto>(`${this.apiUrl}/company/${filter.companyId}`, { params });
   }
 }

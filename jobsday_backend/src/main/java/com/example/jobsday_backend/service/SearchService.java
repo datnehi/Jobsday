@@ -26,31 +26,45 @@ public class SearchService {
             Job.Salary salary,
             Job.JobType jobType,
             Job.ContractType contractType,
+            Long candidateId,
             int page,
             int size
     ) {
         StringBuilder baseSql = new StringBuilder("""
-        FROM jobs j
-        JOIN companies c ON j.company_id = c.id
-        LEFT JOIN job_skills js ON js.job_id = j.id
-        LEFT JOIN skills sk ON sk.id = js.skill_id
-        WHERE j.status = 'ACTIVE'
-    """);
+            FROM jobs j
+            JOIN companies c ON j.company_id = c.id
+            LEFT JOIN job_skills js ON js.job_id = j.id
+            LEFT JOIN skills sk ON sk.id = js.skill_id
+        """);
+
+        if (candidateId != null) {
+            baseSql.append("""
+            LEFT JOIN applications a
+                ON a.job_id = j.id AND a.candidate_id = :candidateId
+            LEFT JOIN saved_jobs sj
+                ON sj.job_id = j.id AND sj.candidate_id = :candidateId
+            """);
+        }
+
+        baseSql.append(" WHERE j.status = 'ACTIVE' ");
 
         Map<String, Object> params = new HashMap<>();
 
-        // 🔹 Full-text search thay vì ILIKE
         if (q != null && !q.isBlank()) {
             baseSql.append("""
-            AND (
-                j.search_tsv @@ (plainto_tsquery('english', :q) || plainto_tsquery('simple', :q))
-                OR j.description ILIKE :qLike
-                OR c.search_tsv @@ (plainto_tsquery('english', :q) || plainto_tsquery('simple', :q))
-            )
-        """);
+                AND (
+                    j.search_tsv @@ to_tsquery('english', :q || ':*')
+                    OR j.search_tsv @@ to_tsquery('simple', :q || ':*')
+                    OR c.search_tsv @@ to_tsquery('simple', :q || ':*')
+                    OR c.search_tsv @@ to_tsquery('english', :q || ':*')
+            
+                    OR similarity(j.title, :q) > 0.3
+                    OR similarity(j.description, :q) > 0.3
+                    OR similarity(c.name, :q) > 0.3
+                )
+                """);
             params.put("q", q);
-            params.put("qLike", "%" + q + "%");
-        }
+        } 
 
         if (location != null) {
             baseSql.append(" AND j.location = :location ");
@@ -76,6 +90,9 @@ public class SearchService {
             baseSql.append(" AND j.contract_type = :contractType ");
             params.put("contractType", contractType.name());
         }
+        if (candidateId != null) {
+            params.put("candidateId", candidateId);
+        }
 
         // 1. Count query
         String countSql = "SELECT COUNT(DISTINCT j.id) " + baseSql;
@@ -84,22 +101,28 @@ public class SearchService {
         long totalElements = ((Number) countQuery.getSingleResult()).longValue();
 
         // 2. Data query
-        StringBuilder dataSql = new StringBuilder("""
-        SELECT 
-            j.id, 
-            j.title, 
-            c.name as company_name, 
-            j.location, 
-            j.salary, 
-            j.level, 
-            j.job_type, 
-            j.updated_at,
-            COALESCE(string_agg(DISTINCT sk.name, ','), '') AS skills
-    """);
-        dataSql.append(baseSql);
-        dataSql.append(" GROUP BY j.id, c.name ORDER BY j.created_at DESC ");
-        dataSql.append(" LIMIT :limit OFFSET :offset ");
+        StringBuilder dataSql = new StringBuilder();
+        if (candidateId != null) {
+            dataSql.append("""
+                SELECT j.id, j.title, c.name as company_name, c.logo as company_logo, j.location, j.salary, j.level,
+                       j.job_type, j.updated_at,
+                       COALESCE(string_agg(DISTINCT sk.name, ','), '') AS skills,
+                       BOOL_OR(a.id IS NOT NULL) AS saved,
+                       BOOL_OR(sj.id IS NOT NULL) AS saved
+            """);
+        } else {
+            dataSql.append("""
+                SELECT j.id, j.title, c.name as company_name, c.logo as company_logo, j.location, j.salary, j.level,
+                       j.job_type, j.updated_at,
+                       COALESCE(string_agg(DISTINCT sk.name, ','), '') AS skills,
+                       false as saved,
+                       false as saved
+            """);
+        }
 
+        dataSql.append(baseSql);
+        dataSql.append(" GROUP BY j.id, c.name, c.logo ORDER BY j.created_at DESC ");
+        dataSql.append(" LIMIT :limit OFFSET :offset ");
         Query query = em.createNativeQuery(dataSql.toString());
         params.forEach(query::setParameter);
         query.setParameter("limit", size);
@@ -113,27 +136,34 @@ public class SearchService {
             Long id = ((Number) row[0]).longValue();
             String title = (String) row[1];
             String companyName = (String) row[2];
-            Job.Location jobLocation = Job.Location.valueOf((String) row[3]);
-            Job.Salary jobSalary = Job.Salary.valueOf((String) row[4]);
-            Job.Level jobLevel = Job.Level.valueOf((String) row[5]);
-            Job.JobType jobJobType = Job.JobType.valueOf((String) row[6]);
-            String postedAt = row[7].toString();
+            String companyLogo = (String) row[3];
+            Job.Location jobLocation = Job.Location.valueOf((String) row[4]);
+            Job.Salary jobSalary = Job.Salary.valueOf((String) row[5]);
+            Job.Level jobLevel = Job.Level.valueOf((String) row[6]);
+            Job.JobType jobJobType = Job.JobType.valueOf((String) row[7]);
+            String postedAt = row[8].toString();
 
-            String skillsStr = (String) row[8];
+            String skillsStr = (String) row[9];
             String[] skills = (skillsStr == null || skillsStr.isBlank())
                     ? new String[0]
                     : skillsStr.split(",");
+
+            boolean applied = row[10] != null && Boolean.parseBoolean(row[9].toString());
+            boolean saved = row[11] != null && Boolean.parseBoolean(row[10].toString());
 
             content.add(JobItemDto.builder()
                     .id(id)
                     .title(title)
                     .companyName(companyName)
+                    .companyLogo(companyLogo)
                     .location(jobLocation)
                     .salary(jobSalary)
                     .level(jobLevel)
                     .jobType(jobJobType)
                     .postedAt(postedAt)
                     .skills(skills)
+                    .applied(applied)
+                    .saved(saved)
                     .build());
         }
 
@@ -199,6 +229,7 @@ public class SearchService {
             c.id,
             c.name,
             c.location,
+            c.logo,
             COALESCE(array_to_string(ARRAY_AGG(DISTINCT sk.name), ','), '') AS skills
         """ + baseSql + """
         GROUP BY c.id, c.name, c.address
@@ -219,6 +250,7 @@ public class SearchService {
             Long id = ((Number) row[0]).longValue();
             String name = (String) row[1];
             Company.Location companyLocation = Company.Location.valueOf((String) row[2]);
+            String logo = (String) row[3];
 
             String skillsStr = (String) row[3];
             String[] skills = skillsStr == null || skillsStr.isBlank()
@@ -229,6 +261,7 @@ public class SearchService {
                     .id(id)
                     .name(name)
                     .location(companyLocation)
+                    .logo(logo)
                     .skills(skills)
                     .build());
         }

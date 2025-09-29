@@ -1,35 +1,89 @@
 <div class="container py-4" style="max-width:1200px;">
   <div class="row">
     <div class="col-lg-8">
-      <div class="alert alert-success d-flex align-items-center mb-4" style="font-size: 18px;">
-        <img src="assets/success-icon.png" alt="Success" width="48" class="me-3">
+      <div class="alert alert-primary d-flex align-items-center mb-4" style="font-size: 18px;">
+        <i
+          class="bi bi-send-check bg-primary bg-opacity-10 text-primary rounded-circle p-2 me-3 fs-2 border border-primary border-2 shadow-sm"></i>
         <div>
           <b>Ứng tuyển việc làm thành công!</b>
           <div class="mt-1" style="font-size: 15px;">
-            <b>Lưu ý:</b> Hồ sơ của bạn đã được gửi tới Nhà tuyển dụng. Do giới hạn về mặt thời gian, Nhà tuyển dụng có thể sẽ chỉ liên hệ với các ứng viên phù hợp.<br>
-            Xem danh sách việc làm đã ứng tuyển <a routerLink="/applied-jobs" class="text-success fw-bold">tại đây</a>.
+            <b>Lưu ý:</b> Hồ sơ của bạn đã được gửi tới Nhà tuyển dụng. Do giới hạn về mặt thời gian, Nhà tuyển dụng có
+            thể sẽ chỉ liên hệ với các ứng viên phù hợp.<br>
+            Xem danh sách việc làm đã ứng tuyển <a routerLink="/applied-history" class="text-primary fw-bold">tại đây</a>.
           </div>
         </div>
       </div>
 
       <h5 class="fw-bold mb-3 text-primary">Việc làm tương tự</h5>
-      <div *ngFor="let job of similarJobs" class="card mb-3 border-success">
-        <div class="card-body d-flex align-items-center justify-content-between">
-          <div class="d-flex align-items-center gap-3">
-            <img [src]="job.companyLogo || 'assets/logo1.png'" alt="{{ job.companyName }}" width="48" height="48" class="rounded bg-white" style="border:1px solid #eee;">
-            <div>
-              <div class="fw-bold">{{ job.title }}</div>
-              <div class="text-muted small">{{ job.companyName }}</div>
-              <div class="d-flex gap-2 mt-1">
-                <span class="badge bg-light text-dark">{{ job.location }}</span>
+      <div *ngFor="let job of similarJobs; let i = index" class="card job-card mb-3"
+        style="position: relative; cursor: pointer;" (click)="openJobDetail(job.id)">
+        <div class="card-body d-flex gap-4">
+          <div
+            style="width: 120px; height: 120px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border:1px solid #eee;">
+            <img [src]="job.companyLogo || 'assets/logo1.png'" alt="{{ job.companyName }}" width="100%" height="100%"
+              class="img-fluid rounded bg-white p-2">
+          </div>
+          <div class="flex-grow-1">
+            <h3 class="h6 fw-bold text-primary mb-1">
+              {{ job.title }}
+            </h3>
+            <div class="text-muted mb-2">{{ job.companyName }}</div>
+            <div class="d-flex gap-4 mb-2">
+              <div class="text-muted">{{ job.location }}</div>
+              <div class="text-primary">{{ job.salary }}</div>
+            </div>
+            <hr class="w-100 my-2">
+            <div class="d-flex justify-content-between align-items-center" style="height: 34px;">
+              <div>
+                <span class="badge bg-primary me-1" *ngFor="let skill of job.skills.slice(0, 3)">{{ skill }}</span>
+                <span *ngIf="job.skills.length > 3" class="badge bg-primary me-1"
+                  [title]="job.skills.slice(3).join(', ')" style="cursor: pointer;">
+                  +{{ job.skills.length - 3 }}
+                </span>
               </div>
+              <button class="btn"
+                style="position: absolute; bottom: 10px; right: 70px; background: #007bff; color: #fff; font-weight: bold; border-radius: 20px; min-width: 90px;"
+                (click)="openJobDetail(job.id)">
+                Ứng tuyển
+              </button>
+              <button *ngIf="!job.saved" class="btn btn-outline-primary" aria-label="Lưu tin"
+                style="position: absolute; bottom: 10px; right: 16px;"
+                (click)="onSaveClick(job); $event.stopPropagation()">
+                <i class="bi bi-heart"></i>
+              </button>
+              <button *ngIf="job.saved" class="btn btn-outline-primary" aria-label="Bỏ lưu"
+                style="position: absolute; bottom: 10px; right: 16px;"
+                (click)="onUnsaveClick(job); $event.stopPropagation()">
+                <i class="bi bi-heart-fill"></i>
+              </button>
             </div>
           </div>
-          <div class="text-success fw-bold" style="min-width: 100px; text-align: right;">
-            {{ job.salary }}
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-2">
+            <i class="bi bi-info-circle-fill text-primary fs-4 me-2"></i>
+            <span class="fw-bold text-primary" style="font-size: 18px;">Lưu ý:</span>
           </div>
+          <ul class="mb-0" style="font-size: 15px; color: #333;">
+            <li>
+              Jobsday khuyên bạn luôn cẩn trọng trong quá trình tìm việc và chủ động nghiên cứu thông tin công ty, vị
+              trí việc làm trước khi ứng tuyển.
+            </li>
+            <li>
+              Ứng viên cần có trách nhiệm với hành vi ứng tuyển của mình. Nếu bạn gặp phải tin tuyển dụng hoặc nhận được
+              liên lạc đáng ngờ của nhà tuyển dụng, hãy báo ngay cho Jobsday qua email
+              <span class="text-primary fw-bold">dat1122&#64;gmail.com</span> để được hỗ trợ kịp thời.
+            </li>
+          </ul>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<app-login-dialog [show]="showLoginDialog" (close)="showLoginDialog = false"></app-login-dialog>
+

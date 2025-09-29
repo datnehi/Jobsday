@@ -4,6 +4,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { SearchService } from '../../services/search.service';
 import { ConvertEnumService } from '../../services/convert-enum.service';
+import { AuthService } from '../../services/auth.service';
+import { User } from '../../models/user';
+import { SavedJobService } from '../../services/saved-job.service';
+import { LoginDialogComponent } from '../common/login-dialog/login-dialog.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -11,14 +15,13 @@ import { ConvertEnumService } from '../../services/convert-enum.service';
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
-    NgSelectModule
+    NgSelectModule,
+    LoginDialogComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent {
-
-  constructor(private searchService: SearchService, private convertEnum: ConvertEnumService) { }
   // Filter options
   experiences = ['Tất cả', 'Không yêu cầu', 'Dưới 1 năm', '2 năm', '3 năm', '4 năm', '5 năm', 'Trên 5 năm'];
   levels = ['Tất cả', 'Fresher', 'Intern', 'Junior', 'Senior'];
@@ -41,6 +44,7 @@ export class DashboardComponent {
   // Data
   jobs: any[] = [];
   companies: any[] = [];
+  user: User | null = null;
 
   currentPage: number = 0;
   totalPages: number = 1;
@@ -48,14 +52,24 @@ export class DashboardComponent {
   companiesTotalPages: number = 1;
 
   hoveredJobIndex: number | null = null;
+  showLoginDialog = false;
+
+  constructor(private searchService: SearchService, private convertEnum: ConvertEnumService,
+    private authService: AuthService, private savedJobService: SavedJobService) { }
 
   ngOnInit() {
     this.search();
+    this.authService.currentUser$.subscribe(user => {
+      if (user) {
+        this.user = user;
+        this.search();
+      }
+    });
   }
 
   search() {
-      this.searchJobs();
-      this.searchCompanies();
+    this.searchJobs();
+    this.searchCompanies();
   }
 
   // Filter handlers
@@ -109,6 +123,7 @@ export class DashboardComponent {
       salary: this.convertEnum.mapSalaryToEnum(this.selectedSalary),
       contractType: this.convertEnum.mapContractTypeToEnum(this.selectedContractType),
       workType: this.convertEnum.mapWorkTypeToEnum(this.selectedWorkType),
+      userId: this.user?.id,
       jobsPage
     };
 
@@ -210,6 +225,44 @@ export class DashboardComponent {
 
   openJobDetail(jobId: string) {
     window.open(`/job/${jobId}`, '_blank');
+  }
+
+  onSaveClick(job: any) {
+    if (!this.user) {
+      this.showLoginDialog = true;
+      return;
+    }
+    if (!job?.id) return;
+
+    this.savedJobService.saveJob(job.id).subscribe({
+      next: () => {
+        job.saved = true;
+      },
+      error: () => {
+        alert('Lưu tin thất bại!');
+      }
+    });
+  }
+
+  onUnsaveClick(job: any) {
+    if (!this.user) {
+      this.showLoginDialog = true;
+      return;
+    }
+    if (!job?.id) return;
+
+    this.savedJobService.unsaveJob(job.id).subscribe({
+      next: () => {
+        job.saved = false;
+      },
+      error: () => {
+        alert('Bỏ lưu tin thất bại!');
+      }
+    });
+  }
+
+  openCompanyDetail(companyId: number) {
+    window.open(`/company-detail/${companyId}`, '_blank');
   }
 }
 

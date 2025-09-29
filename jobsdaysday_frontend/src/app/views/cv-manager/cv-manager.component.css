@@ -1,0 +1,29 @@
+.card.shadow-sm.rounded.h-100.text-center.p-3.position-relative:hover {
+  background-color: #f2f2f2;
+  transition: background 0.2s;
+}
+
+.cv-tooltip-parent {
+  position: relative;
+}
+
+.cv-tooltip {
+  display: none;
+  position: absolute;
+  top: -65px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #222;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  width: 200px;
+  white-space: normal;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.cv-tooltip-parent:hover .cv-tooltip {
+  display: block;
+}

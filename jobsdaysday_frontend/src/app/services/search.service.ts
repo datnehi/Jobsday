@@ -19,6 +19,7 @@ export class SearchService {
     if (filters.salary) params = params.set('salary', filters.salary);
     if (filters.contractType) params = params.set('contractType', filters.contractType);
     if (filters.workType) params = params.set('jobType', filters.workType);
+    if (filters.userId) params = params.set('userId', filters.userId);
 
     // Phân trang cho jobs
     if (filters.jobsPage !== undefined) params = params.set('page', filters.jobsPage);

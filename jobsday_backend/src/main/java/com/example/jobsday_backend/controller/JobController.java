@@ -1,6 +1,7 @@
 package com.example.jobsday_backend.controller;
 
 import com.example.jobsday_backend.dto.JobItemDto;
+import com.example.jobsday_backend.dto.PageResultDto;
 import com.example.jobsday_backend.dto.ResponseDto;
 import com.example.jobsday_backend.entity.Job;
 import com.example.jobsday_backend.service.JobService;
@@ -33,13 +34,28 @@ public class JobController {
     @GetMapping("/{id}/similar")
     public ResponseEntity<ResponseDto> getSimilarJobs(
             @PathVariable("id") Long jobId,
-            @RequestParam String title,
-            @RequestParam Job.Level level,
-            @RequestParam Job.Location location) {
+            @RequestParam(value = "userId", required = false) Long userIdParam) {
+        Long userId = (userIdParam == null || userIdParam == 0) ? null : userIdParam;
 
-        List<JobItemDto> jobs = jobService.findTopSimilarJobs(jobId, title, level, location);
+        List<JobItemDto> jobs = jobService.findTopSimilarJobs(jobId, userId);
         return ResponseEntity.ok(
                 new ResponseDto(HttpStatus.OK.value(), "Find Job successfully", jobs)
         );
     }
+
+    @GetMapping("/company/{companyId}")
+    public ResponseEntity<ResponseDto> getJobsByCompanyId(
+            @PathVariable Long companyId,
+            @RequestParam(value = "userId", required = false) Long userId,
+            @RequestParam(value = "q", required = false) String q,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", required = false) Integer size
+    ) {
+        int pageSize = (size == null ? 5 : size);
+        PageResultDto<JobItemDto> jobs = jobService.findJobsByCompanyId(companyId, userId, q, page, pageSize);
+        return ResponseEntity.ok(
+                new ResponseDto(HttpStatus.OK.value(), "Find Jobs by Company ID successfully", jobs)
+        );
+    }
+
 }
