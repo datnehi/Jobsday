@@ -22,12 +22,6 @@ export class ApplicationService {
     return this.http.get<ResponseDto>(this.apiUrl + `/check/${jobId}`);
   }
 
-  getCvView(applicationId: number): Observable<Blob> {
-    return this.http.get(this.apiUrl + `/${applicationId}/cv/view`, {
-      responseType: 'blob'
-    });
-  }
-
   downloadCv(applicationId: number): Observable<HttpResponse<Blob>> {
     return this.http.get(`${this.apiUrl}/${applicationId}/cv/download`, { responseType: 'blob', observe: 'response'});
   }

@@ -12,7 +12,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -85,14 +84,9 @@ public class CvsController {
         );
     }
 
-    @GetMapping("/{id}/view")
-    public ResponseEntity<Resource> viewCv(@PathVariable Long id) throws Exception {
-        return cvService.handleCv(id, "view");
-    }
-
     @GetMapping("/{id}/download")
     public ResponseEntity<Resource> downloadCv(@PathVariable Long id) throws Exception {
-        return cvService.handleCv(id, "download");
+        return cvService.downloadCv(id);
     }
 }
 

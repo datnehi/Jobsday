@@ -12,7 +12,7 @@ public class AppliedJobDto {
     private Long id;
     private String title;
     private String companyName;
-//    private String companyLogo;
+    private String companyLogo;
     private Application.ApplicationStatus status;
     private String cvUrl;
     private String fileName;

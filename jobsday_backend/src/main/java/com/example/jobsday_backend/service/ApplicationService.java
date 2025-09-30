@@ -46,7 +46,7 @@ public class ApplicationService {
     private CvsRepository cvsRepository;
 
     @Value("${app.upload.cv-apply}")
-    private Path cvUploadDir;
+    private Path cvApplyDir;
 
     public void applyJob(Long candidateId, Long jobId, String coverLetter, MultipartFile cvFile) {
         Job job = jobRepository.findById(jobId)
@@ -55,34 +55,40 @@ public class ApplicationService {
         User candidate = userRepository.findById(candidateId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
 
-        // Lưu file
         String originalFileName = cvFile.getOriginalFilename();
-        String fileName = UUID.randomUUID() + "_" + originalFileName; // tránh trùng
-        Path filePath = cvUploadDir.resolve(fileName);
+        String fileName = UUID.randomUUID() + "_" + originalFileName;
+        Path filePath = cvApplyDir.resolve(fileName);
 
         try {
+            Files.createDirectories(filePath.getParent());
             cvFile.transferTo(filePath.toFile());
         } catch (IOException e) {
             throw new RuntimeException("Không thể lưu file CV", e);
         }
 
-        // Lấy file type (nếu null thì fallback theo extension)
         String fileType = cvFile.getContentType();
-        if (fileType == null && originalFileName != null && originalFileName.contains(".")) {
-            fileType = originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
+        if ((fileType == null || fileType.isBlank()) && originalFileName != null && originalFileName.contains(".")) {
+            String ext = originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
+            fileType = "application/" + ext;
         }
+
+        String publicUrl = "/uploads/cv-applies/" + fileName;
 
         Application existingApplication = applicationRepository.findByJobIdAndCandidateId(jobId, candidateId);
         if (existingApplication != null) {
             try {
-                Path oldPath = Paths.get(existingApplication.getCvUrl());
-                Files.deleteIfExists(oldPath);
+                if (existingApplication.getCvUrl() != null) {
+                    Path oldPath = Paths.get(cvApplyDir.toString(),
+                            Paths.get(existingApplication.getCvUrl()).getFileName().toString());
+                    Files.deleteIfExists(oldPath);
+                }
             } catch (IOException e) {
                 throw new RuntimeException("Không thể xóa file CV cũ", e);
             }
+
             existingApplication.setFileName(originalFileName);
             existingApplication.setFileType(fileType);
-            existingApplication.setCvUrl(filePath.toString());
+            existingApplication.setCvUrl(publicUrl);
             existingApplication.setCoverLetter(coverLetter);
             existingApplication.setAppliedAt(LocalDateTime.now());
             applicationRepository.save(existingApplication);
@@ -92,7 +98,7 @@ public class ApplicationService {
             application.setCandidateId(candidate.getId());
             application.setFileName(originalFileName);
             application.setFileType(fileType);
-            application.setCvUrl(filePath.toString());
+            application.setCvUrl(publicUrl);
             application.setCoverLetter(coverLetter);
             applicationRepository.save(application);
         }
@@ -112,11 +118,10 @@ public class ApplicationService {
             throw new RuntimeException("CV không thuộc về user này");
         }
 
-        // Copy file từ cvs sang application folder
         Path sourcePath = Paths.get(cv.getFileUrl());
-        String originalFileName = Paths.get(cv.getFileUrl()).getFileName().toString();
+        String originalFileName = sourcePath.getFileName().toString();
         String newFileName = UUID.randomUUID() + "_" + originalFileName;
-        Path targetPath = cvUploadDir.resolve(newFileName);
+        Path targetPath = cvApplyDir.resolve(newFileName);
 
         try {
             Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
@@ -124,30 +129,31 @@ public class ApplicationService {
             throw new RuntimeException("Không thể copy file CV từ cvs sang application", e);
         }
 
-        Application existingApplication = applicationRepository.findByJobIdAndCandidateId(jobId, candidateId);
-        if (existingApplication != null) {
+        String publicUrl = "/uploads/cv-applies/" + newFileName;
+
+        Application application = applicationRepository.findByJobIdAndCandidateId(jobId, candidateId);
+
+        if (application != null) {
             try {
-                Path oldPath = Paths.get(existingApplication.getCvUrl());
+                Path oldPath = Paths.get(cvApplyDir.toString(),
+                        Paths.get(application.getCvUrl()).getFileName().toString());
                 Files.deleteIfExists(oldPath);
             } catch (IOException e) {
                 throw new RuntimeException("Không thể xóa file CV cũ", e);
             }
-            existingApplication.setFileName(originalFileName);
-            existingApplication.setFileType(cv.getFileType());
-            existingApplication.setCvUrl(targetPath.toString());
-            existingApplication.setCoverLetter(coverLetter);
-            existingApplication.setAppliedAt(LocalDateTime.now());
-            applicationRepository.save(existingApplication);
         } else {
-            Application application = new Application();
+            application = new Application();
             application.setJobId(job.getId());
             application.setCandidateId(candidate.getId());
-            application.setFileName(originalFileName);
-            application.setFileType(cv.getFileType());
-            application.setCvUrl(targetPath.toString());
-            application.setCoverLetter(coverLetter);
-            applicationRepository.save(application);
         }
+
+        application.setFileName(originalFileName);
+        application.setFileType(cv.getFileType());
+        application.setCvUrl(publicUrl); // lưu URL thay vì absolute path
+        application.setCoverLetter(coverLetter);
+        application.setAppliedAt(LocalDateTime.now());
+
+        applicationRepository.save(application);
     }
 
     public boolean hasApplied(Long jobId, Long candidateId) {
@@ -163,29 +169,41 @@ public class ApplicationService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy application"));
     }
 
-    public ResponseEntity<Resource> loadCvFile(Long applicationId, String mode) throws Exception {
+    public ResponseEntity<Resource> downloadCvFile(Long applicationId) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy application"));
 
-        Path filePath = Path.of(application.getCvUrl());
+        String publicUrl = application.getCvUrl();
+        String fileName = Paths.get(publicUrl).getFileName().toString();
+
+        Path filePath = cvApplyDir.resolve(fileName);
+
         if (!Files.exists(filePath)) {
             throw new RuntimeException("File không tồn tại");
         }
 
-        String fileName = filePath.getFileName().toString();
-        String fileType = resolveFileType(application.getFileType(), fileName);
+        String fileType = application.getFileType();
+        if (fileType == null || fileType.isBlank()) {
+            try {
+                fileType = Files.probeContentType(filePath);
+            } catch (IOException e) {
+                fileType = "application/octet-stream";
+            }
+        }
 
-        Resource resource = new UrlResource(filePath.toUri());
-
-        // inline (xem trực tiếp) hoặc attachment (download)
-        String disposition = "inline";
-        if ("download".equalsIgnoreCase(mode)) {
-            disposition = "attachment";
+        Resource resource;
+        try {
+            resource = new UrlResource(filePath.toUri());
+            if (!resource.exists() || !resource.isReadable()) {
+                throw new RuntimeException("Không thể đọc file CV");
+            }
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Lỗi khi đọc file CV", e);
         }
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(fileType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, disposition + "; filename=\"" + fileName + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                 .body(resource);
     }
 
@@ -207,17 +225,19 @@ public class ApplicationService {
             Long applicationId = ((Number) row[0]).longValue();
             String jobTitle = (String) row[1];
             String companyName = (String) row[2];
-            Application.ApplicationStatus applicationStatus = Application.ApplicationStatus.valueOf((String) row[3]);
-            String cvUrl = (String) row[4];
-            String fileName = (String) row[5];
-            String fileType = (String) row[6];
-            String appliedAt = row[7].toString();
-            String updatedAt = row[8].toString();
+            String companyLogo = (String) row[3];
+            Application.ApplicationStatus applicationStatus = Application.ApplicationStatus.valueOf((String) row[4]);
+            String cvUrl = (String) row[5];
+            String fileName = (String) row[6];
+            String fileType = (String) row[7];
+            String appliedAt = row[8].toString();
+            String updatedAt = row[9].toString();
 
             applications.add(new AppliedJobDto(
                     applicationId,
                     jobTitle,
                     companyName,
+                    companyLogo,
                     applicationStatus,
                     cvUrl,
                     fileName,
@@ -243,20 +263,6 @@ public class ApplicationService {
                 totalPages,
                 page >= totalPages - 1
         );
-    }
-
-    private String resolveFileType(String fileType, String fileName) {
-        if (fileType != null) return fileType;
-
-        if (fileName.endsWith(".pdf")) {
-            return "application/pdf";
-        } else if (fileName.endsWith(".docx")) {
-            return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-        } else if (fileName.endsWith(".doc")) {
-            return "application/msword";
-        } else {
-            return "application/octet-stream";
-        }
     }
 
 }

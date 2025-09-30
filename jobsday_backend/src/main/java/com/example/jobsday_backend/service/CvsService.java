@@ -18,6 +18,9 @@ import org.springframework.http.HttpHeaders;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,7 +38,6 @@ public class CvsService {
     @Value("${app.upload.cv-upload}")
     private Path cvUploadDir;
 
-    // Đọc text từ file PDF hoặc DOCX
     public String extractText(MultipartFile file) throws Exception {
         String fileName = file.getOriginalFilename();
         if (fileName == null) {
@@ -62,12 +64,12 @@ public class CvsService {
         }
     }
 
-    // Lưu CV vào DB
     public Cvs saveCV(Long userId, String title, MultipartFile file) throws Exception {
         int totalCvs = cvsRepository.countCvOfCandidate(userId);
         if (totalCvs >= 6) {
             throw new RuntimeException("Bạn đã đạt giới hạn 6 CV. Vui lòng xóa bớt CV cũ để tải lên CV mới.");
         }
+
         String content = extractText(file);
         String jobTitle = extractJobTitle(content);
         Cvs.Level level = extractLevel(content);
@@ -75,7 +77,7 @@ public class CvsService {
         String address = extractAddress(content);
 
         String originalFileName = file.getOriginalFilename();
-        String fileName = UUID.randomUUID() + "_" + originalFileName; // tránh trùng
+        String fileName = UUID.randomUUID() + "_" + originalFileName;
         Path filePath = cvUploadDir.resolve(fileName);
 
         try {
@@ -89,15 +91,14 @@ public class CvsService {
             fileType = originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
         }
 
-        boolean isPublic = false;
-        if(totalCvs == 0){
-            isPublic = true;
-        }
+        boolean isPublic = (totalCvs == 0);
+
+        String fileUrl = "/uploads/cv-uploads/" + fileName;
 
         Cvs cv = Cvs.builder()
                 .userId(userId)
                 .title(title)
-                .fileUrl(filePath.toString())
+                .fileUrl(fileUrl)
                 .fileType(fileType)
                 .jobTitle(jobTitle)
                 .content(content)
@@ -145,7 +146,6 @@ public class CvsService {
             return matcher.group(2).trim();
         }
 
-        // fallback: tìm dòng có "Hà Nội", "HCM", "Đà Nẵng", ...
         for (String line : content.split("\\r?\\n")) {
             String lower = line.toLowerCase();
             if (lower.contains("hà nội") || lower.contains("hcm") || lower.contains("hồ chí minh") || lower.contains("đà nẵng")) {
@@ -161,7 +161,6 @@ public class CvsService {
 
         String[] lines = content.split("\\r?\\n");
 
-        // Regex: tìm dòng có "Vị trí", "Job Title", "Chức danh"
         Pattern pattern = Pattern.compile("(Vị trí|Job Title|Chức danh|Ứng tuyển)[:：]\\s*(.+)", Pattern.CASE_INSENSITIVE);
         for (String line : lines) {
             Matcher matcher = pattern.matcher(line);
@@ -170,7 +169,6 @@ public class CvsService {
             }
         }
 
-        // Heuristics: các từ khóa phổ biến
         String lower = content.toLowerCase();
         if (lower.contains("thực tập sinh") || lower.contains("intern")) return "Thực tập sinh";
         if (lower.contains("trưởng nhóm") || lower.contains("leader")) return "Trưởng nhóm";
@@ -180,7 +178,6 @@ public class CvsService {
         if (lower.contains("analyst")) return "Analyst";
         if (lower.contains("manager")) return "Manager";
 
-        // Fallback: dòng sau "Kinh nghiệm" hoặc "Experience"
         for (int i = 0; i < lines.length - 1; i++) {
             String l = lines[i].toLowerCase();
             if (l.contains("kinh nghiệm") || l.contains("experience") || l.contains("thực tập")) {
@@ -205,7 +202,8 @@ public class CvsService {
             throw new RuntimeException("CV not found");
         }
         try {
-            Path oldPath = Paths.get(cv.getFileUrl());
+            Path oldPath = Paths.get(cvUploadDir.toString(),
+                    Paths.get(cv.getFileUrl()).getFileName().toString());
             Files.deleteIfExists(oldPath);
         } catch (IOException e) {
             throw new RuntimeException("Không thể xóa file CV cũ", e);
@@ -231,44 +229,48 @@ public class CvsService {
         cvsRepository.save(cv);
     }
 
-    public ResponseEntity<Resource> handleCv(Long id, String mode) throws Exception {
+    public ResponseEntity<Resource> downloadCv(Long id) {
         Cvs cv = cvsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy CV"));
 
-        Path path = Paths.get(cv.getFileUrl());
-        if (!Files.exists(path)) {
-            throw new RuntimeException("File không tồn tại trên server");
+        String publicUrl = cv.getFileUrl();
+        String storedFileName = Paths.get(publicUrl).getFileName().toString();
+        Path filePath = cvUploadDir.resolve(storedFileName);
+
+        if (!Files.exists(filePath) || !Files.isReadable(filePath)) {
+            throw new RuntimeException("File không tồn tại hoặc không đọc được trên server");
         }
 
-        String fileName = cv.getTitle() != null ? cv.getTitle() : path.getFileName().toString();
-        String fileType = resolveFileType(cv.getFileType(), fileName);
-
-        Resource resource = new UrlResource(path.toUri());
-
-        // Nếu mode = view thì inline, ngược lại thì attachment
-        String disposition = "inline";
-        if ("download".equalsIgnoreCase(mode)) {
-            disposition = "attachment";
+        Resource resource;
+        try {
+            resource = new UrlResource(filePath.toUri());
+            if (!resource.exists() || !resource.isReadable()) {
+                throw new RuntimeException("Không thể load file CV");
+            }
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Lỗi khi đọc file CV", e);
         }
+
+        String fileType = cv.getFileType();
+        if (fileType == null || fileType.isBlank()) {
+            try {
+                fileType = Files.probeContentType(filePath);
+            } catch (IOException e) {
+                fileType = "application/octet-stream";
+            }
+        }
+
+        String downloadName = (cv.getTitle() != null && !cv.getTitle().isBlank())
+                ? cv.getTitle()
+                : storedFileName;
+
+        String encodedFileName = URLEncoder.encode(downloadName, StandardCharsets.UTF_8)
+                .replaceAll("\\+", "%20");
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(fileType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, disposition + "; filename=\"" + fileName + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFileName + "\"")
                 .body(resource);
-    }
-
-    private String resolveFileType(String fileType, String fileName) {
-        if (fileType != null) return fileType;
-
-        if (fileName.endsWith(".pdf")) {
-            return "application/pdf";
-        } else if (fileName.endsWith(".docx")) {
-            return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-        } else if (fileName.endsWith(".doc")) {
-            return "application/msword";
-        } else {
-            return "application/octet-stream";
-        }
     }
 
 }

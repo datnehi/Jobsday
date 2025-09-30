@@ -1,0 +1,114 @@
+<div class="container py-4" style="max-width:1200px;">
+  <div class="row">
+    <!-- Lịch sử ứng tuyển -->
+    <div class="col-lg-8 mb-4">
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold mb-0">Việc làm đã ứng tuyển</h4>
+            <div class="mb-0 d-flex align-items-center gap-2 position-relative" style="width:200px;">
+              <div class="custom-dropdown w-100">
+                <div class="custom-dropdown-toggle form-control d-flex justify-content-between align-items-center"
+                     (click)="showStatusDropdown = !showStatusDropdown; $event.stopPropagation()">
+                  <span>
+                    {{ getStatusLabel(selectedStatus) || 'Trạng thái' }}
+                  </span>
+                  <i class="bi bi-chevron-down"></i>
+                </div>
+                <ul *ngIf="showStatusDropdown" class="custom-dropdown-menu shadow">
+                  <li (click)="onStatusChange('')" [class.active]="selectedStatus === ''">Trạng thái</li>
+                  <li (click)="onStatusChange('APPLIED')" [class.active]="selectedStatus === 'APPLIED'">Đã ứng tuyển</li>
+                  <li (click)="onStatusChange('VIEWED')" [class.active]="selectedStatus === 'REVIEWED'">NTD đã xem hồ sơ</li>
+                  <li (click)="onStatusChange('SUITABLE')" [class.active]="selectedStatus === 'SUITABLE'">Hồ sơ phù hợp</li>
+                  <li (click)="onStatusChange('UNSUITABLE')" [class.active]="selectedStatus === 'UNSUITABLE'">Hồ sơ chưa phù hợp</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div *ngFor="let job of appliedJobs" class="card mb-3 shadow-sm">
+            <div class="card-body d-flex align-items-center gap-3 job-card" (click)="openJobDetail(job.id)">
+              <img [src]="job.companyLogo || 'assets/logo1.png'" alt="Logo" width="120" height="120"
+                class="rounded bg-white border" />
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <div class="fw-bold fs-5 mb-1 text-primary">{{ job.title }}</div>
+                    <div class="text-muted mb-1">{{ job.companyName }}</div>
+                    <div class="text-muted small mb-1">Thời gian ứng tuyển: {{ job.appliedAt | date:'dd-MM-yyyy HH:mm'
+                      }}</div>
+                    <div class="mb-1 d-flex justify-content-between align-items-center">
+                      <div>
+                        CV đã ứng tuyển:
+                        <a href="#" class="text-primary fw-bold" (click)="onViewCVApplied(job.id); $event.preventDefault(); $event.stopPropagation()">CV tải lên</a>
+                      </div>
+                      <div class="d-flex align-items-center gap-2" style="margin-left: 11.5em;">
+                        <button class="btn btn-outline-primary btn-sm">
+                          <i class="bi bi-chat-dots"></i> Nhắn tin
+                        </button>
+                        <button (click)="onViewCVApplied(job.id); $event.preventDefault(); $event.stopPropagation()" class="btn btn-outline-primary btn-sm">
+                          <i class="bi bi-eye-fill"></i> Xem CV
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <hr class="my-2">
+                <div class="mt-1 text-primary small" *ngIf="job.status === 'APPLIED'">
+                  Đã ứng tuyển ({{ job.appliedAt | date:'dd-MM-yyyy HH:mm' }})
+                </div>
+                <div class="mt-1 text-warning small" *ngIf="job.status === 'REVIEWED'">
+                  NTD đã xem hồ sơ
+                </div>
+                <div class="mt-1 text-success small" *ngIf="job.status === 'SUITABLE'">
+                  Hồ sơ phù hợp ({{ job.updatedAt | date:'dd-MM-yyyy HH:mm' }})
+                </div>
+                <div class="mt-1 text-secondary small" *ngIf="job.status === 'UNSUITABLE'">
+                  Hồ sơ chưa phù hợp ({{ job.updatedAt | date:'dd-MM-yyyy HH:mm' }})
+                </div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="totalPages > 1"
+            class="d-flex justify-content-center align-items-center gap-3 my-3">
+            <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage === 0"
+              (click)="changePage(currentPage - 1)" style="width: 36px; height: 36px;" aria-label="Trang trước">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <span class="fw-bold text-primary" style="font-size: 1.1rem;">
+              {{ currentPage + 1 }} <span class="text-muted">/ {{ totalPages }} trang</span>
+            </span>
+            <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage + 1 >= totalPages"
+              (click)="changePage(currentPage + 1)" style="width: 36px; height: 36px;" aria-label="Trang sau">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar quản lý hồ sơ -->
+    <div class="col-lg-4 mb-4">
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <h5 class="fw-bold mb-3">Quản lý hồ sơ</h5>
+          <div class="border rounded p-3">
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input" type="checkbox" id="ntdSearch" [(ngModel)]="allowNTDSearch"
+                (change)="toggleSearchChange()">
+              <label class="form-check-label fw-bold text-primary" for="ntdSearch">
+                Cho phép NTD tìm kiếm hồ sơ
+              </label>
+            </div>
+            <div class="text-muted small">
+              Khi có cơ hội việc làm phù hợp, NTD sẽ liên hệ và trao đổi với bạn qua:
+              <ul class="mb-0 ps-3">
+                <li>Nhắn tin qua Top Connect trên TopCV</li>
+                <li>Email và Số điện thoại của bạn</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

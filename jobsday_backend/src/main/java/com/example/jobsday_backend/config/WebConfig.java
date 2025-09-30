@@ -22,19 +22,15 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Map avatar
         registry.addResourceHandler("/uploads/avatars/**")
                 .addResourceLocations("file:///" + avatarDir + "/");
 
-        // Map company logo
         registry.addResourceHandler("/uploads/companyLogos/**")
                 .addResourceLocations("file:///" + companyLogoDir + "/");
 
-        // Map CV apply
         registry.addResourceHandler("/uploads/cv-applies/**")
                 .addResourceLocations("file:///" + cvApplyDir + "/");
 
-        // Map CV upload
         registry.addResourceHandler("/uploads/cv-uploads/**")
                 .addResourceLocations("file:///" + cvUploadDir + "/");
     }

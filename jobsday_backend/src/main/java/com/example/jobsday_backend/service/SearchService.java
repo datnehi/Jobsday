@@ -107,7 +107,7 @@ public class SearchService {
                 SELECT j.id, j.title, c.name as company_name, c.logo as company_logo, j.location, j.salary, j.level,
                        j.job_type, j.updated_at,
                        COALESCE(string_agg(DISTINCT sk.name, ','), '') AS skills,
-                       BOOL_OR(a.id IS NOT NULL) AS saved,
+                       BOOL_OR(a.id IS NOT NULL) AS applied,
                        BOOL_OR(sj.id IS NOT NULL) AS saved
             """);
         } else {
@@ -115,7 +115,7 @@ public class SearchService {
                 SELECT j.id, j.title, c.name as company_name, c.logo as company_logo, j.location, j.salary, j.level,
                        j.job_type, j.updated_at,
                        COALESCE(string_agg(DISTINCT sk.name, ','), '') AS skills,
-                       false as saved,
+                       false as applied,
                        false as saved
             """);
         }
@@ -148,8 +148,8 @@ public class SearchService {
                     ? new String[0]
                     : skillsStr.split(",");
 
-            boolean applied = row[10] != null && Boolean.parseBoolean(row[9].toString());
-            boolean saved = row[11] != null && Boolean.parseBoolean(row[10].toString());
+            boolean applied = row[10] != null && Boolean.parseBoolean(row[10].toString());
+            boolean saved = row[11] != null && Boolean.parseBoolean(row[11].toString());
 
             content.add(JobItemDto.builder()
                     .id(id)
@@ -252,7 +252,7 @@ public class SearchService {
             Company.Location companyLocation = Company.Location.valueOf((String) row[2]);
             String logo = (String) row[3];
 
-            String skillsStr = (String) row[3];
+            String skillsStr = (String) row[4];
             String[] skills = skillsStr == null || skillsStr.isBlank()
                     ? new String[0]
                     : skillsStr.split(",");

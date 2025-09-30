@@ -58,14 +58,9 @@ public class ApplicationController {
         );
     }
 
-    @GetMapping("/{applicationId}/cv/view")
-    public ResponseEntity<Resource> viewCvFile(@PathVariable Long applicationId) throws Exception {
-        return applicationService.loadCvFile(applicationId, "view");
-    }
-
     @GetMapping("/{applicationId}/cv/download")
     public ResponseEntity<Resource> downloadCvFile(@PathVariable Long applicationId) throws Exception {
-        return applicationService.loadCvFile(applicationId, "download");
+        return applicationService.downloadCvFile(applicationId);
     }
 
     @GetMapping("/candidate")

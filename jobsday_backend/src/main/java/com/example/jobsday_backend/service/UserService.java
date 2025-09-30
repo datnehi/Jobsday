@@ -4,19 +4,13 @@ import com.example.jobsday_backend.entity.User;
 import com.example.jobsday_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -27,7 +21,7 @@ public class UserService {
     private UserRepository userRepository;
 
     @Value("${app.upload.avatar}")
-    private Path avatarUploadPath;
+    private Path avatarUploadDir;
 
     public User findById(long id){
         return userRepository.findById(id);
@@ -54,27 +48,19 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
 
         try {
-            // Xoá file cũ nếu có
             if (user.getAvatarUrl() != null && !user.getAvatarUrl().isEmpty()) {
-                String oldFileName = Paths.get(user.getAvatarUrl()).getFileName().toString();
-                Path oldPath = avatarUploadPath.resolve(oldFileName);
+                Path oldPath = Paths.get(avatarUploadDir.toString(),
+                        Paths.get(user.getAvatarUrl()).getFileName().toString());
                 Files.deleteIfExists(oldPath);
             }
 
-            // Tạo tên file duy nhất
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-            Path filePath = avatarUploadPath.resolve(fileName);
+            Path filePath = avatarUploadDir.resolve(fileName);
 
-            // Lưu file
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            file.transferTo(filePath.toFile());
 
-            // Tạo URL public để lưu vào DB
-            String avatarUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path("/uploads/avatars/")
-                    .path(fileName)
-                    .toUriString();
+            String avatarUrl = "/uploads/avatars/" + fileName;
 
-            // Lưu DB
             user.setAvatarUrl(avatarUrl);
             user.setUpdatedAt(LocalDateTime.now());
             userRepository.save(user);

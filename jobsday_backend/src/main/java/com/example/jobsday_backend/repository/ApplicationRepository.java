@@ -15,7 +15,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     Application findByJobIdAndCandidateId(Long jobId, Long candidateId);
 
     @Query(value = """
-        SELECT a.id, j.title, c.name, a.status, a.cv_url, a.file_name, a.file_type, a.applied_at , a.updated_at
+        SELECT a.id, j.title, c.name, c.logo, a.status, a.cv_url, a.file_name, a.file_type, a.applied_at , a.updated_at
         FROM applications a
         JOIN jobs j ON a.job_id = j.id
         JOIN companies c ON j.company_id = c.id
@@ -32,7 +32,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     );
 
     @Query(value = """
-        SELECT a.id, j.title, c.name, a.status, a.cv_url, a.file_name, a.file_type, a.applied_at , a.updated_at
+        SELECT a.id, j.title, c.name, c.logo, a.status, a.cv_url, a.file_name, a.file_type, a.applied_at , a.updated_at
         FROM applications a
         JOIN jobs j ON a.job_id = j.id
         JOIN companies c ON j.company_id = c.id

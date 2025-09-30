@@ -7,6 +7,7 @@ import { User } from '../models/user';
 import { UserService } from './user.service';
 import { RegisterRequest } from '../dto/registerRequest';
 import { ResponseDto } from '../dto/responseDto';
+import { response } from 'express';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -18,11 +19,19 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient,
-    private userService: UserService) {
-    if (this.userToken.value) {
-      this.setUser(this.userToken.value);
-    }
+  constructor(
+    private http: HttpClient,
+    private userService: UserService,
+  ) {}
+
+  loadUserBeforeApp(): Promise<any> {
+    return this.userService.getCurrentUser().toPromise().then(res => {
+      if (res) {
+        this.currentUserSubject.next(res.data);
+      } else {
+        this.clearUser();
+      }
+    });
   }
 
   login(payload: LoginRequest): Observable<ResponseDto> {
@@ -53,7 +62,6 @@ export class AuthService {
       return;
     }
 
-    // Lưu token trực tiếp vào localStorage
     localStorage.setItem('token', token);
     this.userToken.next(token);
 
