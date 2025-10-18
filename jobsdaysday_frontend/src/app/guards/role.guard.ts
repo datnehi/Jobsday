@@ -15,7 +15,7 @@ export function roleGuard(roles: UserRole[]): CanMatchFn {
       map(user => {
         if (user && roles.includes(user.role)) {
           return true;
-        }
+        } 
         router.navigate(['/notfound']);
         return false;
       })

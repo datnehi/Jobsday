@@ -6,6 +6,7 @@ export interface CompanyMember {
   id?: number;
   companyId: number;
   userId: number;
+  position: string;
   isAdmin: boolean;
   status: MemberStatus;
   createdAt?: string;

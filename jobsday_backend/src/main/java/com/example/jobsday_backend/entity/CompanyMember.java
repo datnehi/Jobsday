@@ -22,6 +22,8 @@ public class CompanyMember {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    private String position;
+
     @Column(name = "is_admin", nullable = false)
     private Boolean isAdmin = false;
 
@@ -36,7 +38,7 @@ public class CompanyMember {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     public enum MemberStatusEnum {
-        PENDING, APPROVED, REJECTED
+        PENDING, APPROVED, REJECTED, INACTIVE
     }
 
     @PrePersist

@@ -33,8 +33,10 @@ public class SecurityConfig {
                 .cors(cors -> {})
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/api/company/**", "/api/search/**", "/api/job/**", "/api/jobskill/**", "/api/applications/**", "/uploads/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/company/**", "/api/search/**", "/api/job/**",
+                                "/api/jobskill/**", "/api/applications/**", "/uploads/**", "/api/user/me", "/api/company-members/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        //.requestMatchers("/api/company-members/**").hasRole("HR")
 //                        .requestMatchers("/applications/**").hasRole("CANDIDATE")
                         .anyRequest().authenticated()
                 )

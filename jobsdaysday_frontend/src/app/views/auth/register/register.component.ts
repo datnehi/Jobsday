@@ -5,6 +5,8 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { CompanyService } from '../../../services/company.service';
 import { RegisterRequest } from '../../../dto/registerRequest';
+import { ConvertEnumService } from '../../../services/common/convert-enum.service';
+import { ErrorDialogComponent } from "../../common/error-dialog/error-dialog.component";
 
 @Component({
   selector: 'app-register',
@@ -12,8 +14,9 @@ import { RegisterRequest } from '../../../dto/registerRequest';
   imports: [
     ReactiveFormsModule,
     CommonModule,
-    RouterModule
-  ],
+    RouterModule,
+    ErrorDialogComponent
+],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
@@ -27,23 +30,29 @@ export class RegisterComponent {
   companyDataToVerify: any = null;
 
   companyExists: boolean | null = null;
-  companyInfo: any = null;
 
   today: string = new Date().toISOString().split('T')[0];
   otpCountdown = 0;
   otpInterval: any;
+  isLoading = false;
+  showSuccessDialog = false;
+  showErrorDialog = false;
+  errorTitle = '';
+  errorMessage = '';
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private companyService: CompanyService
+    private companyService: CompanyService,
+    private convertEnumService: ConvertEnumService
   ) {
     this.registerForm = this.fb.group({
       role: ['CANDIDATE', Validators.required],
       fullName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       phone: [''],
+      position: [''],
       dob: [''],
       password: [
         '', [
@@ -55,6 +64,7 @@ export class RegisterComponent {
       confirmPassword: ['', Validators.required],
       companyCode: [''],
       companyName: [''],
+      companyLocation: [''],
       companyAddress: [''],
       companyWebsite: [''],
       companyTaxCode: [''],
@@ -69,9 +79,13 @@ export class RegisterComponent {
   // B1: Đăng ký -> gửi OTP về email
   onSubmit() {
     if (this.registerForm.valid) {
+      this.isLoading = true;
       const { confirmPassword, ...formValue } = this.registerForm.value;
       if (formValue.password !== confirmPassword) {
-        alert('Mật khẩu xác nhận không khớp!');
+        this.isLoading = false;
+        this.errorTitle = 'Đăng ký thất bại';
+        this.errorMessage = 'Mật khẩu và xác nhận mật khẩu không khớp.';
+        this.showErrorDialog = true;
         return;
       }
 
@@ -87,11 +101,14 @@ export class RegisterComponent {
 
       this.authService.register(payload).subscribe({
         next: () => {
+          this.isLoading = false;
           this.emailToVerify = payload.email;
           this.roleToVerify = payload.role;
           this.companyDataToVerify = {
+            position: formValue.position,
             companyCode: formValue.companyCode,
             companyName: formValue.companyName,
+            companyLocation: this.convertEnumService.mapLocationToEnum(formValue.companyLocation),
             companyAddress: formValue.companyAddress,
             companyWebsite: formValue.companyWebsite,
             companyTaxCode: formValue.companyTaxCode,
@@ -100,7 +117,10 @@ export class RegisterComponent {
           this.step = 'VERIFY';
         },
         error: (err) => {
-          alert(err.error.message || 'Đăng ký thất bại');
+          this.isLoading = false;
+          this.errorTitle = 'Đăng ký thất bại';
+          this.errorMessage = err.error.message || 'Đăng ký thất bại';
+          this.showErrorDialog = true;
         }
       });
     }
@@ -109,6 +129,7 @@ export class RegisterComponent {
   // B2: Nhập OTP (và thông tin công ty nếu HR)
   onVerifyOtp() {
     if (this.otpForm.valid) {
+      this.isLoading = true;
       const otpPayload: any = {
         email: this.emailToVerify,
         otp: this.otpForm.value.otp
@@ -118,8 +139,10 @@ export class RegisterComponent {
         if (this.companyDataToVerify.companyCode && this.companyExists === true) {
           otpPayload.companyCode = this.companyDataToVerify.companyCode;
         } else {
+          otpPayload.position = this.companyDataToVerify.position;
           otpPayload.companyName = this.companyDataToVerify.companyName;
           otpPayload.companyAddress = this.companyDataToVerify.companyAddress;
+          otpPayload.companyLocation = this.companyDataToVerify.companyLocation;
           otpPayload.companyWebsite = this.companyDataToVerify.companyWebsite;
           otpPayload.companyTaxCode = this.companyDataToVerify.companyTaxCode;
           otpPayload.companyDetail = this.companyDataToVerify.companyDetail;
@@ -128,20 +151,27 @@ export class RegisterComponent {
 
       this.authService.verifyOtp(otpPayload).subscribe({
         next: () => {
+          this.isLoading = false;
+          if (this.roleToVerify === 'HR') {
+            this.showSuccessDialog = true;
+            return;
+          }
           const loginData = {
             email: this.emailToVerify,
             password: this.registerForm.value.password
           };
-          this.authService.login(loginData).subscribe({
-            next: () => {
-              this.router.navigate(['/dashboard']);
-            },
-            error: (err) => {
-              this.message = err.error.message || 'Đăng nhập thất bại.';
-            }
-          });
+          this.authService.login(loginData)
+            .subscribe({
+              next: () => {
+                this.router.navigate(['/jobsday']);
+              },
+              error: (err) => {
+                this.message = err.error.message || 'Đăng nhập thất bại';
+              }
+            });
         },
         error: (err) => {
+          this.isLoading = false;
           this.message = err.error.message || 'Mã OTP không hợp lệ hoặc đã hết hạn.';
         }
       });
@@ -150,25 +180,21 @@ export class RegisterComponent {
 
   // Optional: kiểm tra companyCode hợp lệ
   checkCompanyCode() {
-    const code = this.otpForm.get('companyCode')?.value;
+    const code = this.registerForm.get('companyCode')?.value;
     if (!code) {
       this.companyExists = null;
-      this.companyInfo = null;
       return;
     }
     this.companyService.getById(code).subscribe({
       next: (result) => {
         if (result?.data) {
           this.companyExists = true;
-          this.companyInfo = result.data;
         } else {
           this.companyExists = false;
-          this.companyInfo = null;
         }
       },
       error: () => {
         this.companyExists = false;
-        this.companyInfo = null;
       }
     });
   }
@@ -191,5 +217,33 @@ export class RegisterComponent {
         clearInterval(this.otpInterval);
       }
     }, 1000);
+  }
+
+  onRoleChange(role: string) {
+    this.registerForm.get('role')?.setValue(role);
+    if (role === 'HR') {
+      this.registerForm.get('companyName')?.setValidators([Validators.required]);
+      this.registerForm.get('companyAddress')?.setValidators([Validators.required]);
+      this.registerForm.get('companyTaxCode')?.setValidators([Validators.required]);
+      this.registerForm.get('companyLocation')?.setValidators([Validators.required]);
+    } else {
+      this.registerForm.get('companyName')?.clearValidators();
+      this.registerForm.get('companyAddress')?.clearValidators();
+      this.registerForm.get('companyTaxCode')?.clearValidators();
+      this.registerForm.get('companyLocation')?.clearValidators();
+    }
+    this.registerForm.get('companyName')?.updateValueAndValidity();
+    this.registerForm.get('companyAddress')?.updateValueAndValidity();
+    this.registerForm.get('companyTaxCode')?.updateValueAndValidity();
+    this.registerForm.get('companyLocation')?.updateValueAndValidity();
+  }
+
+  closeSuccessDialog() {
+    this.showSuccessDialog = false;
+    this.router.navigate(['/jobsday']);
+  }
+
+  handleCancel() {
+    this.showErrorDialog = false;
   }
 }

@@ -1,10 +1,12 @@
 package com.example.jobsday_backend.service;
 
+import com.example.jobsday_backend.entity.JobSkillKey;
 import com.example.jobsday_backend.entity.JobSkills;
 import com.example.jobsday_backend.entity.Skills;
 import com.example.jobsday_backend.repository.JobSkillsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -27,5 +29,18 @@ public class JobSkillService {
                 .filter(Objects::nonNull)   // lọc bỏ null
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public void updateJobSkills(Long jobId, List<Long> newSkillIds) {
+        jobSkillsRepository.deleteById_JobId(jobId);
+        List<JobSkills> entities = newSkillIds.stream()
+                .map(skillId -> new JobSkills(new JobSkillKey(jobId, skillId)))
+                .toList();
+
+        jobSkillsRepository.saveAll(entities);
+
+    }
+
+
 }
 

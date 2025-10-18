@@ -196,13 +196,13 @@
       <div *ngIf="selectedTab === 'companies'">
         <div *ngFor="let company of companies" class="card company-card mb-3" (click)="openCompanyDetail(company.id)">
           <div class="card-body d-flex gap-4 align-items-center">
-            <img [src]="company.logo || 'assets/logo1.png'" alt="Logo" width="120" height="120"
+            <img [src]="company.logo || 'assets/logo1.png'" alt="Logo" width="100" height="100"
                 class="rounded bg-white border" (error)="onLogoError($event)"/>
             <div class="flex-grow-1">
               <h3 class="h6 fw-bold text-primary mb-1">{{ company.name }}</h3>
               <div class="text-muted mb-2">{{ company.location }}</div>
               <div>
-                <span class="badge bg-primary me-1" *ngFor="let tag of company.tags">{{ tag }}</span>
+                <span class="badge bg-primary me-1" *ngFor="let skill of company.skills">{{ skill }}</span>
               </div>
             </div>
           </div>
@@ -247,3 +247,12 @@
 </div>
 
 <app-login-dialog [show]="showLoginDialog" (close)="showLoginDialog = false"></app-login-dialog>
+
+<app-error-dialog
+  *ngIf="showErrorDialog"
+  [title]="errorTitle"
+  [message]="errorMessage"
+  (cancel)="handleCancel()">
+</app-error-dialog>
+
+<app-loading *ngIf="isLoading"></app-loading>

@@ -1,6 +1,8 @@
-<div class="container py-5 d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+<div class="container d-flex align-items-center justify-content-center" style="height: 100vh; min-width: fit-content;">
   <div class="row justify-content-center w-100">
-    <div [ngClass]="registerForm.get('role')?.value === 'HR' ? 'col-md-10 col-lg-9' : 'col-md-6 col-lg-5'">
+    <div [ngClass]="step === 'VERIFY'
+                      ? 'col-md-6 col-lg-6'
+                      : (registerForm.get('role')?.value === 'HR' ? 'col-md-10 col-lg-9' : 'col-md-6 col-lg-5')">
       <div class="card shadow">
         <div class="card-body">
           <div *ngIf="step === 'REGISTER'">
@@ -12,14 +14,14 @@
                   <li class="nav-item">
                     <a class="nav-link cursor-pointer" [class.active]="registerForm.get('role')?.value === 'CANDIDATE'"
                       [ngClass]="registerForm.get('role')?.value === 'CANDIDATE' ? 'text-primary' : 'text-dark'"
-                      (click)="registerForm.get('role')?.setValue('CANDIDATE')">
+                      (click)="onRoleChange('CANDIDATE')">
                       Ứng viên
                     </a>
                   </li>
                   <li class="nav-item">
                     <a class="nav-link cursor-pointer" [class.active]="registerForm.get('role')?.value === 'HR'"
                       [ngClass]="registerForm.get('role')?.value === 'HR' ? 'text-primary' : 'text-dark'"
-                      (click)="registerForm.get('role')?.setValue('HR')">
+                      (click)="onRoleChange('HR')">
                       Nhà tuyển dụng
                     </a>
                   </li>
@@ -55,6 +57,10 @@
                       <input type="text" id="phone" class="form-control" formControlName="phone">
                     </div>
                     <div class="mb-3">
+                      <label for="position" class="form-label">Chức vụ</label>
+                      <input type="text" id="position" class="form-control" formControlName="position">
+                    </div>
+                    <div class="mb-3">
                       <label for="dob" class="form-label">Ngày sinh</label>
                       <input type="date" id="dob" class="form-control" formControlName="dob">
                     </div>
@@ -62,9 +68,14 @@
                       <label for="password" class="form-label">Mật khẩu</label>
                       <input type="password" id="password" class="form-control" formControlName="password" required>
                       <div
+                        *ngIf="registerForm.get('password')?.errors?.['required'] && registerForm.get('password')?.touched"
+                        class="text-danger">
+                        Mật khẩu không được để trống
+                      </div>
+                      <div
                         *ngIf="registerForm.get('password')?.errors?.['pattern'] && registerForm.get('password')?.touched"
                         class="text-danger">
-                        Mật khẩu phải có ít nhất 1 chữ hoa, 1 chữ thường và 1 ký tự đặc biệt
+                        Mật khẩu phải có 6 ký tự, ít nhất 1 chữ hoa, 1 chữ thường và 1 ký tự đặc biệt
                       </div>
                     </div>
                     <div class="mb-3">
@@ -90,10 +101,10 @@
                       <label for="companyCode" class="form-label">Mã công ty (do HRAdmin cung cấp)</label>
                       <div class="input-group">
                         <input type="text" id="companyCode" class="form-control" formControlName="companyCode">
-                        <button type="button" class="btn btn-outline-primary" (click)="checkCompanyCode()">Kiểm tra mã
+                        <button type="button" class="btn btn-primary" (click)="checkCompanyCode()">Kiểm tra mã
                         </button>
                       </div>
-                      <div *ngIf="companyExists === true" class="text-success mt-2">
+                      <div *ngIf="companyExists === true" class="text-primary mt-2">
                         Công ty đã tồn tại. Bạn chỉ cần nhập thông tin cá nhân và chờ phê duyệt.
                       </div>
                       <div *ngIf="companyExists === false" class="text-danger mt-2">
@@ -105,10 +116,34 @@
                       <div class="mb-3">
                         <label for="companyName" class="form-label">Tên công ty</label>
                         <input type="text" id="companyName" class="form-control" formControlName="companyName" required>
+                        <div
+                          *ngIf="registerForm.get('companyName')?.invalid && registerForm.get('companyName')?.touched"
+                          class="text-danger">
+                          Tên công ty không được để trống
+                        </div>
+                      </div>
+                      <div class="mb-3">
+                        <label for="companyLocation" class="form-label">Khu vực</label>
+                        <select id="companyLocation" class="form-select" formControlName="companyLocation" required>
+                          <option value="">-- Chọn khu vực --</option>
+                          <option value="Hà Nội">Hà Nội</option>
+                          <option value="Đà Nẵng">Đà Nẵng</option>
+                          <option value="Hồ Chí Minh">Hồ Chí Minh</option>
+                        </select>
+                        <div
+                          *ngIf="registerForm.get('companyLocation')?.invalid && registerForm.get('companyLocation')?.touched"
+                          class="text-danger">
+                          Khu vực không được để trống
+                        </div>
                       </div>
                       <div class="mb-3">
                         <label for="companyAddress" class="form-label">Địa chỉ công ty</label>
                         <input type="text" id="companyAddress" class="form-control" formControlName="companyAddress">
+                        <div
+                          *ngIf="registerForm.get('companyAddress')?.invalid && registerForm.get('companyAddress')?.touched"
+                          class="text-danger">
+                          Địa chỉ công ty không được để trống
+                        </div>
                       </div>
                       <div class="mb-3">
                         <label for="companyWebsite" class="form-label">Website công ty</label>
@@ -117,6 +152,11 @@
                       <div class="mb-3">
                         <label for="companyTaxCode" class="form-label">Mã số thuế</label>
                         <input type="text" id="companyTaxCode" class="form-control" formControlName="companyTaxCode">
+                        <div
+                          *ngIf="registerForm.get('companyTaxCode')?.invalid && registerForm.get('companyTaxCode')?.touched"
+                          class="text-danger">
+                          Mã số thuế không được để trống
+                        </div>
                       </div>
                       <div class="mb-3">
                         <label for="companyDetail" class="form-label">Mô tả công ty</label>
@@ -162,11 +202,13 @@
                 <div class="mb-3">
                   <label for="password" class="form-label">Mật khẩu</label>
                   <input type="password" id="password" class="form-control" formControlName="password" required>
-                  <div *ngIf="registerForm.get('password')?.errors?.['required'] && registerForm.get('password')?.touched"
+                  <div
+                    *ngIf="registerForm.get('password')?.errors?.['required'] && registerForm.get('password')?.touched"
                     class="text-danger">
                     Mật khẩu không được để trống
                   </div>
-                  <div *ngIf="registerForm.get('password')?.errors?.['pattern'] && registerForm.get('password')?.touched"
+                  <div
+                    *ngIf="registerForm.get('password')?.errors?.['pattern'] && registerForm.get('password')?.touched"
                     class="text-danger">
                     Mật khẩu phải có 6 ký tự, ít nhất 1 chữ hoa, 1 chữ thường và 1 ký tự đặc biệt
                   </div>
@@ -196,7 +238,7 @@
           </div>
 
           <div *ngIf="step === 'VERIFY'" class="text-center">
-            <h5 class="fw-bold text-success mb-3">Vui lòng kiểm tra email để xác thực tài khoản!</h5>
+            <h5 class="fw-bold text-primary mb-3">Vui lòng kiểm tra email để xác thực tài khoản!</h5>
             <div class="mb-2">Chúng tôi đã gửi một email xác thực tới <b>{{ emailToVerify }}</b>.</div>
             <div class="mb-3">Hãy nhập mã xác thực để hoàn tất đăng ký.</div>
             <form [formGroup]="otpForm" (ngSubmit)="onVerifyOtp()">
@@ -213,13 +255,45 @@
                   </button>
                 </div>
               </div>
-              <button type="submit" class="btn btn-success w-100" [disabled]="otpForm.invalid">Xác minh</button>
+              <button type="submit" class="btn btn-primary w-100" [disabled]="otpForm.invalid">Xác minh</button>
             </form>
           </div>
           <div *ngIf="message" class="alert alert-info mt-3">{{ message }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div class="modal fade show" tabindex="-1" *ngIf="showSuccessDialog"
+    style="display: block; background: rgba(0,0,0,0.3);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-primary">Đăng ký thành công!</h5>
+          <button type="button" class="btn-close" (click)="closeSuccessDialog()"></button>
+        </div>
+        <div class="modal-body">
+          <p>Tài khoản của bạn đã được đăng ký thành công.<br>
+            Vui lòng chờ admin duyệt tài khoản của bạn.<br>
+            Có gì thắc mắc xin vui lòng liên hệ với chúng tôi qua email dndat1122&#64;gmail.com.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" (click)="closeSuccessDialog()">OK</button>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<app-error-dialog
+  *ngIf="showErrorDialog"
+  [title]="errorTitle"
+  [message]="errorMessage"
+  (cancel)="handleCancel()">
+</app-error-dialog>

@@ -15,4 +15,8 @@ export class JobSkillsService {
   getSkillsByJobId(jobId: number): Observable<ResponseDto> {
     return this.http.get<ResponseDto>(`${this.apiUrl}/${jobId}`);
   }
+
+  updateSkillsForJob(jobId: number, newSkillIds: number[]): Observable<ResponseDto> {
+    return this.http.put<ResponseDto>(`${this.apiUrl}/update/${jobId}`, newSkillIds);
+  }
 }

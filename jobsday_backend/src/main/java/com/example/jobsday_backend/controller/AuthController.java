@@ -43,72 +43,21 @@ public class AuthController {
     @Autowired
     private EmailService emailService;
 
-    @Value("${app.env.passwordSecret}")
+    @Value("${password.secret}")
     private String passwordSecret;
+
+    @Autowired
+    private AuthService authService;
 
     @PostMapping("/register")
     public ResponseEntity<ResponseDto> register(@RequestBody RegisterRequestDto body) {
+        System.out.println("Register request received: " + body);
         User userCheck = userService.findByEmail(body.getEmail());
         if (userCheck != null && Boolean.TRUE.equals(userCheck.getEmailVerified())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ResponseDto(HttpStatus.BAD_REQUEST.value(), "Email already in use", null));
         } else {
-            if (userCheck != null) {
-                String hashedPassword = passwordEncoder.encode(body.getPassword() + passwordSecret);
-                userCheck.setEmail(body.getEmail());
-                userCheck.setPasswordHash(hashedPassword);
-                userCheck.setFullName(body.getFullName());
-                userCheck.setDob(body.getDob());
-                userCheck.setPhone(body.getPhone());
-                userCheck.setAvatarUrl(body.getAvatarUrl());
-                userCheck.setRole(body.getRole());
-                if ("HR".equalsIgnoreCase(String.valueOf(body.getRole()))) {
-                    userCheck.setStatus(User.Status.INACTIVE);
-                }
-                String otp = String.valueOf((int)((Math.random() * 900000) + 100000));
-                userCheck.setVerificationCode(otp);
-                userCheck.setVerificationExpiry(LocalDateTime.now().plusMinutes(10));
-                userCheck.setEmailVerified(false);
-                userCheck.setNtdSearch(false);
-
-                userService.updateUser(userCheck);
-
-                emailService.sendEmail(
-                        userCheck.getEmail(),
-                        "Mã xác minh tài khoản",
-                        "Xin chào " + userCheck.getFullName() +
-                                ",\n\nMã OTP xác minh tài khoản của bạn là: " + otp +
-                                "\nMã có hiệu lực trong 10 phút.\n\nCảm ơn!"
-                );
-            } else {
-                String hashedPassword = passwordEncoder.encode(body.getPassword() + passwordSecret);
-                User user = new User();
-                user.setEmail(body.getEmail());
-                user.setPasswordHash(hashedPassword);
-                user.setFullName(body.getFullName());
-                user.setDob(body.getDob());
-                user.setPhone(body.getPhone());
-                user.setAvatarUrl(body.getAvatarUrl());
-                user.setRole(body.getRole());
-                if ("HR".equalsIgnoreCase(String.valueOf(body.getRole()))) {
-                    user.setStatus(User.Status.INACTIVE);
-                }
-                String otp = String.valueOf((int)((Math.random() * 900000) + 100000));
-                user.setVerificationCode(otp);
-                user.setVerificationExpiry(LocalDateTime.now().plusMinutes(10));
-                user.setEmailVerified(false);
-                user.setNtdSearch(false);
-
-                userService.createUser(user);
-
-                emailService.sendEmail(
-                        user.getEmail(),
-                        "Mã xác minh tài khoản",
-                        "Xin chào " + user.getFullName() +
-                                ",\n\nMã OTP xác minh tài khoản của bạn là: " + otp +
-                                "\nMã có hiệu lực trong 10 phút.\n\nCảm ơn!"
-                );
-            }
+            authService.register(body, userCheck);
         }
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -137,42 +86,7 @@ public class AuthController {
                     .body(new ResponseDto(HttpStatus.BAD_REQUEST.value(), "Invalid OTP", null));
         }
 
-        // ✅ Xác minh thành công
-        user.setEmailVerified(true);
-        user.setVerificationCode(null);
-        user.setVerificationExpiry(null);
-        userService.updateUser(user);
-
-        // Nếu là HR thì gắn vào công ty
-        if ("HR".equalsIgnoreCase(String.valueOf(user.getRole()))) {
-            if (request.getCompanyCode() != null) {
-                Company company = companyService.getById(Long.valueOf(request.getCompanyCode()));
-                if (company == null) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body(new ResponseDto(HttpStatus.BAD_REQUEST.value(), "Invalid company code", null));
-                }
-                CompanyMember cm = new CompanyMember();
-                cm.setCompanyId(company.getId());
-                cm.setUserId(user.getId());
-                cm.setIsAdmin(false);
-                companyMemberService.addMember(cm);
-            } else {
-                Company company = new Company();
-                company.setName(request.getCompanyName());
-                company.setAddress(request.getCompanyAddress());
-                company.setWebsite(request.getCompanyWebsite());
-                company.setTaxCode(request.getCompanyTaxCode());
-                company.setDescription(request.getCompanyDetail());
-                company.setStatus(Company.CompanyStatusEnum.PENDING);
-                companyService.create(company);
-
-                CompanyMember cm = new CompanyMember();
-                cm.setCompanyId(company.getId());
-                cm.setUserId(user.getId());
-                cm.setIsAdmin(true);
-                companyMemberService.addMember(cm);
-            }
-        }
+        authService.verifyOtp(request, user);
 
         return ResponseEntity.ok(new ResponseDto(HttpStatus.OK.value(), "Email verified successfully", null));
     }
@@ -206,6 +120,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ResponseDto> login(@RequestBody LoginRequestDto body) {
         User user = userService.findByEmail(body.getEmail());
+
+        if(user != null && user.getRole() == User.Role.HR && user.getStatus() == User.Status.INACTIVE) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ResponseDto(HttpStatus.FORBIDDEN.value(), "Your account is inactive. Please wait for admin approval.", null));
+        }
 
         if (user == null || Boolean.FALSE.equals(user.getEmailVerified())) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

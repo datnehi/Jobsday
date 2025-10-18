@@ -5,17 +5,19 @@ import { LoginDialogComponent } from '../../../common/login-dialog/login-dialog.
 import { User } from '../../../../models/user';
 import { JobService } from '../../../../services/job.service';
 import { AuthService } from '../../../../services/auth.service';
-import { ConvertEnumService } from '../../../../services/convert-enum.service';
+import { ConvertEnumService } from '../../../../services/common/convert-enum.service';
 import { SavedJobService } from '../../../../services/saved-job.service';
 import { Job } from '../../../../models/job';
+import { ErrorDialogComponent } from "../../../common/error-dialog/error-dialog.component";
 
 @Component({
   selector: 'app-apply-job-success',
   imports: [
     CommonModule,
     LoginDialogComponent,
-    RouterModule
-  ],
+    RouterModule,
+    ErrorDialogComponent
+],
   templateUrl: './apply-job-success.component.html',
   styleUrl: './apply-job-success.component.css'
 })
@@ -23,6 +25,9 @@ export class ApplyJobSuccessComponent {
   similarJobs: any[] = [];
   showLoginDialog = false;
   user: User | null = null;
+  showErrorDialog = false;
+  errorTitle = '';
+  errorMessage = '';
 
   constructor(
     private jobService: JobService,
@@ -66,7 +71,9 @@ export class ApplyJobSuccessComponent {
         job.saved = true;
       },
       error: () => {
-        alert('Lưu tin thất bại!');
+        this.showErrorDialog = true;
+        this.errorTitle = 'Lưu tin thất bại!';
+        this.errorMessage = 'Đã xảy ra lỗi khi lưu tin. Vui lòng thử lại sau.';
       }
     });
   }
@@ -84,8 +91,14 @@ export class ApplyJobSuccessComponent {
         job.saved = false;
       },
       error: () => {
-        alert('Bỏ lưu tin thất bại!');
+        this.showErrorDialog = true;
+        this.errorTitle = 'Bỏ lưu tin thất bại!';
+        this.errorMessage = 'Đã xảy ra lỗi khi bỏ lưu tin. Vui lòng thử lại sau.';
       }
     });
+  }
+
+  handleCancel() {
+    this.showErrorDialog = false;
   }
 }

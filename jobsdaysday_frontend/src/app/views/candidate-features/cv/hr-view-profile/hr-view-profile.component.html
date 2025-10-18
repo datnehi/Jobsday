@@ -40,6 +40,23 @@
               <div class="text-muted small">{{ getViewedLabel(ntd.viewedAt) }}</div>
             </div>
           </div>
+          <div *ngIf="hrViewed.length === 0" class="text-center text-muted fw-bold py-5">
+            Chưa có Nhà tuyển dụng nào xem CV của bạn trong tuần qua. Hãy cập nhật CV để tăng cơ hội được xem nhé!
+          </div>
+          <div *ngIf="totalPages > 1"
+            class="d-flex justify-content-center align-items-center gap-3 my-3">
+            <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage === 0"
+              (click)="changePage(currentPage - 1)" style="width: 36px; height: 36px;" aria-label="Trang trước">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <span class="fw-bold text-primary" style="font-size: 1.1rem;">
+              {{ currentPage + 1 }} <span class="text-muted">/ {{ totalPages }} trang</span>
+            </span>
+            <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage + 1 >= totalPages"
+              (click)="changePage(currentPage + 1)" style="width: 36px; height: 36px;" aria-label="Trang sau">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -6,9 +6,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "hr_view_candidate", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"hr_id", "candidate_id"})
-})
+@Table(name = "hr_view_candidate")
 @Data
 public class HrViewCandidate {
     @Id

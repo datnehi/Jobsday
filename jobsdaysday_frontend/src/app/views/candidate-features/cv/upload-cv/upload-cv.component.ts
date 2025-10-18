@@ -2,12 +2,16 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { CvsService } from '../../../../services/cvs.service';
 import { Router } from '@angular/router';
+import { ErrorDialogComponent } from "../../../common/error-dialog/error-dialog.component";
+import { LoadingComponent } from "../../../common/loading/loading.component";
 
 @Component({
   selector: 'app-upload-cv',
   imports: [
-    CommonModule
-  ],
+    CommonModule,
+    ErrorDialogComponent,
+    LoadingComponent
+],
   templateUrl: './upload-cv.component.html',
   styleUrl: './upload-cv.component.css'
 })
@@ -17,6 +21,10 @@ export class UploadCvComponent {
   isDragOver = false;
   isUploading = false;
 
+  showErrorDialog = false;
+  errorTitle = '';
+  errorMessage = '';
+
   constructor(private cvsService: CvsService, private router: Router) {}
 
   onCVFileChange(event: any) {
@@ -25,12 +33,16 @@ export class UploadCvComponent {
       // Giới hạn loại file
       const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
       if (!allowedTypes.includes(file.type)) {
-        alert('Chỉ hỗ trợ file .pdf, .doc, .docx!');
+        this.showErrorDialog = true;
+        this.errorTitle = 'Lỗi tải CV';
+        this.errorMessage = 'Chỉ chấp nhận file PDF hoặc Word!';
         return;
       }
       // Giới hạn kích thước file (5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('File vượt quá kích thước 5MB!');
+        this.showErrorDialog = true;
+        this.errorTitle = 'Lỗi tải CV';
+        this.errorMessage = 'File vượt quá kích thước 5MB!';
         return;
       }
       this.uploadedCVName = file.name;
@@ -69,7 +81,9 @@ export class UploadCvComponent {
 
   upLoadCv() {
     if (!this.uploadedCVFile) {
-      alert('Vui lòng chọn file CV!');
+      this.showErrorDialog = true;
+      this.errorTitle = 'Lỗi tải CV';
+      this.errorMessage = 'Vui lòng chọn file CV!';
       return;
     }
     this.isUploading = true;
@@ -83,12 +97,17 @@ export class UploadCvComponent {
       },
       error: (error) => {
         this.isUploading = false;
-        console.error("Error:", error.error);
-        alert(error.error.message);
+        this.showErrorDialog = true;
+        this.errorTitle = 'Lỗi tải CV';
+        this.errorMessage = error.error?.message || 'Đã xảy ra lỗi khi tải CV. Vui lòng thử lại sau.';
       },
       complete: () => {
         this.isUploading = false;
       }
     });
+  }
+
+  handleCancel() {
+    this.showErrorDialog = false;
   }
 }

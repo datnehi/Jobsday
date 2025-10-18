@@ -1,0 +1,55 @@
+<div class="container py-4">
+  <h3 class="mb-4 fw-bold text-primary text-center">Duyệt yêu cầu vào công ty</h3>
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle text-center">
+      <thead class="table-primary">
+        <tr>
+          <th>Họ tên</th>
+          <th>Email</th>
+          <th>Vị trí</th>
+          <th>Ngày gửi yêu cầu</th>
+          <th style="width: 160px;">Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let request of requests">
+          <td>{{ request.fullName }}</td>
+          <td>{{ request.email }}</td>
+          <td>{{ request.position }}</td>
+          <td>{{ request.updatedAt | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+          <td>
+            <button class="btn btn-sm btn-success me-2" [disabled]="request.status !== 'PENDING'"
+              (click)="confirmMember(request.id, 'approve')">Duyệt</button>
+            <button class="btn btn-sm btn-danger" [disabled]="request.status !== 'PENDING'"
+              (click)="confirmMember(request.id, 'reject')">Từ chối</button>
+          </td>
+        </tr>
+        <tr *ngIf="requests.length === 0">
+          <td colspan="6" class="text-center text-muted">Không có yêu cầu nào.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div *ngIf="totalPages > 1" class="d-flex justify-content-center align-items-center gap-3">
+    <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage === 0"
+      (click)="changePage(currentPage - 1)" style="width: 36px; height: 36px;" aria-label="Trang trước">
+      <i class="bi bi-chevron-left"></i>
+    </button>
+    <span class="fw-bold text-primary" style="font-size: 1.1rem;">
+      {{ currentPage + 1 }} <span class="text-muted">/ {{ totalPages }} trang</span>
+    </span>
+    <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage + 1 >= totalPages"
+      (click)="changePage(currentPage + 1)" style="width: 36px; height: 36px;" aria-label="Trang sau">
+      <i class="bi bi-chevron-right"></i>
+    </button>
+  </div>
+</div>
+
+<app-notification-dialog *ngIf="showConfirmDialog" [title]="confirmTitle" [message]="confirmMessage"
+  (confirm)="handleConfirm()" (cancel)="handleCancel()">
+</app-notification-dialog>
+
+<app-error-dialog *ngIf="showErrorDialog" [title]="errorTitle" [message]="errorMessage" (cancel)="handleCancelError()">
+</app-error-dialog>
+
+<app-loading *ngIf="isLoading"></app-loading>

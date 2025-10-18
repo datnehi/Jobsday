@@ -11,7 +11,7 @@ import java.util.Date;
 @Service
 public class TokenService {
 
-    @Value("${app.env.jwtSecret}")
+    @Value("${jwt.secret}")
     private String jwtSecret;
 
     // Sinh token mới

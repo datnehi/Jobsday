@@ -5,7 +5,7 @@ import { JobService } from '../../../services/job.service';
 import { Job } from '../../../models/job';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
-import { ConvertEnumService } from '../../../services/convert-enum.service';
+import { ConvertEnumService } from '../../../services/common/convert-enum.service';
 import { JobSkillsService } from '../../../services/job-skills.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ApplicationService } from '../../../services/application.service';
@@ -14,6 +14,8 @@ import { LoginDialogComponent } from '../../common/login-dialog/login-dialog.com
 import { AuthService } from '../../../services/auth.service';
 import { Cvs } from '../../../models/cvs';
 import { CvsService } from '../../../services/cvs.service';
+import { ErrorDialogComponent } from "../../common/error-dialog/error-dialog.component";
+import { LoadingComponent } from '../../common/loading/loading.component';
 
 @Component({
   selector: 'app-job-detail',
@@ -23,7 +25,9 @@ import { CvsService } from '../../../services/cvs.service';
     FormsModule,
     RouterModule,
     ReactiveFormsModule,
-    LoginDialogComponent
+    LoginDialogComponent,
+    ErrorDialogComponent,
+    LoadingComponent
   ],
   templateUrl: './job-detail.component.html',
   styleUrl: './job-detail.component.css'
@@ -44,6 +48,11 @@ export class JobDetailComponent {
   isDragOver = false;
   showLoginDialog = false;
   hoveredJobIndex: number | null = null;
+
+  showErrorDialog = false;
+  errorTitle = '';
+  errorMessage = '';
+  isLoading: boolean = false;
 
   constructor(
     private jobService: JobService,
@@ -91,7 +100,7 @@ export class JobDetailComponent {
                 console.error('Failed to load company details');
               }
             });
-            this.jobService.getSimilarJobsById(this.job.id, this.authService.currentUser?.id! || 0)
+            this.jobService.getSimilarJobsById(this.job.id!, this.authService.currentUser?.id! || 0)
               .subscribe(res => {
                 this.relatedJobs = res.data?.filter((j: Job) => j.id !== this.job?.id).map((job: any) => ({
                   ...job,
@@ -128,12 +137,16 @@ export class JobDetailComponent {
       // Giới hạn loại file
       const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
       if (!allowedTypes.includes(file.type)) {
-        alert('Chỉ hỗ trợ file .pdf, .doc, .docx!');
+        this.showErrorDialog = true;
+        this.errorTitle = 'Loại file không hợp lệ!';
+        this.errorMessage = 'Chỉ hỗ trợ file .pdf, .doc, .docx!';
         return;
       }
       // Giới hạn kích thước file (5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('File vượt quá kích thước 5MB!');
+        this.showErrorDialog = true;
+        this.errorTitle = 'Kích thước file không hợp lệ!';
+        this.errorMessage = 'Chỉ hỗ trợ file có kích thước tối đa 5MB!';
         return;
       }
       this.uploadedCVName = file.name;
@@ -212,7 +225,9 @@ export class JobDetailComponent {
         }
       },
       error: () => {
-        alert('Lưu tin thất bại!');
+        this.showErrorDialog = true;
+        this.errorTitle = 'Lưu tin thất bại!';
+        this.errorMessage = 'Đã xảy ra lỗi khi lưu tin. Vui lòng thử lại sau.';
       }
     });
   }
@@ -234,7 +249,9 @@ export class JobDetailComponent {
         }
       },
       error: () => {
-        alert('Bỏ lưu tin thất bại!');
+        this.showErrorDialog = true;
+        this.errorTitle = 'Bỏ lưu tin thất bại!';
+        this.errorMessage = 'Đã xảy ra lỗi khi bỏ lưu tin. Vui lòng thử lại sau.';
       }
     });
   }
@@ -245,7 +262,9 @@ export class JobDetailComponent {
 
   onSubmitApplication() {
     if (!this.job?.id) {
-      alert('Vui lòng chọn công việc để ứng tuyển!');
+      this.showErrorDialog = true;
+      this.errorTitle = 'Chưa chọn công việc';
+      this.errorMessage = 'Vui lòng chọn công việc để ứng tuyển!';
       return;
     }
 
@@ -258,7 +277,9 @@ export class JobDetailComponent {
     } else if (this.cvOption === 'uploaded' && this.selectedCV) {
       formData.append('cvId', this.selectedCV);
     } else {
-      alert('Bạn phải chọn CV có sẵn hoặc upload CV mới');
+      this.showErrorDialog = true;
+      this.errorTitle = 'Chưa chọn CV';
+      this.errorMessage = 'Bạn phải chọn CV có sẵn hoặc upload CV mới';
       return;
     }
 
@@ -271,105 +292,113 @@ export class JobDetailComponent {
         this.router.navigate(['/apply-success/' + this.route.snapshot.params['id']]);
       },
       error: (err) => {
-        alert('Nộp hồ sơ thất bại! ' + (err.error?.message || 'Vui lòng thử lại.'));
+        this.showErrorDialog = true;
+        this.errorTitle = 'Nộp hồ sơ thất bại!';
+        this.errorMessage = 'Đã xảy ra lỗi khi nộp hồ sơ. Vui lòng thử lại sau.';
       }
     });
   }
 
   onViewCVClick() {
     if (this.application && this.application.id) {
-      const url = `http://localhost:8080${this.application.cvUrl}`;
-      if (this.application.fileName.toLowerCase().endsWith('.docx')) {
-        this.applicationService.downloadCv(this.application.id).subscribe({
-          next: (response) => {
-            const blob = response.body!;
-            const url = window.URL.createObjectURL(blob);
+      this.isLoading = true;
 
-            // Lấy tên file từ header
-            let fileName = 'cv.docx';
-            const contentDisposition = response.headers.get('content-disposition');
-            if (contentDisposition) {
-              const matches = /filename="?([^"]+)"?/.exec(contentDisposition);
-              if (matches && matches[1]) {
-                fileName = matches[1];
-              }
-            }
+      this.applicationService.downloadCv(this.application.id).subscribe(response => {
+        const blob = response.body!;
+        const url = window.URL.createObjectURL(blob);
 
-            // Tạo link ẩn để tải
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-
-            window.URL.revokeObjectURL(url);
-          },
-          error: () => {
-            alert('Không tải được CV!');
+        const contentType = response.headers.get('Content-Type');
+        let fileName = 'cv';
+        const contentDisposition = response.headers.get('Content-Disposition');
+        if (contentDisposition) {
+          const matches = /filename="?([^"]+)"?/.exec(contentDisposition);
+          if (matches && matches[1]) {
+            fileName = decodeURIComponent(matches[1]);
           }
-        });
-        return;
-      } else {
-        window.open(url, '_blank');
-      }
-    } else {
-      alert('Không tìm thấy CV đã nộp!');
-    }
-  }
+        }
 
-  onViewCVuploaded(cvId: number) {
-    if (!cvId) {
-      alert('Không tìm thấy CV đã nộp!');
-      return;
-    }
-
-    const cv = this.userCVs.find(item => item.id === cvId);
-
-    // Nếu là file .docx thì ép tải xuống
-    if (cv && cv.title && cv.title.toLowerCase().endsWith('.docx')) {
-      this.cvsService.downloadCv(cvId).subscribe({
-        next: (response) => {
-          const blob = response.body!;
-          const url = window.URL.createObjectURL(blob);
-
-          // Lấy tên file từ header
-          let fileName = 'cv.docx';
-          const contentDisposition = response.headers.get('content-disposition');
-          if (contentDisposition) {
-            const matches = /filename="?([^"]+)"?/.exec(contentDisposition);
-            if (matches && matches[1]) {
-              fileName = matches[1];
-            }
+        if (contentType?.includes('pdf')) {
+          const pdfWindow = window.open(url, '_blank');
+          if (!pdfWindow || pdfWindow.closed || typeof pdfWindow.closed == 'undefined') {
+            this.showErrorDialog = true;
+            this.errorTitle = 'Lỗi xem CV';
+            this.errorMessage = 'Trình duyệt đã chặn cửa sổ bật lên. Vui lòng cho phép cửa sổ bật lên để xem CV.';
+            this.isLoading = false;
+            return;
           }
-
-          // Tạo link ẩn để tải
+        } else {
           const a = document.createElement('a');
           a.href = url;
           a.download = fileName;
+          a.style.display = 'none';
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
 
           window.URL.revokeObjectURL(url);
-        },
-        error: () => {
-          alert('Không tải được CV!');
         }
+        this.isLoading = false;
+      }, () => {
+        this.isLoading = false;
+        this.showErrorDialog = true;
+        this.errorTitle = 'Lỗi tải CV';
+        this.errorMessage = 'Đã xảy ra lỗi khi tải CV. Vui lòng thử lại sau.';
       });
+    } else {
+      this.showErrorDialog = true;
+      this.errorTitle = 'Không tìm thấy CV đã nộp!';
+      this.errorMessage = 'Vui lòng kiểm tra lại thông tin.';
+    }
+  }
+
+  onViewCVuploaded(cvId: number) {
+    if (!cvId) {
+      this.showErrorDialog = true;
+      this.errorTitle = 'Lỗi xem CV';
+      this.errorMessage = 'Không tìm thấy CV đã nộp!';
       return;
     }
+    this.isLoading = true;
+    this.cvsService.downloadCv(cvId).subscribe(response => {
+      const blob = response.body!;
+      const url = window.URL.createObjectURL(blob);
 
-    // Các loại file khác thì mở trực tiếp
-    this.cvsService.viewCv(cvId).subscribe({
-      next: (blob: Blob) => {
-        const url = window.URL.createObjectURL(blob);
-        window.open(url, '_blank');
-        window.URL.revokeObjectURL(url);
-      },
-      error: () => {
-        alert('Không tải được CV đã nộp!');
+      const contentType = response.headers.get('Content-Type');
+      let fileName = 'cv';
+      const contentDisposition = response.headers.get('Content-Disposition');
+      if (contentDisposition) {
+        const matches = /filename="?([^"]+)"?/.exec(contentDisposition);
+        if (matches && matches[1]) {
+          fileName = decodeURIComponent(matches[1]);
+        }
       }
+
+      if (contentType?.includes('pdf')) {
+        const pdfWindow = window.open(url, '_blank');
+        if (!pdfWindow || pdfWindow.closed || typeof pdfWindow.closed == 'undefined') {
+          this.showErrorDialog = true;
+          this.errorTitle = 'Lỗi xem CV';
+          this.errorMessage = 'Trình duyệt đã chặn cửa sổ bật lên. Vui lòng cho phép cửa sổ bật lên để xem CV.';
+          this.isLoading = false;
+          return;
+        }
+      } else {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        window.URL.revokeObjectURL(url);
+      }
+      this.isLoading = false;
+    }, () => {
+      this.isLoading = false;
+      this.showErrorDialog = true;
+      this.errorTitle = 'Lỗi xem CV';
+      this.errorMessage = 'Đã xảy ra lỗi khi tải CV để xem. Vui lòng thử lại sau.';
     });
   }
 
@@ -392,5 +421,17 @@ export class JobDetailComponent {
     //   this.router.navigate(['/chat'], { queryParams: { applicationId: this.application.id } });
     //   this.closeModalLogin();
     // }
+  }
+
+  get isExpired(): boolean {
+    if (!this.job) return false;
+    else if (this.job?.deadline && new Date(this.job.deadline) < new Date()) {
+      return true;
+    }
+    return false;
+  }
+
+  handleCancel() {
+    this.showErrorDialog = false;
   }
 }

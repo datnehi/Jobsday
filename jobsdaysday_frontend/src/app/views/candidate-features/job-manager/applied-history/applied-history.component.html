@@ -26,7 +26,7 @@
             </div>
           </div>
           <div *ngFor="let job of appliedJobs" class="card mb-3 shadow-sm">
-            <div class="card-body d-flex align-items-center gap-3 job-card" (click)="openJobDetail(job.id)">
+            <div class="card-body d-flex align-items-center gap-3 job-card" (click)="openJobDetail(job.jobId)">
               <img [src]="job.companyLogo || 'assets/logo1.png'" alt="Logo" width="120" height="120"
                 class="rounded bg-white border" />
               <div class="flex-grow-1">
@@ -39,13 +39,13 @@
                     <div class="mb-1 d-flex justify-content-between align-items-center">
                       <div>
                         CV đã ứng tuyển:
-                        <a href="#" class="text-primary fw-bold" (click)="onViewCVApplied(job.id); $event.preventDefault(); $event.stopPropagation()">CV tải lên</a>
+                        <a href="#" class="text-primary fw-bold" (click)="onViewCVApplied(job.id, 'download'); $event.preventDefault(); $event.stopPropagation()">Tải xuống Cv</a>
                       </div>
-                      <div class="d-flex align-items-center gap-2" style="margin-left: 11.5em;">
+                      <div class="d-flex align-items-center gap-2" style="margin-left: 10em;">
                         <button class="btn btn-outline-primary btn-sm">
                           <i class="bi bi-chat-dots"></i> Nhắn tin
                         </button>
-                        <button (click)="onViewCVApplied(job.id); $event.preventDefault(); $event.stopPropagation()" class="btn btn-outline-primary btn-sm">
+                        <button (click)="onViewCVApplied(job.id, 'view'); $event.preventDefault(); $event.stopPropagation()" class="btn btn-outline-primary btn-sm">
                           <i class="bi bi-eye-fill"></i> Xem CV
                         </button>
                       </div>
@@ -67,6 +67,9 @@
                 </div>
               </div>
             </div>
+          </div>
+          <div *ngIf="appliedJobs.length === 0" class="text-center text-muted fw-bold py-5">
+            Bạn chưa ứng tuyển vào công việc nào. Hãy tìm kiếm và ứng tuyển các công việc phù hợp để bắt đầu hành trình nghề nghiệp của bạn!
           </div>
           <div *ngIf="totalPages > 1"
             class="d-flex justify-content-center align-items-center gap-3 my-3">
@@ -112,3 +115,12 @@
     </div>
   </div>
 </div>
+
+<app-error-dialog
+  *ngIf="showErrorDialog"
+  [title]="errorTitle"
+  [message]="errorMessage"
+  (cancel)="handleCancel()">
+</app-error-dialog>
+
+<app-loading *ngIf="isLoading"></app-loading>

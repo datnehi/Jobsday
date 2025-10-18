@@ -3,14 +3,16 @@ import { Component } from '@angular/core';
 import { SavedJobService } from '../../../../services/saved-job.service';
 import { User } from '../../../../models/user';
 import { AuthService } from '../../../../services/auth.service';
-import { ConvertEnumService } from '../../../../services/convert-enum.service';
+import { ConvertEnumService } from '../../../../services/common/convert-enum.service';
+import { ErrorDialogComponent } from "../../../common/error-dialog/error-dialog.component";
 
 @Component({
   selector: 'app-saved-job',
   imports: [
     DatePipe,
-    CommonModule
-  ],
+    CommonModule,
+    ErrorDialogComponent
+],
   templateUrl: './saved-job.component.html',
   styleUrl: './saved-job.component.css'
 })
@@ -22,6 +24,9 @@ export class SavedJobComponent {
   totalElements: number = 0;
 
   hoveredJobIndex: number | null = null;
+  showErrorDialog = false;
+  errorTitle = '';
+  errorMessage = '';
 
   constructor(
     private savedJobService: SavedJobService,
@@ -73,7 +78,9 @@ export class SavedJobComponent {
         this.fetchSavedJobs(0);
       },
       error: () => {
-        alert('Bỏ lưu tin thất bại!');
+        this.showErrorDialog = true;
+        this.errorTitle = 'Bỏ lưu tin thất bại!';
+        this.errorMessage = 'Đã xảy ra lỗi khi bỏ lưu tin. Vui lòng thử lại sau.';
       }
     });
   }
@@ -99,5 +106,9 @@ export class SavedJobComponent {
   onLogoError(event: Event) {
     const imgElement = event.target as HTMLImageElement;
     imgElement.src = 'assets/logo1.png';
+  }
+
+  handleCancel() {
+    this.showErrorDialog = false;
   }
 }

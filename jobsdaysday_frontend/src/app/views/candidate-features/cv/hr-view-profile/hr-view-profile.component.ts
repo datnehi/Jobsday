@@ -21,6 +21,8 @@ export class HrViewProfileComponent {
   user: User = {} as User;
   allowNTDSearch: boolean = false;
   hrViewed: any[] = [];
+  currentPage: number = 0;
+  totalPages: number = 1;
 
   constructor(
     private authService: AuthService,
@@ -45,6 +47,8 @@ export class HrViewProfileComponent {
     this.hrViewCandidateService.getHrViewed(filters).subscribe(response => {
       if (response && response.data) {
         this.hrViewed = response.data.content;
+        this.currentPage = response.data.page;
+        this.totalPages = response.data.totalPages;
       }
     });
   }
@@ -74,5 +78,9 @@ export class HrViewProfileComponent {
 
   viewCompanyProfile(companyId: number) {
     window.open(`/company-detail/${companyId}`, '_blank');
+  }
+
+  changePage(page: number) {
+    this.getHrViewed(page);
   }
 }

@@ -56,4 +56,22 @@ public class SearchController {
                 new ResponseDto(HttpStatus.OK.value(), "Find companies successfully", companies)
         );
     }
+
+    @GetMapping("/candidates")
+    public ResponseEntity<ResponseDto> searchCandidates(
+            @RequestParam(value = "q", required = false) String q,
+            @RequestParam(value = "location", required = false) Job.Location location,
+            @RequestParam(value = "experience", required = false) Job.Experience experience,
+            @RequestParam(value = "level", required = false) Job.Level level,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", required = false) Integer size
+    ) {
+        int pageSize = (size == null ? 10 : size);
+        PageResultDto<CandidateSearchDto> candidates = searchService.findCandidates(
+                q, experience, level, page, pageSize
+        );
+        return ResponseEntity.ok(
+                new ResponseDto(HttpStatus.OK.value(), "Find candidates successfully", candidates)
+        );
+    }
 }

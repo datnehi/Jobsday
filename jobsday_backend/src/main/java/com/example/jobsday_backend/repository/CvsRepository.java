@@ -18,4 +18,6 @@ public interface CvsRepository extends JpaRepository<Cvs, Long> {
         WHERE cvs.user_id = :candidateId
         """, nativeQuery = true)
     int countCvOfCandidate(@Param("candidateId") long candidateId);
+
+    public Cvs findTopByUserIdOrderByUpdatedAtDesc(Long userId);
 }

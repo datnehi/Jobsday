@@ -7,7 +7,6 @@ import { User } from '../models/user';
 import { UserService } from './user.service';
 import { RegisterRequest } from '../dto/registerRequest';
 import { ResponseDto } from '../dto/responseDto';
-import { response } from 'express';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -22,17 +21,21 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private userService: UserService,
-  ) {}
+  ) { }
 
-  loadUserBeforeApp(): Promise<any> {
-    return this.userService.getCurrentUser().toPromise().then(res => {
+  async loadUserBeforeApp(): Promise<any> {
+    try {
+      const res = await this.userService.getCurrentUser().toPromise();
       if (res) {
         this.currentUserSubject.next(res.data);
       } else {
         this.clearUser();
       }
-    });
+    } catch (e) {
+      this.clearUser();
+    }
   }
+
 
   login(payload: LoginRequest): Observable<ResponseDto> {
     return this.http.post<ResponseDto>(this.api + '/login', payload).pipe(

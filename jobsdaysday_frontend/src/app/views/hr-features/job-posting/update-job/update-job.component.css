@@ -1,0 +1,46 @@
+/* Container thực sự chứa các option */
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items.scroll-host > div:nth-child(2) {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px 12px;
+  padding: 12px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+/* Mỗi option */
+::ng-deep .ng-dropdown-panel .ng-option {
+  flex: 0 0 calc(33.33% - 12px); /* 3 item mỗi hàng */
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  cursor: pointer;
+  width: auto !important;
+  white-space: nowrap;
+}
+
+::ng-deep .ng-dropdown-panel .ng-option:hover {
+  background-color: #f5f5f5;
+}
+
+/* Nội dung option */
+::ng-deep .skill-option {
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+}
+
+::ng-deep .ng-select .ng-dropdown-panel {
+  background: #fff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10) !important;
+  z-index: 1050 !important;
+  border: 1px solid #e0e3e8 !important;
+}
+::ng-deep .ng-select .ng-dropdown-panel-items {
+  background: transparent !important;
+}

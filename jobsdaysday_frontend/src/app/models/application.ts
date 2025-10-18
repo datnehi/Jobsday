@@ -6,7 +6,6 @@ export interface Application {
   candidate_id: number;
   file_name: string;
   cv_url: string;
-  file_type: string;
   cover_letter?: string;
   status: ApplicationStatus;
   applied_at: string;   // ISO date string

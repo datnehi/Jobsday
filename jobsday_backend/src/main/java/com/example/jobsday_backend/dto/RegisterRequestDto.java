@@ -14,10 +14,4 @@ public class RegisterRequestDto {
     private LocalDate dob;
     private String avatarUrl;
     private User.Role role;
-    private String companyCode;
-    private String companyName;
-    private String companyAddress;
-    private String companyWebsite;
-    private String companyTaxCode;
-    private String companyDetail;
 }

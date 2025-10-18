@@ -2,6 +2,7 @@ package com.example.jobsday_backend.service;
 
 import com.example.jobsday_backend.dto.HrViewCandidateDTO;
 import com.example.jobsday_backend.dto.PageResultDto;
+import com.example.jobsday_backend.entity.HrViewCandidate;
 import com.example.jobsday_backend.repository.HrViewCandidateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,5 +51,12 @@ public class HrViewCandidateService {
                 totalPages,
                 page >= totalPages - 1
         );
+    }
+
+    public void createHrViewRecord(Long hrId, Long candidateId) {
+        HrViewCandidate hrViewCandidate = new HrViewCandidate();
+        hrViewCandidate.setHrId(hrId);
+        hrViewCandidate.setCandidateId(candidateId);
+        hrViewCandidateRepository.save(hrViewCandidate);
     }
 }

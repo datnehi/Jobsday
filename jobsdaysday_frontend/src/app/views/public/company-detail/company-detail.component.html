@@ -53,7 +53,7 @@
           Giới thiệu về {{ company?.name }}
         </div>
         <div class="card-body" style="font-size: 15px; min-height: 60px;">
-          {{ shortDescription || 'Chưa có thông tin giới thiệu về công ty.' }}
+          <span [innerHTML]="(shortDescription || 'Chưa có thông tin giới thiệu về công ty.') | newlineToBr"></span>
           <a *ngIf="isLongDescription && !showFullDescription"
              class="text-primary fw-bold ms-2"
              style="cursor:pointer;"
@@ -148,7 +148,7 @@
         </div>
 
         <!-- Phân trang -->
-        <div class="d-flex justify-content-center align-items-center gap-3 my-3">
+        <div *ngIf="totalPages > 1" class="d-flex justify-content-center align-items-center gap-3 my-3">
           <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage === 0"
             (click)="changePage(currentPage - 1)" style="width: 36px; height: 36px;" aria-label="Trang trước">
             <i class="bi bi-chevron-left"></i>
@@ -200,3 +200,10 @@
 </div>
 
 <app-login-dialog [show]="showLoginDialog" (close)="showLoginDialog = false"></app-login-dialog>
+
+<app-error-dialog
+  *ngIf="showErrorDialog"
+  [title]="errorTitle"
+  [message]="errorMessage"
+  (cancel)="handleCancel()">
+</app-error-dialog>

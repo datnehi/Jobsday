@@ -3,7 +3,6 @@ export interface Cvs {
   user_id: number;
   title: string;
   file_url: string;
-  file_type: string;
   address?: string;
   level?: string;        // Giá trị của level_enum
   experience?: string;   // Giá trị của experience_enum

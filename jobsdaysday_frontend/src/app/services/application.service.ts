@@ -23,7 +23,7 @@ export class ApplicationService {
   }
 
   downloadCv(applicationId: number): Observable<HttpResponse<Blob>> {
-    return this.http.get(`${this.apiUrl}/${applicationId}/cv/download`, { responseType: 'blob', observe: 'response'});
+    return this.http.get(`${this.apiUrl}/${applicationId}/cv/download`, { responseType: 'blob', observe: 'response' });
   }
 
   getAppliedJobs(filter: any): Observable<ResponseDto> {
@@ -32,4 +32,16 @@ export class ApplicationService {
     if (filter.page !== undefined) params = params.set('page', filter.page);
     return this.http.get<ResponseDto>(this.apiUrl + '/candidate', { params });
   }
+
+  getApplicationsByJob(jobId: number, filter: any): Observable<ResponseDto> {
+    let params = new HttpParams();
+    if (filter.page !== undefined) params = params.set('page', filter.page);
+    return this.http.get<ResponseDto>(this.apiUrl + `/applied/${jobId}`, { params });
+  }
+
+  updateApplicationStatus(applicationId: number, status: string): Observable<ResponseDto> {
+    const url = `${this.apiUrl}/${applicationId}/status?status=${status}`;
+    return this.http.put<ResponseDto>(url, {});
+  }
+
 }

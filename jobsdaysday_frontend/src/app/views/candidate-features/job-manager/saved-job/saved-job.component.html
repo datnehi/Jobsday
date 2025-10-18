@@ -74,6 +74,10 @@
         </div>
       </div>
 
+      <div *ngIf="savedJobs.length === 0" class="text-center text-muted fw-bold py-5">
+        Bạn chưa lưu công việc nào. Hãy tìm kiếm và lưu các công việc phù hợp để dễ dàng truy cập và ứng tuyển sau này!
+      </div>
+
       <!-- Phân trang -->
       <div *ngIf="totalPages > 1" class="d-flex justify-content-center align-items-center gap-2 my-4">
         <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage === 0"
@@ -91,3 +95,10 @@
     </div>
   </div>
 </div>
+
+<app-error-dialog
+  *ngIf="showErrorDialog"
+  [title]="errorTitle"
+  [message]="errorMessage"
+  (cancel)="handleCancel()">
+</app-error-dialog>

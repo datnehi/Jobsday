@@ -76,7 +76,7 @@ export class LoginDialogComponent implements OnChanges {
     if (this.registerForm.valid) {
       const { confirmPassword, ...formValue } = this.registerForm.value;
       if ((formValue.password ?? '') !== (confirmPassword ?? '')) {
-        alert('Mật khẩu xác nhận không khớp!');
+        this.registerErrorMessage = 'Mật khẩu xác nhận không khớp.';
         return;
       }
 
@@ -184,10 +184,10 @@ export class LoginDialogComponent implements OnChanges {
             this.authService.currentUser$.subscribe(user => {
               if (user) {
                 if (user.role === 'HR') {
-                  this.router.navigate(['/company/dashboard']);
+                  this.router.navigate(['/company/jobsday']);
                   return;
                 } else if (user.role === 'ADMIN') {
-                  this.router.navigate(['/admin/dashboard']);
+                  this.router.navigate(['/admin/jobsday']);
                   return;
                 } else {
                   this.closeModalLogin();

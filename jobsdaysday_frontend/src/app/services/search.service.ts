@@ -8,7 +8,7 @@ import { ResponseDto } from '../dto/responseDto';
 export class SearchService {
   private apiUrl = environment.apiUrl + 'search';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   searchJobs(filters: any): Observable<ResponseDto> {
     let params = new HttpParams();
@@ -38,5 +38,19 @@ export class SearchService {
     if (filters.size !== undefined) params = params.set('size', filters.size);
 
     return this.http.get<ResponseDto>(`${this.apiUrl}/companies`, { params });
+  }
+
+  searchCandidate(filters: any): Observable<ResponseDto> {
+    let params = new HttpParams();
+    if (filters.keyword) params = params.set('q', filters.keyword);
+    if (filters.location) params = params.set('location', filters.location);
+    if (filters.experience) params = params.set('experience', filters.experience);
+    if (filters.level) params = params.set('level', filters.level);
+
+    // Phân trang cho candidates
+    if (filters.candidatesPage !== undefined) params = params.set('page', filters.candidatesPage);
+    if (filters.size !== undefined) params = params.set('size', filters.size);
+
+    return this.http.get<ResponseDto>(`${this.apiUrl}/candidates`, { params });
   }
 }

@@ -12,12 +12,12 @@
             <div class="col-md-6 mb-4" *ngFor="let cv of uploadedCVs; let i = index">
               <div class="card shadow-sm rounded h-100 text-center p-3 position-relative"
                    (mouseenter)="hoveredIndex = i" (mouseleave)="hoveredIndex = null" style="cursor: pointer;"
-                   (click)="viewCv(cv.id)">
+                   (click)="viewCv(cv.id, 'view')">
                 <img src="assets/cv.png" alt="CV Folder" width="96" height="96" class="mx-auto mb-3" />
                 <div class="fw-bold mb-1">{{ cv.title }}</div>
                 <div class="text-muted small mb-2">Cập nhật {{ cv.updatedAt | date:'dd-MM-yyyy HH:mm' }}</div>
                 <div class="d-flex justify-content-center gap-2 mb-2">
-                  <button class="btn btn-primary btn-sm px-3" (click)="downloadCv(cv.id); $event.stopPropagation()">Tải về</button>
+                  <button class="btn btn-primary btn-sm px-3" (click)="viewCv(cv.id, 'download'); $event.stopPropagation()">Tải về</button>
                   <div class="dropdown" (mouseenter)="showDropdown[i]=true" (mouseleave)="showDropdown[i]=false" [class.show]="showDropdown[i]">
                     <button class="btn btn-outline-secondary btn-sm px-3" type="button"
                       [attr.aria-expanded]="showDropdown[i]" (click)="showDropdown[i]=!showDropdown[i]; $event.stopPropagation()">
@@ -42,7 +42,7 @@
                 <span
                   *ngIf="!cv.isPublic && hoveredIndex === i"
                   class="position-absolute top-0 m-2 text-muted fs-3 cv-tooltip-parent"
-                  (click)="setAsMain(cv.id)"
+                  (click)="setAsMain(cv.id); $event.stopPropagation()" style="cursor: pointer;"
                 >
                   <i class="bi bi-star"></i>
                   <span class="cv-tooltip">
@@ -50,6 +50,9 @@
                   </span>
                 </span>
               </div>
+            </div>
+            <div *ngIf="uploadedCVs.length === 0" class="text-center text-muted fw-bold py-5">
+              Bạn chưa tải lên CV nào. Hãy tải lên để bắt đầu ứng tuyển các công việc phù hợp!
             </div>
           </div>
         </div>
@@ -102,3 +105,13 @@
     </div>
   </div>
 </div>
+
+<app-error-dialog
+  *ngIf="showErrorDialog"
+  [title]="errorTitle"
+  [message]="errorMessage"
+  (cancel)="handleCancel()">
+</app-error-dialog>
+
+<app-loading *ngIf="isLoading"></app-loading>
+

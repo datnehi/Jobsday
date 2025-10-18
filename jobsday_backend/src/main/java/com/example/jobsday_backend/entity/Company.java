@@ -25,13 +25,14 @@ public class Company {
     @Column( nullable = false)
     private String address;
 
+    private String website;
+
     @Column(name = "tax_code", nullable = false)
     private String taxCode;
 
     @Column( nullable = false)
-    private String website;
+    private String email;
 
-    @Column( nullable = false)
     private String description;
 
     @Enumerated(EnumType.STRING)

@@ -1,5 +1,6 @@
 package com.example.jobsday_backend.service;
 
+import com.example.jobsday_backend.dto.CandidateSearchDto;
 import com.example.jobsday_backend.dto.CompanyItemDto;
 import com.example.jobsday_backend.dto.JobItemDto;
 import com.example.jobsday_backend.dto.PageResultDto;
@@ -46,7 +47,7 @@ public class SearchService {
             """);
         }
 
-        baseSql.append(" WHERE j.status = 'ACTIVE' ");
+        baseSql.append(" WHERE j.status = 'ACTIVE' AND j.deadline >= NOW() ");
 
         Map<String, Object> params = new HashMap<>();
 
@@ -272,4 +273,149 @@ public class SearchService {
         return new PageResultDto<>(content, page, size, total, totalPages, last);
     }
 
+    public PageResultDto<CandidateSearchDto> findCandidates(
+            String q,
+            Job.Experience experience,
+            Job.Level level,
+            int page,
+            int size
+    ) {
+        StringBuilder baseSql = new StringBuilder("""
+        FROM cvs c
+        LEFT JOIN users u ON c.user_id = u.id
+        WHERE u.ntd_search = TRUE AND c.is_public = TRUE
+    """);
+
+        Map<String, Object> params = new HashMap<>();
+
+        // =========== SEARCH FILTERS ===========
+        if (q != null && !q.isBlank()) {
+            String cleanQ = q.trim();
+
+            baseSql.append("""
+                AND (
+                    c.content_tsv @@ (phraseto_tsquery('english', :plainQ) || plainto_tsquery('simple', :plainQ))
+                    OR EXISTS (
+                        SELECT 1
+                        FROM cv_skills cs
+                        JOIN skills sk ON sk.id = cs.skill_id
+                        WHERE cs.cv_id = c.id
+                          AND sk.name ILIKE :likeQ
+                    )
+                )
+            """);
+
+            params.put("plainQ", cleanQ);
+            params.put("likeQ", "%" + cleanQ + "%");
+        }
+
+        if (experience != null) {
+            baseSql.append(" AND c.experience = :experience ");
+            params.put("experience", experience.name());
+        }
+        if (level != null) {
+            baseSql.append(" AND c.level = :level ");
+            params.put("level", level.name());
+        }
+
+        // =========== COUNT QUERY ===========
+        String countSql = "SELECT COUNT(DISTINCT c.id) " + baseSql;
+        Query countQuery = em.createNativeQuery(countSql);
+        params.forEach(countQuery::setParameter);
+        long total = ((Number) countQuery.getSingleResult()).longValue();
+
+        if (total == 0) {
+            return new PageResultDto<>(Collections.emptyList(), page, size, 0, 0, true);
+        }
+
+        // =========== DATA QUERY ===========
+        StringBuilder dataSql = new StringBuilder("""
+            SELECT
+                c.id,
+                c.user_id,
+                u.email,
+                u.full_name,
+                u.address,
+                u.phone,
+                u.avatar_url,
+                c.file_url,
+                c.level,
+                c.experience
+        """);
+
+        if (q != null && !q.isBlank()) {
+            dataSql.append("""
+                ,
+                (
+                    ts_rank(c.content_tsv, phraseto_tsquery('english', :plainQ)) * 5 +
+                    ts_rank(c.content_tsv, plainto_tsquery('simple', :plainQ)) * 4 +
+                    (
+                        SELECT COUNT(DISTINCT sk.name)
+                        FROM cv_skills cs
+                        JOIN skills sk ON sk.id = cs.skill_id
+                        WHERE cs.cv_id = c.id
+                          AND sk.name ILIKE :likeQ
+                    ) * 0.25
+            """);
+
+            if (experience != null) {
+                dataSql.append(" + CASE WHEN c.experience = :experience THEN 0.5 ELSE 0 END ");
+            }
+            if (level != null) {
+                dataSql.append(" + CASE WHEN c.level = :level THEN 0.5 ELSE 0 END ");
+            }
+
+            dataSql.append(") AS score ");
+        }
+
+        dataSql.append(" ").append(baseSql);
+
+        if (q != null && !q.isBlank()) {
+            dataSql.append(" ORDER BY score DESC ");
+        } else {
+            dataSql.append(" ORDER BY c.updated_at DESC ");
+        }
+
+        dataSql.append(" LIMIT :limit OFFSET :offset ");
+
+        Query query = em.createNativeQuery(dataSql.toString());
+        params.forEach(query::setParameter);
+        query.setParameter("limit", size);
+        query.setParameter("offset", page * size);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = query.getResultList();
+
+        List<CandidateSearchDto> content = new ArrayList<>(rows.size());
+        for (Object[] row : rows) {
+            Long id = ((Number) row[0]).longValue();
+            Long userId = ((Number) row[1]).longValue();
+            String email = (String) row[2];
+            String fullName = (String) row[3];
+            String address = (String) row[4];
+            String phone = (String) row[5];
+            String avatarUrl = (String) row[6];
+            String fileUrl = (String) row[7];
+            String levelData = (String) row[8];
+            String experienceData = (String) row[9];
+
+            content.add(CandidateSearchDto.builder()
+                    .id(id)
+                    .userId(userId)
+                    .email(email)
+                    .fullName(fullName)
+                    .address(address)
+                    .phone(phone)
+                    .avatarUrl(avatarUrl)
+                    .fileUrl(fileUrl)
+                    .level(levelData)
+                    .experience(experienceData)
+                    .build());
+        }
+
+        int totalPages = (int) Math.ceil((double) total / size);
+        boolean last = (page + 1) >= totalPages;
+
+        return new PageResultDto<>(content, page, size, total, totalPages, last);
+    }
 }

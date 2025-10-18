@@ -47,10 +47,18 @@
             </div>
             <!-- Button group nằm dưới thông tin -->
             <div class="d-flex align-items-center gap-3 flex-nowrap mt-2" style="width: 740px;">
-              <button class="btn btn-primary flex-grow-1 fw-bold" style="font-size: 18px;" (click)="onApplyClick()">
-                <i [ngClass]="application ? 'bi bi-arrow-clockwise' : 'bi bi-send'"></i>
-                {{ application ? 'Ứng tuyển lại' : 'Ứng tuyển ngay' }}
-              </button>
+              <ng-container *ngIf="!isExpired; else expiredBlock">
+                <button class="btn btn-primary flex-grow-1 fw-bold" style="font-size: 18px;" (click)="onApplyClick()">
+                  <i [ngClass]="application ? 'bi bi-arrow-clockwise' : 'bi bi-send'"></i>
+                  {{ application ? 'Ứng tuyển lại' : 'Ứng tuyển ngay' }}
+                </button>
+              </ng-container>
+              <ng-template #expiredBlock>
+                <div class="bg-danger bg-opacity-10 text-danger fw-bold px-3 py-2 rounded d-flex align-items-center gap-2"
+                  style="font-size: 18px;">
+                  <i class="bi bi-exclamation-circle"></i> Hết hạn ứng tuyển
+                </div>
+              </ng-template>
               <button *ngIf="!application && !savedJob" class="btn btn-outline-primary fw-bold flex-shrink-0"
                 style="font-size: 18px; min-width: 120px;" (click)="onSaveClick(job)">
                 <i class="bi bi-heart"></i> Lưu tin
@@ -313,3 +321,12 @@
 </div>
 
 <app-login-dialog [show]="showLoginDialog" (close)="showLoginDialog = false"></app-login-dialog>
+
+<app-error-dialog
+  *ngIf="showErrorDialog"
+  [title]="errorTitle"
+  [message]="errorMessage"
+  (cancel)="handleCancel()">
+</app-error-dialog>
+
+<app-loading *ngIf="isLoading"></app-loading>

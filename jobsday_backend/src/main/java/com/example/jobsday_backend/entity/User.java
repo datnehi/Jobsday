@@ -31,6 +31,9 @@ public class User {
 
     private LocalDate dob;
 
+    @Column(name = "address")
+    private String address;
+
     @Column(name = "avatar_url")
     private String avatarUrl;
 

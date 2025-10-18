@@ -17,8 +17,6 @@ public class Cvs {
 
     private String title;
     private String fileUrl;
-    private String fileType;
-    private String address;
     private String jobTitle;
     @Enumerated(EnumType.STRING)
     private Level level;
@@ -26,7 +24,7 @@ public class Cvs {
     private Experience experience;
 
     @Column(columnDefinition = "TEXT")
-    private String content; // text đã parse
+    private String content;
 
     private Boolean isPublic = false;
 

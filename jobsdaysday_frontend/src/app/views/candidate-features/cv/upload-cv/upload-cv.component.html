@@ -93,3 +93,12 @@
     </div>
   </div>
 </div>
+
+<app-error-dialog
+  *ngIf="showErrorDialog"
+  [title]="errorTitle"
+  [message]="errorMessage"
+  (cancel)="handleCancel()">
+</app-error-dialog>
+
+<app-loading *ngIf="isUploading"></app-loading>

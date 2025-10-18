@@ -1,0 +1,9 @@
+<div class="dialog-overlay" (click)="onOverlayClick($event)">
+  <div class="notification-dialog" (click)="$event.stopPropagation()">
+    <h2>{{ title || 'Lỗi rồi' }}</h2>
+    <p>{{ message || 'Đã xảy ra lỗi. Vui lòng thử lại sau.' }}</p>
+    <div class="actions">
+      <button (click)="onCancel()">Hủy</button>
+    </div>
+  </div>
+</div>

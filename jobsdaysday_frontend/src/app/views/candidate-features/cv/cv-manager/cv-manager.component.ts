@@ -6,6 +6,9 @@ import { User } from '../../../../models/user';
 import { AuthService } from '../../../../services/auth.service';
 import { RouterModule } from '@angular/router';
 import { UserService } from '../../../../services/user.service';
+import { ToastrService } from 'ngx-toastr';
+import { ErrorDialogComponent } from "../../../common/error-dialog/error-dialog.component";
+import { LoadingComponent } from "../../../common/loading/loading.component";
 
 @Component({
   selector: 'app-cv-manager',
@@ -13,7 +16,9 @@ import { UserService } from '../../../../services/user.service';
     DatePipe,
     CommonModule,
     FormsModule,
-    RouterModule
+    RouterModule,
+    ErrorDialogComponent,
+    LoadingComponent
   ],
   templateUrl: './cv-manager.component.html',
   styleUrls: ['./cv-manager.component.css']
@@ -31,6 +36,12 @@ export class CvManagerComponent {
   renameTitle = '';
   renameCvId: number | null = null;
   mainCvId: number | null = null;
+
+  showErrorDialog = false;
+  errorTitle = '';
+  errorMessage = '';
+
+  isLoading: boolean = false;
 
   constructor(
     private authService: AuthService,
@@ -109,43 +120,54 @@ export class CvManagerComponent {
     });
   }
 
-  downloadCv(cvId: number) {
-  this.cvsService.downloadCv(cvId).subscribe(response => {
-    const blob = response.body!;
-    const url = window.URL.createObjectURL(blob);
+  viewCv(cvId: number, mode: string) {
+    if (!cvId) return;
+    this.isLoading = true;
+    this.cvsService.downloadCv(cvId).subscribe(response => {
+      const blob = response.body!;
+      const url = window.URL.createObjectURL(blob);
 
-    const contentDisposition = response.headers.get('content-disposition');
-    let fileName = 'cv.pdf';
-    if (contentDisposition) {
-      const matches = /filename\*?=(?:UTF-8''|")?([^"]+)/.exec(contentDisposition);
-      if (matches && matches[1]) {
-        fileName = decodeURIComponent(matches[1]);
+      const contentType = response.headers.get('Content-Type');
+      const contentDisposition = response.headers.get('content-disposition');
+      let fileName = 'cv.pdf';
+      if (contentDisposition) {
+        const matches = /filename="?([^"]+)"?/.exec(contentDisposition);
+        if (matches && matches[1]) {
+          fileName = decodeURIComponent(matches[1]);
+        }
       }
-    }
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+      if (mode == 'view' && contentType?.includes('pdf')) {
+        const pdfWindow = window.open(url, '_blank');
+        if (!pdfWindow || pdfWindow.closed || typeof pdfWindow.closed == 'undefined') {
+          this.showErrorDialog = true;
+          this.errorTitle = 'Lỗi xem CV';
+          this.errorMessage = 'Trình duyệt đã chặn cửa sổ bật lên. Vui lòng cho phép cửa sổ bật lên để xem CV.';
+          this.isLoading = false;
+          return;
+        }
+      } else {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
 
-    window.URL.revokeObjectURL(url);
-  });
-}
+        window.URL.revokeObjectURL(url);
+      }
+      this.isLoading = false;
+    }, () => {
+      this.showErrorDialog = true;
+      this.errorTitle = 'Lỗi xem CV';
+      this.errorMessage = 'Đã xảy ra lỗi khi tải CV để xem. Vui lòng thử lại sau.';
+      this.isLoading = false;
+    });
+  }
 
-
-  viewCv(cvId: number) {
-    const cv = this.uploadedCVs.find(item => item.id === cvId);
-
-    const url = `http://localhost:8080${cv.fileUrl}`;
-
-    if (cv.title && cv.title.toLowerCase().endsWith('.docx')) {
-      this.downloadCv(cv.id);
-    } else {
-      window.open(url, '_blank');
-    }
+  handleCancel() {
+    this.showErrorDialog = false;
   }
 
 }

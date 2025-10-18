@@ -1,0 +1,234 @@
+<div class="container py-4" style="max-width:900px;">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0 fw-bold">Chỉnh sửa tin tuyển dụng</h5>
+    </div>
+    <form [formGroup]="jobForm" (ngSubmit)="onSubmit()" class="card-body">
+      <div class="row mb-3">
+        <div class="col-md-6 mb-3">
+          <label class="form-label fw-bold">Vị trí tuyển dụng</label>
+          <input type="text" class="form-control" formControlName="title" placeholder="Nhập vị trí tuyển dụng">
+          <div *ngIf="jobForm.get('title')?.invalid && (jobForm.get('title')?.dirty || jobForm.get('title')?.touched)"
+            class="text-danger">
+            Vị trí tuyển dụng không được để trống.
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label fw-bold">Người phụ trách</label>
+          <select class="form-select" formControlName="memberName">
+            <option value="">Chọn người phụ trách</option>
+            <option *ngFor="let member of members" [value]="member.id">
+              {{ member.fullName }} - {{ member.position }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label fw-bold">Địa điểm</label>
+          <select class="form-select" formControlName="location">
+            <option value="">Chọn địa điểm</option>
+            <option value="HANOI">Hà Nội</option>
+            <option value="HOCHIMINH">Hồ Chí Minh</option>
+            <option value="DANANG">Đà Nẵng</option>
+          </select>
+          <div
+            *ngIf="jobForm.get('location')?.invalid && (jobForm.get('location')?.dirty || jobForm.get('location')?.touched)"
+            class="text-danger">
+            Địa điểm không được để trống.
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label fw-bold">Địa chỉ</label>
+          <input type="text" class="form-control" formControlName="address" placeholder="Nhập địa chỉ">
+          <div
+            *ngIf="jobForm.get('address')?.invalid && (jobForm.get('address')?.dirty || jobForm.get('address')?.touched)"
+            class="text-danger">
+            Địa chỉ không được để trống.
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label fw-bold">Số lượng tuyển</label>
+          <input type="number" class="form-control" formControlName="quantity" min="1">
+          <div
+            *ngIf="jobForm.get('quantity')?.invalid && (jobForm.get('quantity')?.dirty || jobForm.get('quantity')?.touched)"
+            class="text-danger">
+            Số lượng tuyển phải lớn hơn 0.
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label fw-bold">Hạn ứng tuyển</label>
+          <input type="date" class="form-control" formControlName="deadline">
+          <div
+            *ngIf="jobForm.get('deadline')?.invalid && (jobForm.get('deadline')?.dirty || jobForm.get('deadline')?.touched)"
+            class="text-danger">
+            Hạn ứng tuyển không được để trống.
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label fw-bold">Mức lương</label>
+          <select class="form-select" formControlName="salary">
+            <option value="">Chọn mức lương</option>
+            <option value="THOA_THUAN">Thỏa thuận</option>
+            <option value="DUOI_10_TRIEU">Dưới 10 triệu</option>
+            <option value="TU_10_DEN_15_TRIEU">10 - 15 triệu</option>
+            <option value="TU_15_DEN_20_TRIEU">15 - 20 triệu</option>
+            <option value="TU_20_DEN_25_TRIEU">20 - 25 triệu</option>
+            <option value="TU_25_DEN_30_TRIEU">25 - 30 triệu</option>
+            <option value="TU_30_DEN_50_TRIEU">30 - 50 triệu</option>
+            <option value="HON_50_TRIEU">Trên 50 triệu</option>
+          </select>
+          <div
+            *ngIf="jobForm.get('salary')?.invalid && (jobForm.get('salary')?.dirty || jobForm.get('salary')?.touched)"
+            class="text-danger">
+            Mức lương không được để trống.
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label fw-bold">Loại hợp đồng</label>
+          <select class="form-select" formControlName="contractType">
+            <option value="">Chọn loại hợp đồng</option>
+            <option value="FULL_TIME">Toàn thời gian</option>
+            <option value="PART_TIME">Bán thời gian</option>
+            <option value="FREELANCE">Freelance</option>
+          </select>
+          <div *ngIf="jobForm.get('contractType')?.invalid && (jobForm.get('contractType')?.dirty || jobForm.get('contractType')?.touched)"
+            class="text-danger">
+            Loại hợp đồng không được để trống.
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label fw-bold">Kinh nghiệm</label>
+          <select class="form-select" formControlName="experience">
+            <option value="">Chọn kinh nghiệm</option>
+            <option value="KHONG_YEU_CAU">Không yêu cầu</option>
+            <option value="DUOI_1_NAM">Dưới 1 năm</option>
+            <option value="MOT_NAM">1 năm</option>
+            <option value="HAI_NAM">2 năm</option>
+            <option value="BA_NAM">3 năm</option>
+            <option value="BON_NAM">4 năm</option>
+            <option value="NAM_NAM">5 năm</option>
+            <option value="TREN_5_NAM">Trên 5 năm</option>
+          </select>
+          <div
+            *ngIf="jobForm.get('experience')?.invalid && (jobForm.get('experience')?.dirty || jobForm.get('experience')?.touched)"
+            class="text-danger">
+            Kinh nghiệm không được để trống.
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label fw-bold">Cấp bậc</label>
+          <select class="form-select" formControlName="level">
+            <option value="">Chọn cấp bậc</option>
+            <option value="INTERN">Intern</option>
+            <option value="FRESHER">Fresher</option>
+            <option value="JUNIOR">Junior</option>
+            <option value="SENIOR">Senior</option>
+          </select>
+          <div
+            *ngIf="jobForm.get('level')?.invalid && (jobForm.get('level')?.dirty || jobForm.get('level')?.touched)"
+            class="text-danger">
+            Cấp bậc không được để trống.
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label fw-bold">Hình thức làm việc</label>
+          <select class="form-select" formControlName="jobType">
+            <option value="">Chọn hình thức</option>
+            <option value="IN_OFFICE">Tại văn phòng</option>
+            <option value="REMOTE">Remote</option>
+            <option value="HYBRID">Hybrid</option>
+          </select>
+          <div
+            *ngIf="jobForm.get('jobType')?.invalid && (jobForm.get('jobType')?.dirty || jobForm.get('jobType')?.touched)"
+            class="text-danger">
+            Hình thức làm việc không được để trống.
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label fw-bold">Thời gian làm việc</label>
+          <textarea class="form-control" rows="1" formControlName="workingTime"
+            placeholder="Ví dụ: Thứ 2 - Thứ 6, 8:00 - 17:00"></textarea>
+          <div
+            *ngIf="jobForm.get('workingTime')?.invalid && (jobForm.get('workingTime')?.dirty || jobForm.get('workingTime')?.touched)"
+            class="text-danger">
+            Thời gian làm việc không được để trống.
+          </div>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label class="form-label fw-bold">Kỹ năng yêu cầu</label>
+          <ng-select [items]="skillsList" bindLabel="name" bindValue="id" [multiple]="true" [searchable]="true"
+            formControlName="skills" class="form-control" [closeOnSelect]="false">
+
+            <ng-template ng-option-tmp let-item="item">
+              <div class="skill-option">
+                <input type="checkbox" [checked]="jobForm.value.skills?.includes(item.id)"
+                  (change)="onSkillChange(item.id, $event)" style="margin-right:8px;">
+                {{ item.name }}
+              </div>
+            </ng-template>
+
+          </ng-select>
+
+        </div>
+        <div class="col-md-12 mb-3">
+          <label class="form-label fw-bold">Mô tả công việc</label>
+          <textarea class="form-control" rows="3" formControlName="description"></textarea>
+          <div
+            *ngIf="jobForm.get('description')?.invalid && (jobForm.get('description')?.dirty || jobForm.get('description')?.touched)"
+            class="text-danger">
+            Mô tả công việc không được để trống.
+          </div>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label class="form-label fw-bold">Yêu cầu ứng viên</label>
+          <textarea class="form-control" rows="3" formControlName="requirement"></textarea>
+          <div
+            *ngIf="jobForm.get('requirement')?.invalid && (jobForm.get('requirement')?.dirty || jobForm.get('requirement')?.touched)"
+            class="text-danger">
+            Yêu cầu ứng viên không được để trống.
+          </div>
+        </div>
+        <div class="col-md-12 mb-3">
+          <label class="form-label fw-bold">Quyền lợi</label>
+          <textarea class="form-control" rows="3" formControlName="benefit"></textarea>
+          <div
+            *ngIf="jobForm.get('benefit')?.invalid && (jobForm.get('benefit')?.dirty || jobForm.get('benefit')?.touched)"
+            class="text-danger">
+            Quyền lợi không được để trống.
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <label class="form-label fw-bold">Trạng thái</label>
+          <select class="form-select" formControlName="status">
+            <option value="">Chọn trạng thái</option>
+            <option value="ACTIVE">Đang hoạt động</option>
+            <option value="HIDDEN">Ẩn</option>
+            <option value="CLOSED">Đã đóng</option>
+          </select>
+          <div
+            *ngIf="jobForm.get('status')?.invalid && (jobForm.get('status')?.dirty || jobForm.get('status')?.touched)"
+            class="text-danger">
+            Trạng thái không được để trống.
+          </div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-primary" [disabled]="jobForm.invalid" (click)="openConfirm('save')">Lưu thay đổi</button>
+        <button type="button" class="btn btn-secondary" (click)="openConfirm('cancel')">Hủy thay đổi</button>
+      </div>
+    </form>
+  </div>
+</div>
+<app-notification-dialog
+  *ngIf="showConfirmDialog"
+  [title]="confirmTitle"
+  [message]="confirmMessage"
+  (confirm)="handleConfirm()"
+  (cancel)="handleCancel()">
+</app-notification-dialog>
+
+<app-error-dialog
+  *ngIf="showErrorDialog"
+  [title]="errorTitle"
+  [message]="errorMessage"
+  (cancel)="handleCancelError()">
+</app-error-dialog>

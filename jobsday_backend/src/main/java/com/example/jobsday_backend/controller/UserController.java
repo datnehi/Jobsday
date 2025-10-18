@@ -26,7 +26,7 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Value("${app.env.passwordSecret}")
+    @Value("${password.secret}")
     private String passwordSecret;
 
     @GetMapping("/{id}")
@@ -102,9 +102,10 @@ public class UserController {
         user.setFullName(userDto.getFullName());
         user.setPhone(userDto.getPhone());
         user.setDob(userDto.getDob());
+        user.setAddress(userDto.getAddress());
         userService.updateUser(user);
         return ResponseEntity.ok(
-                new ResponseDto(HttpStatus.OK.value(), "Update user info successfully", null)
+                new ResponseDto(HttpStatus.OK.value(), "Update user info successfully", user)
         );
     }
 

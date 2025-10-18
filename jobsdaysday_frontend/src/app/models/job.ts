@@ -23,8 +23,9 @@ export type Experience =
   | 'TREN_5_NAM';
 
 export interface Job {
-  id: number;
+  id?: number;
   companyId: number;
+  memberId: number;
   title: string;
   description: string;
   requirement: string;
@@ -39,7 +40,7 @@ export interface Job {
   experience: Experience;
   quantity: number;
   deadline: string;
-  status: JobStatus;
-  createdAt: string;
-  updatedAt: string;
+  status?: JobStatus;
+  createdAt?: string;
+  updatedAt?: string;
 }

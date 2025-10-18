@@ -1,4 +1,3 @@
-import { Job } from '../../../models/job';
 import { Component } from '@angular/core';
 import { Company } from '../../../models/company';
 import { CompanyService } from '../../../services/company.service';
@@ -6,12 +5,14 @@ import { ActivatedRoute } from '@angular/router';
 import { JobService } from '../../../services/job.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ConvertEnumService } from '../../../services/convert-enum.service';
+import { ConvertEnumService } from '../../../services/common/convert-enum.service';
 import { User } from '../../../models/user';
 import { AuthService } from '../../../services/auth.service';
 import { SavedJobService } from '../../../services/saved-job.service';
 import { LoginDialogComponent } from '../../common/login-dialog/login-dialog.component';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ErrorDialogComponent } from "../../common/error-dialog/error-dialog.component";
+import { NewlineToBrPipe } from "../../../services/common/newline-to-br-pipe.service";
 
 @Component({
   selector: 'app-company-detail',
@@ -19,7 +20,9 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
     CommonModule,
     FormsModule,
     LoginDialogComponent,
-  ],
+    ErrorDialogComponent,
+    NewlineToBrPipe
+],
   templateUrl: './company-detail.component.html',
   styleUrl: './company-detail.component.css'
 })
@@ -39,6 +42,9 @@ export class CompanyDetailComponent {
   mapUrl?: SafeResourceUrl;
 
   showFullDescription = false;
+  showErrorDialog = false;
+  errorTitle = '';
+  errorMessage = '';
 
   constructor(
     private companyService: CompanyService,
@@ -115,7 +121,9 @@ export class CompanyDetailComponent {
         job.saved = true;
       },
       error: () => {
-        alert('Lưu tin thất bại!');
+        this.showErrorDialog = true;
+        this.errorTitle = 'Lưu tin thất bại!';
+        this.errorMessage = 'Đã xảy ra lỗi khi lưu tin. Vui lòng thử lại sau.';
       }
     });
   }
@@ -132,7 +140,9 @@ export class CompanyDetailComponent {
         job.saved = false;
       },
       error: () => {
-        alert('Bỏ lưu tin thất bại!');
+        this.showErrorDialog = true;
+        this.errorTitle = 'Bỏ lưu tin thất bại!';
+        this.errorMessage = 'Đã xảy ra lỗi khi bỏ lưu tin. Vui lòng thử lại sau.';
       }
     });
   }
@@ -177,5 +187,9 @@ export class CompanyDetailComponent {
       return this.company?.description?.slice(0, 300) + '...';
     }
     return this.company?.description;
+  }
+
+  handleCancel() {
+    this.showErrorDialog = false;
   }
 }

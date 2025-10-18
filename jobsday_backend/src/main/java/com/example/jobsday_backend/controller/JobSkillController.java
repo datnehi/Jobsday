@@ -30,4 +30,14 @@ public class JobSkillController {
                 new ResponseDto(HttpStatus.OK.value(), "Find company successfully", skills)
         );
     }
+
+    @PutMapping("/update/{jobId}")
+    public ResponseEntity<ResponseDto> updateJobSkills(
+            @PathVariable Long jobId,
+            @RequestBody List<Long> newSkillIds) {
+        jobSkillService.updateJobSkills(jobId, newSkillIds);
+        return ResponseEntity.ok(
+                new ResponseDto(HttpStatus.OK.value(), "Update Job Skills successfully", null)
+        );
+    }
 }

@@ -1,0 +1,111 @@
+<div class="container py-4">
+  <h3 class="mb-4 fw-bold text-primary text-center">Quản lý thành viên công ty</h3>
+  <div class="d-flex align-items-center mb-3 gap-3 justify-content-center">
+    <input type="text" class="form-control" placeholder="Tìm kiếm theo tên, email..." [(ngModel)]="searchText"
+      style="max-width: 300px;">
+    <button class="btn btn-primary" (click)="featchMembers()">Tìm kiếm</button>
+    <div class="flex-grow-1"></div>
+    <button class="btn btn-primary" routerLink="/approve-member">
+      Duyệt thành viên
+    </button>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle text-center">
+      <thead class="table-primary">
+        <tr>
+          <th class="text-center">Họ tên</th>
+          <th class="text-center">Email</th>
+          <th class="text-center">Vai trò</th>
+          <th class="text-center" style="width: 150px;">Trạng thái</th>
+          <th class="text-center" style="width: 120px;">Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let member of members">
+          <td class="text-center">{{ member.fullName }}</td>
+          <td class="text-center">{{ member.email }}</td>
+          <td class="text-center">{{ member.position }}</td>
+          <td class="text-center">
+            <span class="status-badge" [ngClass]="{
+                        'status-active': member.status === 'APPROVED',
+                        'status-closed': member.status === 'INACTIVE',
+                      }">
+              {{ member.status }}
+            </span>
+          </td>
+          <td class="text-center">
+            <button class="btn btn-sm btn-outline-primary me-1" (click)="editMember(member)">Sửa</button>
+            <button class="btn btn-sm btn-outline-danger" (click)="removeMember(member.id)">Xóa</button>
+          </td>
+        </tr>
+        <tr *ngIf="members.length === 0">
+          <td colspan="5" class="text-center text-muted">Không có thành viên nào phù hợp.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div *ngIf="totalPages > 1" class="d-flex justify-content-center align-items-center gap-3">
+    <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage === 0"
+      (click)="changePage(currentPage - 1)" style="width: 36px; height: 36px;" aria-label="Trang trước">
+      <i class="bi bi-chevron-left"></i>
+    </button>
+    <span class="fw-bold text-primary" style="font-size: 1.1rem;">
+      {{ currentPage + 1 }} <span class="text-muted">/ {{ totalPages }} trang</span>
+    </span>
+    <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage + 1 >= totalPages"
+      (click)="changePage(currentPage + 1)" style="width: 36px; height: 36px;" aria-label="Trang sau">
+      <i class="bi bi-chevron-right"></i>
+    </button>
+  </div>
+</div>
+
+<ng-template #editMemberDialog let-member>
+  <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.3);" (click)="closeEditDialog()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Sửa thông tin thành viên</h5>
+          <button type="button" class="btn-close" (click)="closeEditDialog()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Họ tên</label>
+            <input type="text" class="form-control" [value]="fullName" disabled>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" [value]="email" disabled>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Vai trò</label>
+            <input type="text" class="form-control" [(ngModel)]="editMemberData!.position">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Trạng thái</label>
+            <select class="form-select" [(ngModel)]="editMemberData!.status">
+              <option value="APPROVED">Đang hoạt động</option>
+              <option value="INACTIVE">Đã khóa</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="openConfirm('cancel')">Hủy</button>
+          <button class="btn btn-primary" (click)="openConfirm('save')">Lưu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-container *ngIf="showEditDialog">
+  <ng-container *ngTemplateOutlet="editMemberDialog; context: { member: editMemberData }"></ng-container>
+</ng-container>
+
+<app-notification-dialog *ngIf="showConfirmDialog" [title]="confirmTitle" [message]="confirmMessage"
+  (confirm)="handleConfirm()" (cancel)="handleCancel()">
+</app-notification-dialog>
+
+<app-error-dialog *ngIf="showErrorDialog" [title]="errorTitle" [message]="errorMessage" (cancel)="handleCancelError()">
+</app-error-dialog>
+
+<app-loading *ngIf="isLoading"></app-loading>

@@ -85,7 +85,9 @@ public class CvsController {
     }
 
     @GetMapping("/{id}/download")
-    public ResponseEntity<Resource> downloadCv(@PathVariable Long id) throws Exception {
+    public ResponseEntity<Resource> downloadCv(
+            @PathVariable Long id
+    ) throws Exception {
         return cvService.downloadCv(id);
     }
 }

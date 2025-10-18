@@ -16,6 +16,7 @@ public class UserResponseDto {
     private String fullName;
     private String phone;
     private LocalDate dob;
+    private String address;
     private String avatarUrl;
     private User.Role role;
     private User.Status status;
@@ -27,6 +28,7 @@ public class UserResponseDto {
         this.fullName = user.getFullName();
         this.phone = user.getPhone();
         this.dob = user.getDob();
+        this.address = user.getAddress();
         this.avatarUrl = user.getAvatarUrl();
         this.role = user.getRole();
         this.status = user.getStatus();

@@ -1,0 +1,113 @@
+<div class="search-bar-sticky py-5" style="
+    background: url('assets/baner4.jpg') center center/cover no-repeat;
+    width: 99.5vw;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    border-radius: 0;
+  ">
+  <div class="container" style="max-width:1200px;">
+    <div class="d-flex align-items-center justify-content-center gap-3">
+      <div class="flex-grow-1">
+        <div class="d-flex align-items-center rounded-pill shadow-sm" style="background: #f8f9fa; height: 48px;">
+          <i class="bi bi-search text-secondary ms-4 me-2"></i>
+          <input type="text" class="form-control border-0 bg-transparent"
+            placeholder="Tìm kiếm kỹ năng, vị trí, tên ứng viên..." [(ngModel)]="searchText"
+            style="box-shadow:none; min-width: 180px; background:transparent;">
+          <button *ngIf="searchText" class="btn btn-link text-secondary px-2" style="width: 40px;"
+            (click)="searchText=''">
+            <i class="bi bi-x-lg me-3"></i>
+          </button>
+        </div>
+      </div>
+      <button class="btn btn-primary rounded-pill px-4 ms-2" (click)="onSearch()"
+        style="font-weight:bold; height:48px;">
+        Tìm kiếm
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="container" style="max-width:1200px; margin-top: 30px;">
+  <div class="row justify-content-center">
+    <!-- Sidebar lọc nâng cao -->
+    <div class="col-lg-3 mb-4">
+      <div class="bg-white rounded shadow-sm p-3 mb-3 d-flex flex-column sidebar-sticky" style="height: 550px;">
+        <h5 class="fw-bold mb-3 text-primary flex-shrink-0">
+          <i class="bi bi-funnel"></i> Lọc nâng cao
+        </h5>
+        <div style="overflow-y: auto; flex-grow: 1;">
+          <div class="mb-3 ms-1">
+            <label class="fw-bold mb-2">Kinh nghiệm</label>
+            <div *ngFor="let exp of experiences">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="exp" [checked]="selectedExperience === exp"
+                  (change)="selectExperience(exp)">
+                <label class="form-check-label">{{ exp }}</label>
+              </div>
+            </div>
+          </div>
+          <div class="mb-3 ms-1">
+            <label class="fw-bold mb-2">Cấp bậc</label>
+            <div *ngFor="let level of levels">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="level" [checked]="selectedLevel === level"
+                  (change)="selectLevel(level)">
+                <label class="form-check-label">{{ level }}</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-outline-secondary w-100 mt-2 flex-shrink-0" (click)="clearFilters()">Xóa lọc</button>
+      </div>
+    </div>
+    <!-- Nội dung search -->
+    <div class="col-lg-9">
+      <div class="bg-white rounded shadow-sm p-3 mb-4">
+        <div class="nav nav-tabs border-0">
+          <span style="padding: 8px 16px; font-size: larger;" class="fw-bold text-primary">
+            Danh sách ứng viên
+          </span>
+        </div>
+      </div>
+      <div *ngIf="candidates.length > 0" class="bg-white rounded shadow-sm p-3 mb-4">
+        <div *ngFor="let candidate of candidates" class="card mb-3 candidate-card" (click)="viewDetail(candidate.id)"
+          style="cursor: pointer;">
+          <div class="card-body d-flex gap-4 align-items-center">
+            <img src="{{ candidate.avatarUrl || 'assets/user.jpg' }}" alt="Avatar" width="100" height="100"
+              class="rounded-circle bg-white border" />
+            <div class="flex-grow-1">
+              <h6 class="fw-bold text-primary mb-1" style="font-size: x-large;">{{ candidate.fullName }}</h6>
+              <div class="d-flex gap-3 mb-2 ms-2">Email: {{ candidate.email }}</div>
+              <div class="d-flex gap-3 mb-2 ms-2" *ngIf="candidate.phone">Số điện thoại: {{ candidate.phone }}</div>
+              <div class="d-flex gap-3 mb-2 ms-2" *ngIf="candidate.address">Địa chỉ: {{ candidate.address }}</div>
+            </div>
+            <button class="btn btn-outline-primary" (click)="viewDetail(candidate.id); $event.stopPropagation()">Xem hồ
+              sơ</button>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="candidates.length <= 0">
+        <p class="text-center text-muted">Không tìm thấy ứng viên phù hợp.</p>
+      </div>
+      <!-- Phân trang -->
+      <div *ngIf="totalPages > 1" class="d-flex justify-content-center align-items-center gap-3 my-3">
+        <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage === 0"
+          (click)="changePage(currentPage - 1)" style="width: 36px; height: 36px;" aria-label="Trang trước">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <span class="fw-bold text-primary" style="font-size: 1.1rem;">
+          {{ currentPage + 1 }} <span class="text-muted">/ {{ totalPages }} trang</span>
+        </span>
+        <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage + 1 >= totalPages"
+          (click)="changePage(currentPage + 1)" style="width: 36px; height: 36px;" aria-label="Trang sau">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-error-dialog *ngIf="showErrorDialog" [title]="errorTitle" [message]="errorMessage" (cancel)="handleCancel()">
+</app-error-dialog>
+
+<app-loading *ngIf="isLoading"></app-loading>

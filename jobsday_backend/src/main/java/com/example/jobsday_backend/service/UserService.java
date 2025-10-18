@@ -3,16 +3,11 @@ package com.example.jobsday_backend.service;
 import com.example.jobsday_backend.entity.User;
 import com.example.jobsday_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class UserService {
@@ -20,8 +15,10 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    @Value("${app.upload.avatar}")
-    private Path avatarUploadDir;
+    @Autowired
+    private S3Service s3Service;
+
+    private final String avatars = "avatars";
 
     public User findById(long id){
         return userRepository.findById(id);
@@ -48,25 +45,24 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
 
         try {
+            // Xóa avatar cũ trên S3 nếu có
             if (user.getAvatarUrl() != null && !user.getAvatarUrl().isEmpty()) {
-                Path oldPath = Paths.get(avatarUploadDir.toString(),
-                        Paths.get(user.getAvatarUrl()).getFileName().toString());
-                Files.deleteIfExists(oldPath);
+                String oldKey = s3Service.extractKeyFromUrl(user.getAvatarUrl());
+                s3Service.deleteFile(oldKey);
             }
 
-            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-            Path filePath = avatarUploadDir.resolve(fileName);
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+            String fileName = userId + "_" + timestamp + "_" + file.getOriginalFilename();
 
-            file.transferTo(filePath.toFile());
+            // Upload lên S3
+            String fileUrl = s3Service.uploadFileWithCustomName(file, avatars, fileName);
 
-            String avatarUrl = "/uploads/avatars/" + fileName;
-
-            user.setAvatarUrl(avatarUrl);
-            user.setUpdatedAt(LocalDateTime.now());
+            // Cập nhật vào DB
+            user.setAvatarUrl(fileUrl);
             userRepository.save(user);
 
-        } catch (IOException e) {
-            throw new RuntimeException("Lỗi khi lưu avatar", e);
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi upload avatar lên S3", e);
         }
     }
 

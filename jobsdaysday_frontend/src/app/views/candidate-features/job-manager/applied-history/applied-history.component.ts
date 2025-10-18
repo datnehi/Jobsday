@@ -5,13 +5,17 @@ import { AuthService } from '../../../../services/auth.service';
 import { UserService } from '../../../../services/user.service';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { ErrorDialogComponent } from "../../../common/error-dialog/error-dialog.component";
+import { LoadingComponent } from "../../../common/loading/loading.component";
 
 @Component({
   selector: 'app-applied-history',
   imports: [
     CommonModule,
     FormsModule,
-    RouterModule
+    RouterModule,
+    ErrorDialogComponent,
+    LoadingComponent
   ],
   templateUrl: './applied-history.component.html',
   styleUrls: ['./applied-history.component.css']
@@ -25,6 +29,11 @@ export class AppliedHistoryComponent {
   totalPages: number = 1;
   showStatusDropdown = false;
   selectedStatus: string = '';
+
+  isLoading: boolean = false;
+  showErrorDialog = false;
+  errorTitle = '';
+  errorMessage = '';
 
   constructor(
     private applicationService: ApplicationService,
@@ -90,50 +99,64 @@ export class AppliedHistoryComponent {
     }
   }
 
-  onViewCVApplied(cvId: number) {
+  onViewCVApplied(cvId: number, mode: string) {
     if (cvId) {
-      const application = this.appliedJobs.find(item => item.id === cvId);
-      const url = `http://localhost:8080${application.cvUrl}`;
-      if (application && application.fileName.toLowerCase().endsWith('.docx')) {
-        this.applicationService.downloadCv(application.id).subscribe({
-          next: (response) => {
-            const blob = response.body!;
-            const url = window.URL.createObjectURL(blob);
+      this.isLoading = true;
 
-            let fileName = 'cv.docx';
-            const contentDisposition = response.headers.get('content-disposition');
-            if (contentDisposition) {
-              const matches = /filename="?([^"]+)"?/.exec(contentDisposition);
-              if (matches && matches[1]) {
-                fileName = matches[1];
-              }
-            }
+      this.applicationService.downloadCv(cvId).subscribe(response => {
+        const blob = response.body!;
+        const url = window.URL.createObjectURL(blob);
 
-            // Tạo link ẩn để tải
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-
-            window.URL.revokeObjectURL(url);
-          },
-          error: () => {
-            alert('Không tải được CV!');
+        const contentType = response.headers.get('Content-Type');
+        const contentDisposition = response.headers.get('content-disposition');
+        let fileName = 'cv.pdf';
+        if (contentDisposition) {
+          const matches = /filename="?([^"]+)"?/.exec(contentDisposition);
+          if (matches && matches[1]) {
+            fileName = decodeURIComponent(matches[1]);
           }
-        });
-        return;
-      } else {
-        window.open(url, '_blank');
-      }
+        }
+
+        if (mode == 'view' && contentType?.includes('pdf')) {
+          const pdfWindow = window.open(url, '_blank');
+          if (!pdfWindow || pdfWindow.closed || typeof pdfWindow.closed == 'undefined') {
+            this.showErrorDialog = true;
+            this.errorTitle = 'Lỗi xem CV';
+            this.errorMessage = 'Trình duyệt đã chặn cửa sổ bật lên. Vui lòng cho phép cửa sổ bật lên để xem CV.';
+            this.isLoading = false;
+            return;
+          }
+        } else {
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+
+          window.URL.revokeObjectURL(url);
+        }
+        this.isLoading = false;
+      }, () => {
+        this.isLoading = false;
+        this.showErrorDialog = true;
+        this.errorTitle = 'Lỗi tải CV';
+        this.errorMessage = 'Đã xảy ra lỗi khi tải CV. Vui lòng thử lại sau.';
+      });
     } else {
-      alert('Không tìm thấy CV đã nộp!');
+      this.showErrorDialog = true;
+      this.errorTitle = 'Lỗi xem CV';
+      this.errorMessage = 'Không tìm thấy CV đã nộp!';
     }
   }
 
   openJobDetail(jobId: string) {
     window.open(`/job/${jobId}`, '_blank');
+  }
+
+  handleCancel() {
+    this.showErrorDialog = false;
   }
 
 }

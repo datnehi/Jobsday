@@ -3,11 +3,13 @@ import { Component } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { SearchService } from '../../../services/search.service';
-import { ConvertEnumService } from '../../../services/convert-enum.service';
+import { ConvertEnumService } from '../../../services/common/convert-enum.service';
 import { AuthService } from '../../../services/auth.service';
 import { User } from '../../../models/user';
 import { SavedJobService } from '../../../services/saved-job.service';
 import { LoginDialogComponent } from '../../common/login-dialog/login-dialog.component';
+import { LoadingComponent } from "../../common/loading/loading.component";
+import { ErrorDialogComponent } from "../../common/error-dialog/error-dialog.component";
 
 @Component({
   selector: 'app-dashboard',
@@ -16,8 +18,10 @@ import { LoginDialogComponent } from '../../common/login-dialog/login-dialog.com
     ReactiveFormsModule,
     FormsModule,
     NgSelectModule,
-    LoginDialogComponent
-  ],
+    LoginDialogComponent,
+    LoadingComponent,
+    ErrorDialogComponent
+],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
@@ -25,7 +29,7 @@ export class DashboardComponent {
   // Filter options
   experiences = ['Tất cả', 'Không yêu cầu', 'Dưới 1 năm', '2 năm', '3 năm', '4 năm', '5 năm', 'Trên 5 năm'];
   levels = ['Tất cả', 'Fresher', 'Intern', 'Junior', 'Senior'];
-  locations = ['Tất cả', 'Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng'];
+  locations = ['Tất cả', 'Hà Nội', 'TP.Hồ Chí Minh', 'Đà Nẵng'];
   salaries = ['Tất cả', 'Dưới 10 triệu', '10 - 15 triệu', '15 - 20 triệu', '20 - 25 triệu', '25 - 30 triệu', '30 - 50 triệu', 'trên 50 triệu', 'Thỏa thuận'];
   contractTypes = ['Tất cả', 'Full-time', 'Part-time', 'Freelance'];
   workTypes = ['Tất cả', 'In Office', 'Remote', 'Hybrid'];
@@ -53,6 +57,10 @@ export class DashboardComponent {
 
   hoveredJobIndex: number | null = null;
   showLoginDialog = false;
+  isLoading = false;
+  showErrorDialog = false;
+  errorTitle = '';
+  errorMessage = '';
 
   constructor(private searchService: SearchService, private convertEnum: ConvertEnumService,
     private authService: AuthService, private savedJobService: SavedJobService) { }
@@ -115,6 +123,7 @@ export class DashboardComponent {
 
   // Lấy jobs từ backend
   searchJobs(jobsPage: number = 0) {
+    this.isLoading = true;
     const filters = {
       keyword: this.searchText,
       location: this.convertEnum.mapLocationToEnum(this.selectedLocations),
@@ -129,6 +138,7 @@ export class DashboardComponent {
 
     this.searchService.searchJobs(filters).subscribe({
       next: (res: any) => {
+        this.isLoading = false;
         const jobsData = res.data;
         this.jobs = (jobsData.content || []).map((job: any) => ({
           ...job,
@@ -144,13 +154,18 @@ export class DashboardComponent {
         this.pendingSearchText = this.searchText;
       },
       error: (err) => {
-        console.error('Search jobs error', err);
-      }
+        this.isLoading = false
+        this.showErrorDialog = true;
+        this.errorTitle = 'Lỗi tìm kiếm';
+        this.errorMessage = 'Không thể tìm kiếm việc làm. Vui lòng thử lại sau.';
+      },
+      complete: () => this.isLoading = false
     });
   }
 
   // Lấy companies từ backend
   searchCompanies(companiesPage: number = 0) {
+    this.isLoading = true;
     const filters = {
       keyword: this.searchText,
       location: this.convertEnum.mapLocationToEnum(this.selectedLocations),
@@ -159,6 +174,7 @@ export class DashboardComponent {
 
     this.searchService.searchCompanies(filters).subscribe({
       next: (res: any) => {
+        this.isLoading = false;
         const companiesData = res.data;
         this.companies = (companiesData.content || []).map((company: any) => ({
           ...company,
@@ -169,8 +185,12 @@ export class DashboardComponent {
         this.pendingSearchText = this.searchText;
       },
       error: (err) => {
-        console.error('Search companies error', err);
-      }
+        this.isLoading = false;
+        this.showErrorDialog = true;
+        this.errorTitle = 'Lỗi tìm kiếm';
+        this.errorMessage = 'Không thể tìm kiếm công ty. Vui lòng thử lại sau.';
+      },
+      complete: () => this.isLoading = false
     });
   }
 
@@ -239,7 +259,9 @@ export class DashboardComponent {
         job.saved = true;
       },
       error: () => {
-        alert('Lưu tin thất bại!');
+        this.showErrorDialog = true;
+        this.errorTitle = 'Lưu tin thất bại!';
+        this.errorMessage = 'Đã xảy ra lỗi khi lưu tin. Vui lòng thử lại sau.';
       }
     });
   }
@@ -256,13 +278,19 @@ export class DashboardComponent {
         job.saved = false;
       },
       error: () => {
-        alert('Bỏ lưu tin thất bại!');
+        this.showErrorDialog = true;
+        this.errorTitle = 'Bỏ lưu tin thất bại!';
+        this.errorMessage = 'Đã xảy ra lỗi khi bỏ lưu tin. Vui lòng thử lại sau.';
       }
     });
   }
 
   openCompanyDetail(companyId: number) {
     window.open(`/company-detail/${companyId}`, '_blank');
+  }
+
+  handleCancel() {
+    this.showErrorDialog = false;
   }
 }
 

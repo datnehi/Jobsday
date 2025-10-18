@@ -1,12 +1,16 @@
 package com.example.jobsday_backend.controller;
 
+import com.example.jobsday_backend.dto.CustomUserDetail;
 import com.example.jobsday_backend.dto.ResponseDto;
 import com.example.jobsday_backend.entity.Company;
+import com.example.jobsday_backend.entity.User;
 import com.example.jobsday_backend.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -17,16 +21,6 @@ public class CompanyController {
     @Autowired
     private CompanyService companyService;
 
-    // Lấy danh sách công ty
-//    @GetMapping
-//    public ResponseEntity<ResponseDto> getAll() {
-//        List<Company> companies = companyService.getAll();
-//        return ResponseEntity.ok(
-//                new ResponseDto(HttpStatus.OK.value(), "Get all companies successfully", companies)
-//        );
-//    }
-
-    // Lấy chi tiết công ty
     @GetMapping("/{id}")
     public ResponseEntity<ResponseDto> getById(@PathVariable Long id) {
         Company company = companyService.getById(id);
@@ -39,37 +33,33 @@ public class CompanyController {
         );
     }
 
-    // Tạo mới công ty
-    @PostMapping
-    public ResponseEntity<ResponseDto> create(@RequestBody Company company) {
-        Company createdCompany = companyService.create(company);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ResponseDto(HttpStatus.CREATED.value(), "Create company successfully", createdCompany));
+    @PutMapping
+    public ResponseEntity<ResponseDto> update(@RequestBody Company company) {
+        Company companyInfo = companyService.getById(company.getId());
+        if (companyInfo == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "Company not found", null));
+        }
+        companyInfo.setName(company.getName());
+        companyInfo.setLocation(company.getLocation());
+        companyInfo.setAddress(company.getAddress());
+        companyInfo.setWebsite(company.getWebsite());
+        companyInfo.setTaxCode(company.getTaxCode());
+        companyInfo.setEmail(company.getEmail());
+        companyInfo.setDescription(company.getDescription());
+        Company updatedCompany = companyService.create(company);
+        return ResponseEntity.ok(
+                new ResponseDto(HttpStatus.OK.value(), "Update company successfully", updatedCompany)
+        );
     }
 
-//    // Cập nhật công ty
-//    @PutMapping("/{id}")
-//    public ResponseEntity<ResponseDto> update(@PathVariable Long id, @RequestBody Company company) {
-//        Company updatedCompany = companyService.update(id, company);
-//        if (updatedCompany == null) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                    .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "Company not found", null));
-//        }
-//        return ResponseEntity.ok(
-//                new ResponseDto(HttpStatus.OK.value(), "Update company successfully", updatedCompany)
-//        );
-//    }
-//
-//    // Xóa công ty
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<ResponseDto> delete(@PathVariable Long id) {
-//        boolean deleted = companyService.delete(id);
-//        if (!deleted) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                    .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "Company not found", null));
-//        }
-//        return ResponseEntity.ok(
-//                new ResponseDto(HttpStatus.OK.value(), "Delete company successfully", null)
-//        );
-//    }
+    @PutMapping("/update-logo/{companyId}")
+    public ResponseEntity<ResponseDto> updateLogo(
+            @PathVariable Long companyId,
+            @RequestParam("file") MultipartFile file) {
+        companyService.updateLogo(companyId, file);
+        return ResponseEntity.ok(
+                new ResponseDto(HttpStatus.OK.value(), "Update avatar successfully", null)
+        );
+    }
 }

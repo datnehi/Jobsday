@@ -7,25 +7,20 @@ import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.HttpHeaders;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -35,8 +30,13 @@ public class CvsService {
     @Autowired
     private CvsRepository cvsRepository;
 
-    @Value("${app.upload.cv-upload}")
-    private Path cvUploadDir;
+    @Autowired
+    private S3Service s3Service;
+
+    @Autowired
+    private CvSkillsService cvSkillsService;
+
+    private final String cvUploads = "cvUploads";
 
     public String extractText(MultipartFile file) throws Exception {
         String fileName = file.getOriginalFilename();
@@ -74,41 +74,29 @@ public class CvsService {
         String jobTitle = extractJobTitle(content);
         Cvs.Level level = extractLevel(content);
         Cvs.Experience experience = extractExperience(content);
-        String address = extractAddress(content);
 
         String originalFileName = file.getOriginalFilename();
-        String fileName = UUID.randomUUID() + "_" + originalFileName;
-        Path filePath = cvUploadDir.resolve(fileName);
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        String s3FileName = userId + "_" + timestamp + "_" + originalFileName;
 
-        try {
-            file.transferTo(filePath.toFile());
-        } catch (IOException e) {
-            throw new RuntimeException("Không thể lưu file CV", e);
-        }
-
-        String fileType = file.getContentType();
-        if (fileType == null && originalFileName != null && originalFileName.contains(".")) {
-            fileType = originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
-        }
+        String fileUrl = s3Service.uploadFileWithCustomName(file, cvUploads, s3FileName);
 
         boolean isPublic = (totalCvs == 0);
-
-        String fileUrl = "/uploads/cv-uploads/" + fileName;
 
         Cvs cv = Cvs.builder()
                 .userId(userId)
                 .title(title)
                 .fileUrl(fileUrl)
-                .fileType(fileType)
                 .jobTitle(jobTitle)
                 .content(content)
                 .level(level)
                 .experience(experience)
-                .address(address)
                 .isPublic(isPublic)
                 .build();
 
-        return cvsRepository.save(cv);
+        Cvs cvs = cvsRepository.save(cv);
+        cvSkillsService.saveCvSkills(cv.getId(), content);
+        return cvs;
     }
 
     public Cvs.Level extractLevel(String content) {
@@ -136,24 +124,6 @@ public class CvsService {
         if (lower.contains("không yêu cầu") || lower.contains("no experience")) return Cvs.Experience.KHONG_YEU_CAU;
 
         return Cvs.Experience.DUOI_1_NAM; // fallback
-    }
-
-    public String extractAddress(String content) {
-        if (content == null) return null;
-        Pattern pattern = Pattern.compile("(Địa chỉ|Address)[:：]\\s*(.+)", Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(content);
-        if (matcher.find()) {
-            return matcher.group(2).trim();
-        }
-
-        for (String line : content.split("\\r?\\n")) {
-            String lower = line.toLowerCase();
-            if (lower.contains("hà nội") || lower.contains("hcm") || lower.contains("hồ chí minh") || lower.contains("đà nẵng")) {
-                return line.trim();
-            }
-        }
-
-        return null;
     }
 
     public String extractJobTitle(String content) {
@@ -192,23 +162,28 @@ public class CvsService {
         return cvsRepository.findByUserId(userId);
     }
 
-    public  Cvs getCvById(Long cvId) {
-        return cvsRepository.findById(cvId).orElse(null);
-    }
-
     public void deleteCv(Long cvId) {
         Cvs cv = cvsRepository.findById(cvId).orElse(null);
         if (cv == null) {
             throw new RuntimeException("CV not found");
         }
         try {
-            Path oldPath = Paths.get(cvUploadDir.toString(),
-                    Paths.get(cv.getFileUrl()).getFileName().toString());
-            Files.deleteIfExists(oldPath);
-        } catch (IOException e) {
+            String key = s3Service.extractKeyFromUrl(cv.getFileUrl());
+            s3Service.deleteFile(key);
+
+        } catch (Exception e) {
             throw new RuntimeException("Không thể xóa file CV cũ", e);
         }
-        cvsRepository.delete(cv);
+        if (cv.getIsPublic()) {
+            cvsRepository.delete(cv);
+            Cvs cvsMain = cvsRepository.findTopByUserIdOrderByUpdatedAtDesc(cv.getUserId());
+            if (cvsMain != null) {
+                cvsMain.setIsPublic(true);
+                cvsRepository.save(cvsMain);
+            }
+        } else {
+            cvsRepository.delete(cv);
+        }
     }
 
     public void setPublic(Long cvId, boolean makePublic) {
@@ -232,46 +207,37 @@ public class CvsService {
     public ResponseEntity<Resource> downloadCv(Long id) {
         Cvs cv = cvsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy CV"));
+        String key = s3Service.extractKeyFromUrl(cv.getFileUrl());
 
-        String publicUrl = cv.getFileUrl();
-        String storedFileName = Paths.get(publicUrl).getFileName().toString();
-        Path filePath = cvUploadDir.resolve(storedFileName);
-
-        if (!Files.exists(filePath) || !Files.isReadable(filePath)) {
-            throw new RuntimeException("File không tồn tại hoặc không đọc được trên server");
-        }
-
-        Resource resource;
+        ResponseInputStream<GetObjectResponse> s3ObjectStream;
         try {
-            resource = new UrlResource(filePath.toUri());
-            if (!resource.exists() || !resource.isReadable()) {
-                throw new RuntimeException("Không thể load file CV");
-            }
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Lỗi khi đọc file CV", e);
+            s3ObjectStream = s3Service.downloadFile(key);
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi tải file từ S3", e);
         }
 
-        String fileType = cv.getFileType();
-        if (fileType == null || fileType.isBlank()) {
-            try {
-                fileType = Files.probeContentType(filePath);
-            } catch (IOException e) {
-                fileType = "application/octet-stream";
-            }
+        Resource resource = new InputStreamResource(s3ObjectStream);
+
+        String fileName = s3Service.extractFileNameFromUrl(cv.getFileUrl());
+        String lowerName = fileName.toLowerCase();
+
+        boolean isPdf = lowerName.endsWith(".pdf");
+
+        String fileType;
+        if (isPdf) {
+            fileType = "application/pdf";
+        } else if (lowerName.endsWith(".docx")) {
+            fileType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        } else if (lowerName.endsWith(".doc")) {
+            fileType = "application/msword";
+        } else {
+            fileType = "application/octet-stream";
         }
-
-        String downloadName = (cv.getTitle() != null && !cv.getTitle().isBlank())
-                ? cv.getTitle()
-                : storedFileName;
-
-        String encodedFileName = URLEncoder.encode(downloadName, StandardCharsets.UTF_8)
-                .replaceAll("\\+", "%20");
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(fileType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFileName + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "filename=\"" + fileName + "\"")
                 .body(resource);
     }
-
 }
 

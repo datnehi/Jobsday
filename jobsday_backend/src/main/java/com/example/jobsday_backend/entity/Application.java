@@ -26,9 +26,6 @@ public class Application {
     @Column(name = "cv_url", nullable = false)
     private String cvUrl;
 
-    @Column(name = "file_type", nullable = false)
-    private String fileType;
-
     @Column(name = "cover_letter")
     private String coverLetter;
 

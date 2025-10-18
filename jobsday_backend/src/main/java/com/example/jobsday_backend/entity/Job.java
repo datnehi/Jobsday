@@ -18,6 +18,9 @@ public class Job {
     @Column(name = "company_id", nullable = false)
     private Long companyId;
 
+    @Column(name = "member_id", nullable = false)
+    private Long memberId;
+
     @Column(nullable = false)
     private String title;
 
@@ -70,14 +73,13 @@ public class Job {
     @Column(nullable = false)
     private JobStatus status = JobStatus.ACTIVE;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     // ================== ENUMS ==================
-
     public enum JobStatus { ACTIVE, HIDDEN, CLOSED }
 
     public enum Location {

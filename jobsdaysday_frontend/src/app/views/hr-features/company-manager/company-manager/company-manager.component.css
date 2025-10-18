@@ -1,0 +1,8 @@
+.status-active { background: #219653; color: #000; }
+.status-closed { background: #f2c94c; color: #000; }
+
+.status-badge {
+  padding: 2px 4px;
+  font-weight: bold;
+  border-radius: 4px;
+}

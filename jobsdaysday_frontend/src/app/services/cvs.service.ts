@@ -36,12 +36,12 @@ export class CvsService {
       {});
   }
 
-  viewCv(cvId: number): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/${cvId}/view`, { responseType: 'blob' });
+  downloadCv(cvId: number): Observable<HttpResponse<Blob>> {
+    return this.http.get(`${this.apiUrl}/${cvId}/download`, {
+      responseType: 'blob',
+      observe: 'response'
+    });
   }
 
-  downloadCv(cvId: number): Observable<HttpResponse<Blob>> {
-    return this.http.get(`${this.apiUrl}/${cvId}/download`, { responseType: 'blob', observe: 'response'});
-  }
 
 }

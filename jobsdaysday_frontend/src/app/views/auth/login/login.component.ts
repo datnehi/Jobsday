@@ -1,3 +1,4 @@
+import { response } from 'express';
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
@@ -38,10 +39,18 @@ export class LoginComponent {
     this.authService.login(loginData)
       .subscribe({
         next: () => {
-          this.router.navigate(['/dashboard']);
+          this.authService.loadUserBeforeApp().then(() => {
+            if (this.authService.currentUser?.role === 'ADMIN') {
+              this.router.navigate(['/admin']);
+            } else if (this.authService.currentUser?.role === 'HR') {
+              this.router.navigate(['/quan-ly-job']);
+            } else {
+              this.router.navigate(['/jobsday']);
+            }
+          });
         },
         error: (err) => {
-          this.errorMessage = err.error.error || 'Đăng nhập thất bại';
+          this.errorMessage = err.error.message || 'Đăng nhập thất bại';
         }
       });
   }

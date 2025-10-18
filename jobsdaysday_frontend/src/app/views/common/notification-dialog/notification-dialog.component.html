@@ -1,0 +1,10 @@
+<div class="dialog-overlay" (click)="onOverlayClick($event)">
+  <div class="notification-dialog" (click)="$event.stopPropagation()">
+    <h2>{{ title || 'Xác nhận' }}</h2>
+    <p>{{ message || 'Bạn có chắc chắn muốn thực hiện thao tác này?' }}</p>
+    <div class="actions">
+      <button (click)="onConfirm()">Đồng ý</button>
+      <button (click)="onCancel()">Hủy</button>
+    </div>
+  </div>
+</div>
