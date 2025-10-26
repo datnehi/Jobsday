@@ -6,6 +6,11 @@ import { CompanyMember } from '../../../../models/company_member';
 import { CompanyMemberService } from '../../../../services/company-member.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { NewlineToBrPipe } from "../../../../services/common/newline-to-br-pipe.service";
+import { NotificationDialogComponent } from "../../../common/notification-dialog/notification-dialog.component";
+import { ErrorDialogComponent } from "../../../common/error-dialog/error-dialog.component";
+import { LoadingComponent } from "../../../common/loading/loading.component";
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-list-job',
@@ -13,8 +18,11 @@ import { Router, RouterLink } from '@angular/router';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    RouterLink
-],
+    RouterLink,
+    NotificationDialogComponent,
+    ErrorDialogComponent,
+    LoadingComponent
+  ],
   templateUrl: './list-job.component.html',
   styleUrl: './list-job.component.css'
 })
@@ -30,10 +38,18 @@ export class ListJobComponent {
   currentPage: number = 0;
   totalPages: number = 1;
   showJobDetail = false;
-  jobDetail: any = {};
+  jobDetail: any;
   showFullDescription = false;
   showFullRequirement = false;
   showFullBenefit = false;
+  isLoading = false;
+
+  showConfirmDialog = false;
+  confirmTitle = '';
+  confirmMessage = '';
+  showErrorDialog = false;
+  errorTitle = '';
+  errorMessage = '';
 
   locations = [
     { value: '', label: 'Tất cả' },
@@ -52,6 +68,8 @@ export class ListJobComponent {
     { value: 'ACTIVE', label: 'Còn hiệu lực' },
     { value: 'EXPIRED', label: 'Đã hết hạn' },
   ];
+  Array: any;
+  jobIdSelected: number | null = null;
 
   constructor(
     private jobService: JobService,
@@ -79,21 +97,24 @@ export class ListJobComponent {
       status: this.statusSearch,
       page: page,
     };
-    this.jobService.getAllJobsOfCompany(filters).subscribe(response => {
-      const jobsData = response.data;
-      this.jobs = (jobsData.content || []).map((job: any) => ({
-        ...job,
-        location: this.convertEnumService.mapLocationFromEnum(job.location),
-        experience: this.convertEnumService.mapExperienceFromEnum(job.experience),
-        level: this.convertEnumService.mapLevelFromEnum(job.level),
-        salary: this.convertEnumService.mapSalaryFromEnum(job.salary),
-        contractType: this.convertEnumService.mapContractTypeFromEnum(job.contractType),
-        jobType: this.convertEnumService.mapWorkTypeFromEnum(job.jobType)
-      }));
-      this.currentPage = response.data.page;
-      this.totalPages = response.data.totalPages;
-      this.pendingSearchText = this.textSearch;
-    });
+    this.isLoading = true;
+    this.jobService.getAllJobsOfCompany(filters)
+      .pipe(finalize(() => { this.isLoading = false; }))
+      .subscribe(response => {
+        const jobsData = response.data;
+        this.jobs = (jobsData.content || []).map((job: any) => ({
+          ...job,
+          location: this.convertEnumService.mapLocationFromEnum(job.location),
+          experience: this.convertEnumService.mapExperienceFromEnum(job.experience),
+          level: this.convertEnumService.mapLevelFromEnum(job.level),
+          salary: this.convertEnumService.mapSalaryFromEnum(job.salary),
+          contractType: this.convertEnumService.mapContractTypeFromEnum(job.contractType),
+          jobType: this.convertEnumService.mapWorkTypeFromEnum(job.jobType)
+        }));
+        this.currentPage = response.data.page;
+        this.totalPages = response.data.totalPages;
+        this.pendingSearchText = this.textSearch;
+      });
   }
 
   resetFilter() {
@@ -103,7 +124,7 @@ export class ListJobComponent {
     this.filterByMe = false;
     this.loadJobsForCompany();
   }
-  
+
   onViewJob(id: number) {
     this.jobDetail = this.jobs.find(item => item.id === id);
     this.showJobDetail = true;
@@ -115,11 +136,14 @@ export class ListJobComponent {
   }
 
   onDeleteJob(id: number) {
-    this.jobService.deleteJob(id).subscribe(response => {
-      if (response.status === 200) {
-        this.loadJobsForCompany(this.currentPage);
-      }
-    });
+    this.isLoading = true;
+    this.jobService.deleteJob(id)
+      .pipe(finalize(() => { this.isLoading = false; }))
+      .subscribe(response => {
+        if (response.status === 200) {
+          this.loadJobsForCompany(this.currentPage);
+        }
+      });
   }
 
   changePage(page: number) {
@@ -156,7 +180,27 @@ export class ListJobComponent {
 
   onViewListCandidateApplied(jobId: number) {
     const job = this.jobs.find(j => j.id === jobId);
-    if(this.member?.isAdmin != true && job.memberId != this.member?.id) { return; }
+    if (this.member?.isAdmin != true && job.memberId != this.member?.id) { return; }
     window.open(`/list-candidates-applied/${jobId}`, '_blank');
+  }
+
+  openConfirmDialog(jobId: number) {
+    this.jobIdSelected = jobId;
+    this.confirmTitle = 'Xóa việc làm';
+    this.confirmMessage = 'Bạn có chắc chắn muốn xóa việc làm này không? Hành động này không thể hoàn tác.';
+    this.showConfirmDialog = true;
+  }
+
+  handleConfirm() {
+    this.onDeleteJob(this.jobIdSelected || 0);
+    this.showConfirmDialog = false;
+  }
+
+  handleCancel() {
+    this.showConfirmDialog = false;
+  }
+
+  handleCancelError() {
+    this.showErrorDialog = false;
   }
 }

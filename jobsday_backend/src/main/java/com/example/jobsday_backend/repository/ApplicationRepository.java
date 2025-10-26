@@ -10,12 +10,10 @@ import java.util.List;
 
 @Repository
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
-    boolean existsByJobIdAndCandidateId(Long jobId, Long candidateId);
-
     Application findByJobIdAndCandidateId(Long jobId, Long candidateId);
 
     @Query(value = """
-        SELECT a.id, a.job_id, j.title, c.name, c.logo, a.status, a.cv_url, a.file_name, a.applied_at , a.updated_at
+        SELECT a.id, a.job_id, j.title, c.id, c.name, c.logo, a.status, a.cv_url, a.file_name, a.cover_letter, a.applied_at , a.updated_at
         FROM applications a
         JOIN jobs j ON a.job_id = j.id
         JOIN companies c ON j.company_id = c.id
@@ -32,7 +30,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     );
 
     @Query(value = """
-        SELECT a.id, a.job_id, j.title, c.name, c.logo, a.status, a.cv_url, a.file_name, a.applied_at , a.updated_at
+        SELECT a.id, a.job_id, j.title, c.id, c.name, c.logo, a.status, a.cv_url, a.file_name, a.cover_letter, a.applied_at , a.updated_at
         FROM applications a
         JOIN jobs j ON a.job_id = j.id
         JOIN companies c ON j.company_id = c.id
@@ -92,5 +90,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
         nativeQuery = true
     )
     long countByJobId(@Param("jobId") Long jobId);
+
+    List<Application> findByJobId(Long jobId);
 }
 

@@ -9,6 +9,8 @@ import { CompanyMemberService } from '../../../services/company-member.service';
 import { CompanyMember } from '../../../models/company_member';
 import { NotificationDialogComponent } from "../../common/notification-dialog/notification-dialog.component";
 import { LoadingComponent } from "../../common/loading/loading.component";
+import { AvatarEditorComponent } from "../../common/avatar-editor/avatar-editor.component";
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-personal-info',
@@ -18,7 +20,8 @@ import { LoadingComponent } from "../../common/loading/loading.component";
     ReactiveFormsModule,
     ErrorDialogComponent,
     NotificationDialogComponent,
-    LoadingComponent
+    LoadingComponent,
+    AvatarEditorComponent
   ],
   templateUrl: './personal-info.component.html',
   styleUrl: './personal-info.component.css'
@@ -29,10 +32,6 @@ export class PersonalInfoComponent {
   infoForm: FormGroup;
   allowNTDSearch: boolean = false;
 
-  selectedFile: File | null = null;
-  selectedFileUrl: string = '';
-  previewUrl: string = '';
-
   showErrorDialog = false;
   errorTitle = '';
   errorMessage = '';
@@ -40,6 +39,7 @@ export class PersonalInfoComponent {
   confirmTitle = '';
   confirmMessage = '';
   isLoading = false;
+  showAvatarEditor = false;
 
   constructor(
     private authService: AuthService,
@@ -116,65 +116,29 @@ export class PersonalInfoComponent {
   }
 
   openAvatarDialog() {
-    const modal = document.getElementById('avatarModal');
-    if (modal) {
-      (window as any).bootstrap.Modal.getOrCreateInstance(modal).show();
-    }
+    this.showAvatarEditor = true;
   }
 
-  closeAvatarDialog() {
-    this.selectedFile = null;
-    this.selectedFileUrl = '';
-    this.previewUrl = '';
-    const fileInput = document.querySelector('#avatarModal input[type="file"]') as HTMLInputElement;
-    if (fileInput) fileInput.value = '';
-    const modal = document.getElementById('avatarModal');
-    if (modal) {
-      (window as any).bootstrap.Modal.getOrCreateInstance(modal).hide();
-    }
+  async onAvatarSaved(file: File | null) {
+    if (!file) return;
+    this.isLoading = true;
+    this.userService.changeAvatar(file)
+    .pipe(finalize(() => this.isLoading = false))
+    .subscribe(res => {
+      if (res.status === 200) {
+        this.authService.setUser(this.authService.token || '');
+        this.showAvatarEditor = false;
+        this.ngOnInit();
+      } else {
+        this.errorTitle = 'Lỗi';
+        this.errorMessage = 'Cập nhật ảnh đại diện thất bại.';
+        this.showErrorDialog = true;
+      }
+    });
   }
 
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file && file.size > 5 * 1024 * 1024) {
-      this.showErrorDialog = true;
-      this.errorTitle = 'Lỗi';
-      this.errorMessage = 'Kích thước file vượt quá 5MB. Vui lòng chọn file khác.';
-      return;
-    }
-    if (file) {
-      this.selectedFile = file;
-      this.selectedFileUrl = URL.createObjectURL(file);
-      this.previewUrl = this.selectedFileUrl;
-    }
-  }
-
-  removeImage() {
-    this.selectedFile = null;
-    this.selectedFileUrl = '';
-    this.previewUrl = '';
-    const fileInput = document.querySelector('#avatarModal input[type="file"]') as HTMLInputElement;
-    if (fileInput) fileInput.value = '';
-  }
-
-  saveAvatar() {
-    if (this.selectedFile) {
-      this.isLoading = true;
-      this.userService.changeAvatar(this.selectedFile).subscribe(res => {
-        if (res.status === 200) {
-          this.authService.setUser(this.authService.token || '');
-          this.isLoading = false;
-          this.closeAvatarDialog();
-          this.ngOnInit();
-        } else {
-          this.isLoading = false;
-          this.errorTitle = 'Lỗi';
-          this.errorMessage = 'Cập nhật ảnh đại diện thất bại.';
-          this.showErrorDialog = true;
-        }
-      });
-      this.isLoading = false;
-    }
+  onAvatarDialogClosed() {
+    this.showAvatarEditor = false;
   }
 
   handleCancelError() {

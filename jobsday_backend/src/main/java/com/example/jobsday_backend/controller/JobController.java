@@ -129,7 +129,12 @@ public class JobController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new ResponseDto(HttpStatus.FORBIDDEN.value(), "You are not a company member", null));
         }
-        boolean isOwner = jobService.checkJobOwn(jobId, member.getId());
+        boolean isOwner = false;
+        if(member.getIsAdmin()) {
+            isOwner = true;
+        } else {
+            isOwner = jobService.checkJobOwn(jobId, member.getId());
+        }
         return ResponseEntity.ok(
                 new ResponseDto(HttpStatus.OK.value(), "Check Job ownership successfully", isOwner)
         );

@@ -1,0 +1,195 @@
+<div class="container mt-4">
+  <!-- Thông tin Job -->
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">{{ job.title }}</h4>
+    </div>
+    <div class="card-body" style="padding-bottom: unset;">
+      <div class="row mb-2">
+        <div class="col-md-4">
+          <p><strong>Công ty: </strong><a routerLink="/company-related-info/{{company.id}}">{{ company.name }}</a></p>
+          <p><strong>Người phụ trách: </strong><a routerLink="/hr-related-info/{{member.id}}">{{user.fullName}}</a> - {{member.position}}</p>
+          <p><strong>Địa điểm:</strong> {{ job.location }}</p>
+          <p><strong>Địa chỉ:</strong> {{ job.address }}</p>
+          <p><strong>Thời gian làm việc:</strong> {{ job.workingTime }}</p>
+          <p><strong>Loại công việc:</strong> {{ job.jobType }}</p>
+          <p><strong>Cấp bậc:</strong> {{ job.level }}</p>
+          <p><strong>Hình thức hợp đồng:</strong> {{ job.contractType }}</p>
+          <p><strong>Lương:</strong> {{ job.salary }}</p>
+          <p><strong>Kinh nghiệm:</strong> {{ job.experience }}</p>
+          <p><strong>Số lượng tuyển:</strong> {{ job.quantity }}</p>
+          <p><strong>Hạn nộp:</strong> {{ job.deadline | date:'dd/MM/yyyy' }}</p>
+          <p><strong>Trạng thái: </strong><span [ngClass]="{
+            'badge bg-primary text-white': job.status === 'ACTIVE',
+            'badge bg-secondary text-white': job.status === 'HIDDEN',
+            'badge bg-danger text-white': job.status === 'CLOSED',
+          }">{{ job.status }}</span></p>
+          <button type="button" class="btn btn-danger" (click)="openConfirm('deleteJob')">Xóa Job</button>
+        </div>
+        <div class="col-md-8">
+          <p><strong>Mô tả công việc:</strong></p>
+          <div class="border rounded p-2 mb-2" style="height: 25%;">
+            <span [innerHTML]="job.description | newlineToBr"></span>
+          </div>
+          <p><strong>Yêu cầu:</strong></p>
+          <div class="border rounded p-2 mb-2" style="height: 25%;">
+            <span [innerHTML]="job.requirement | newlineToBr"></span>
+          </div>
+          <p><strong>Quyền lợi:</strong></p>
+          <div class="border rounded p-2" style="height: 25%;">
+            <span [innerHTML]="job.benefit | newlineToBr"></span>
+          </div>
+        </div>
+        <div class="text-end text-muted">
+          <small>Ngày tạo: {{ job.createdAt | date:'dd/MM/yyyy HH:mm' }} | Cập nhật: {{ job.updatedAt |
+            date:'dd/MM/yyyy HH:mm' }}</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Danh sách ứng viên đã ứng tuyển -->
+  <h5 class="mb-3 text-center">Danh sách ứng viên đã ứng tuyển</h5>
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-primary">
+        <tr>
+          <th scope="col" class="text-center">Họ tên</th>
+          <th scope="col" class="text-center">Email</th>
+          <th scope="col" class="text-center" style="width: 9em;">Số điện thoại</th>
+          <th scope="col" class="text-center" style="width: 7em;">CV</th>
+          <th scope="col" class="text-center" style="width: 10em;">Ngày ứng tuyển</th>
+          <th scope="col" class="text-center" style="width: 7em;">Trạng thái</th>
+          <th scope="col" class="text-center" style="width: 8em;">Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let application of applications; let i = index" routerLink="/candidate/{{application.candidateId}}"
+          style="cursor: pointer;">
+          <td class="text-center align-middle">{{ application.candidateName }}</td>
+          <td class="text-center align-middle">{{ application.candidateEmail }}</td>
+          <td class="text-center align-middle">{{ application.candidatePhone }}</td>
+          <td class="text-center align-middle">
+            <a (click)="viewCv(application.applicationId); $event.stopPropagation();"
+              class="btn btn-sm btn-outline-primary">Xem CV</a>
+          </td>
+          <td class="text-center align-middle">{{ application.appliedAt | date:'dd/MM/yyyy hh:mm' }}</td>
+          <td class="text-center align-middle">
+            <span class="status-badge" [ngClass]="{
+              'badge bg-success': application.status === 'APPLIED',
+              'badge bg-warning': application.status === 'VIEWED',
+              'badge bg-primary': application.status === 'SUITABLE',
+              'badge bg-secondary': application.status === 'UNSUITABLE'
+              }">
+              {{ application.status }}
+            </span>
+          </td>
+          <td class="text-center align-middle">
+            <button class="btn btn-outline-primary btn-sm me-2"
+              (click)="viewDetail(application); $event.stopPropagation();" title="Chi tiết">
+              Xem
+            </button>
+            <button class="btn btn-outline-danger btn-sm"
+              (click)="openConfirm('deleteApplication', application); $event.stopPropagation();" title="delete">
+              Xóa
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="applications.length === 0">
+          <td colspan="8" class="text-center align-middle">Chưa có ứng viên nào ứng tuyển</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div *ngIf="totalPages > 1" class="d-flex justify-content-center align-items-center gap-3">
+    <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage === 0"
+      (click)="changePage(currentPage - 1)" style="width: 36px; height: 36px;" aria-label="Trang trước">
+      <i class="bi bi-chevron-left"></i>
+    </button>
+    <span class="fw-bold text-primary" style="font-size: 1.1rem;">
+      {{ currentPage + 1 }} <span class="text-muted">/ {{ totalPages }} trang</span>
+    </span>
+    <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage + 1 >= totalPages"
+      (click)="changePage(currentPage + 1)" style="width: 36px; height: 36px;" aria-label="Trang sau">
+      <i class="bi bi-chevron-right"></i>
+    </button>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" [class.show]="showDetailDialog"
+  [style.display]="showDetailDialog ? 'block' : 'none'" style="background: rgba(0,0,0,0.2); z-index: 1;"
+  *ngIf="showDetailDialog" (click)="closeDetailDialog()">
+  <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Chi tiết ứng tuyển</h5>
+        <button type="button" class="btn-close btn-outline" (click)="closeDetailDialog()"></button>
+      </div>
+      <div class="modal-body" *ngIf="selectedApplication">
+        <div class="mb-2"><strong>CV: </strong> <a (click)="viewCv(selectedApplication.id)" class="text-primary"
+            style="cursor: pointer;">Xem CV</a></div>
+        <div class="mb-2"><strong>Thư ứng tuyển:</strong>
+          <div class="border rounded p-2" style="height: 200px;">
+            <span [innerHTML]="selectedApplication.coverLetter | newlineToBr"></span>
+          </div>
+        </div>
+        <div class="mb-2"><strong>Ngày ứng tuyển:</strong> {{ selectedApplication.appliedAt | date:'dd/MM/yyyy HH:mm'}}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeDetailDialog()">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-notification-dialog *ngIf="showConfirmDialog" [title]="confirmTitle" [message]="confirmMessage"
+  (confirm)="handleConfirm()" (cancel)="handleCancel()">
+</app-notification-dialog>
+
+<app-error-dialog *ngIf="showErrorDialog" [title]="errorTitle" [message]="errorMessage" (cancel)="handleCancelError()">
+</app-error-dialog>
+
+<app-loading *ngIf="isLoading"></app-loading>
+
+<div class="modal fade" tabindex="-1" [class.show]="showDetailDialog"
+  [style.display]="showDetailDialog ? 'block' : 'none'" style="background: rgba(0,0,0,0.2); z-index: 1;"
+  *ngIf="showDetailDialog" (click)="closeDetailDialog()">
+  <div class="modal-dialog modal-dialog-centered modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Chi tiết ứng viên</h5>
+        <button type="button" class="btn-close btn-outline" (click)="closeDetailDialog()"></button>
+      </div>
+      <div class="modal-body" *ngIf="selectedApplication">
+        <div class="row">
+          <!-- Thông tin cá nhân -->
+          <div class="col-md-4 d-flex flex-column align-items-center border-end justify-content-center">
+            <img [src]="selectedApplication.candidateAvatar || 'assets/user.jpg'" alt="Avatar"
+              class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+            <div class="fw-bold fs-5 mb-2">{{ selectedApplication.candidateName }}</div>
+            <div class="mb-2" *ngIf="selectedApplication.candidateEmail"><i class="bi bi-envelope"></i> {{
+              selectedApplication.candidateEmail }}</div>
+            <div class="mb-2" *ngIf="selectedApplication.candidatePhone"><i class="bi bi-telephone"></i> {{
+              selectedApplication.candidatePhone }}</div>
+          </div>
+          <!-- Thông tin ứng tuyển -->
+          <div class="col-md-8">
+            <div class="mb-2"><strong>CV: </strong> <a (click)="viewCv(selectedApplication.applicationId)"
+                class="text-primary" style="cursor: pointer;">Xem CV</a></div>
+            <div class="mb-2"><strong>Thư ứng tuyển:</strong>
+              <div class="border rounded p-2" style="height: 200px;">
+                <span [innerHTML]="selectedApplication.coverLetter | newlineToBr"></span>
+              </div>
+            </div>
+            <div class="mb-2"><strong>Ngày ứng tuyển:</strong> {{ selectedApplication.appliedAt | date:'dd/MM/yyyy
+              HH:mm' }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeDetailDialog()">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -10,7 +10,7 @@
     </button>
   </div>
   <div class="table-responsive">
-    <table class="table table-bordered align-middle text-center">
+    <table class="table table-bordered table-hover align-middle text-center">
       <thead class="table-primary">
         <tr>
           <th class="text-center">Họ tên</th>
@@ -21,7 +21,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let member of members">
+        <tr *ngFor="let member of members" (click)="editMember(member); $event.stopPropagation()" style="cursor: pointer;">
           <td class="text-center">{{ member.fullName }}</td>
           <td class="text-center">{{ member.email }}</td>
           <td class="text-center">{{ member.position }}</td>
@@ -34,8 +34,8 @@
             </span>
           </td>
           <td class="text-center">
-            <button class="btn btn-sm btn-outline-primary me-1" (click)="editMember(member)">Sửa</button>
-            <button class="btn btn-sm btn-outline-danger" (click)="removeMember(member.id)">Xóa</button>
+            <button class="btn btn-sm btn-outline-primary me-1" (click)="editMember(member); $event.stopPropagation()">Sửa</button>
+            <button class="btn btn-sm btn-outline-danger" (click)="removeMember(member.id); $event.stopPropagation()">Xóa</button>
           </td>
         </tr>
         <tr *ngIf="members.length === 0">

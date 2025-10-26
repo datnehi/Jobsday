@@ -9,6 +9,8 @@ import { CompanyMember } from '../../../../models/company_member';
 import { ConvertEnumService } from '../../../../services/common/convert-enum.service';
 import { NotificationDialogComponent } from "../../../common/notification-dialog/notification-dialog.component";
 import { LoadingComponent } from "../../../common/loading/loading.component";
+import { AvatarEditorComponent } from "../../../common/avatar-editor/avatar-editor.component";
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-company-info',
@@ -17,8 +19,9 @@ import { LoadingComponent } from "../../../common/loading/loading.component";
     ReactiveFormsModule,
     ErrorDialogComponent,
     NotificationDialogComponent,
-    LoadingComponent
-],
+    LoadingComponent,
+    AvatarEditorComponent
+  ],
   templateUrl: './company-info.component.html',
   styleUrl: './company-info.component.css'
 })
@@ -27,10 +30,6 @@ export class CompanyInfoComponent {
   company: Company | null = null;
   member: CompanyMember | null = null;
 
-  selectedFile: File | null = null;
-  selectedFileUrl: string | null = null;
-  previewUrl: string | null = null;
-
   showErrorDialog = false;
   errorTitle = '';
   errorMessage = '';
@@ -38,6 +37,7 @@ export class CompanyInfoComponent {
   confirmTitle = '';
   confirmMessage = '';
   isLoading = false;
+  showAvatarEditor = false;
 
   constructor(
     private fb: FormBuilder,
@@ -108,64 +108,29 @@ export class CompanyInfoComponent {
     this.isLoading = false;
   }
 
-  saveAvatar() {
-    if (this.selectedFile) {
-      this.isLoading = true;
-      this.companyService.updateLogo(this.company!.id, this.selectedFile).subscribe(res => {
-        if (res.status === 200) {
-          this.isLoading = false;
-          this.closeLogoDialog();
-          this.ngOnInit();
-        } else {
-          this.isLoading = false;
-          this.errorTitle = 'Lỗi';
-          this.errorMessage = 'Cập nhật logo thất bại.';
-          this.showErrorDialog = true;
-        }
-      });
-    }
+  openAvatarDialog() {
+    this.showAvatarEditor = true;
   }
 
-  openLogoDialog() {
-    const modal = document.getElementById('avatarModal');
-    if (modal) {
-      (window as any).bootstrap.Modal.getOrCreateInstance(modal).show();
-    }
+  async onAvatarSaved(file: File | null) {
+    if (!file) return;
+    this.isLoading = true;
+    this.companyService.updateLogo(this.company!.id, file)
+    .pipe(finalize(() => { this.isLoading = false; }))
+    .subscribe(res => {
+      if (res.status === 200) {
+        this.showAvatarEditor = false;
+        this.ngOnInit();
+      } else {
+        this.errorTitle = 'Lỗi';
+        this.errorMessage = 'Cập nhật logo thất bại.';
+        this.showErrorDialog = true;
+      }
+    });
   }
 
-  closeLogoDialog() {
-    this.selectedFile = null;
-    this.selectedFileUrl = null;
-    this.previewUrl = null;
-    const fileInput = document.querySelector('#avatarModal input[type="file"]') as HTMLInputElement;
-    if (fileInput) fileInput.value = '';
-    const modal = document.getElementById('avatarModal');
-    if (modal) {
-      (window as any).bootstrap.Modal.getOrCreateInstance(modal).hide();
-    }
-  }
-
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file && file.size > 5 * 1024 * 1024) {
-      this.showErrorDialog = true;
-      this.errorTitle = 'Lỗi';
-      this.errorMessage = 'Kích thước file vượt quá 5MB. Vui lòng chọn file khác.';
-      return;
-    }
-    if (file) {
-      this.selectedFile = file;
-      this.selectedFileUrl = URL.createObjectURL(file);
-      this.previewUrl = this.selectedFileUrl;
-    }
-  }
-
-  removeImage() {
-    this.selectedFile = null;
-    this.selectedFileUrl = null;
-    this.previewUrl = null;
-    const fileInput = document.querySelector('#avatarModal input[type="file"]') as HTMLInputElement;
-    if (fileInput) fileInput.value = '';
+  onAvatarDialogClosed() {
+    this.showAvatarEditor = false;
   }
 
   handleCancelError() {

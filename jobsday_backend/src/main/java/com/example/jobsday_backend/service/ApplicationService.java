@@ -117,7 +117,7 @@ public class ApplicationService {
         applicationRepository.save(application);
     }
 
-    public ResponseEntity<Resource> downloadCvFile(Long applicationId, String mode) {
+    public ResponseEntity<Resource> downloadCvFile(Long applicationId) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy application"));
 
@@ -175,23 +175,27 @@ public class ApplicationService {
             Long applicationId = ((Number) row[0]).longValue();
             Long jobId = ((Number) row[1]).longValue();
             String jobTitle = (String) row[2];
-            String companyName = (String) row[3];
-            String companyLogo = (String) row[4];
-            Application.ApplicationStatus applicationStatus = Application.ApplicationStatus.valueOf((String) row[5]);
-            String cvUrl = (String) row[6];
-            String fileName = (String) row[7];
-            String appliedAt = row[8].toString();
-            String updatedAt = row[9].toString();
+            Long companyId = ((Number) row[3]).longValue();
+            String companyName = (String) row[4];
+            String companyLogo = (String) row[5];
+            Application.ApplicationStatus applicationStatus = Application.ApplicationStatus.valueOf((String) row[6]);
+            String cvUrl = (String) row[7];
+            String fileName = (String) row[8];
+            String coverLetter = (String) row[9];
+            String appliedAt = row[10].toString();
+            String updatedAt = row[11].toString();
 
             applications.add(new AppliedJobDto(
                     applicationId,
                     jobId,
                     jobTitle,
+                    companyId,
                     companyName,
                     companyLogo,
                     applicationStatus,
                     cvUrl,
                     fileName,
+                    coverLetter,
                     appliedAt,
                     updatedAt
             ));
@@ -263,4 +267,20 @@ public class ApplicationService {
         applicationRepository.save(application);
     }
 
+    public void deleteApplication(Long applicationId) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy application"));
+        try {
+            String key = s3Service.extractKeyFromUrl(application.getCvUrl());
+            s3Service.deleteFile(key);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Không thể xóa file CV cũ", e);
+        }
+        applicationRepository.delete(application);
+    }
+
+    public List<Application> getApplicationsByJobId(Long jobId) {
+        return applicationRepository.findByJobId(jobId);
+    }
 }

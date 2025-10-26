@@ -1,0 +1,517 @@
+<div class="container mt-4" style="max-width: 1700px;">
+  <div class="row">
+    <!-- LEFT: main content -->
+    <div class="mb-4" style="width: 80%;">
+      <!-- Applied jobs card -->
+      <div class="card">
+        <div class="card-body">
+          <h4 class="text-center text-primary">Danh sách việc làm quản lý</h4>
+
+          <div class="d-flex mb-3 gap-3">
+            <input type="text" class="form-control" placeholder="Tìm kiếm theo tiêu đề, địa điểm..."
+              [(ngModel)]="searchText" style="max-width: 360px;">
+            <button class="btn btn-primary" (click)="fetchJobs(0)">Tìm kiếm</button>
+            <div class="mb-0 d-flex align-items-center gap-2 position-relative" style="width:200px;">
+              <div class="custom-dropdown w-100">
+                <div class="custom-dropdown-toggle form-control d-flex justify-content-between align-items-center"
+                  (click)="showLocationDropdown = !showLocationDropdown; $event.stopPropagation()">
+                  <span>{{ (selectedLocation) || 'Địa điểm' }}</span>
+                  <i class="bi bi-chevron-down"></i>
+                </div>
+                <ul *ngIf="showLocationDropdown" class="custom-dropdown-menu shadow">
+                  <li *ngFor="let location of locations"
+                    (click)="onLocationChange(location.value); showLocationDropdown = false; $event.stopPropagation()"
+                    [class.active]="selectedLocation === location.value">
+                    {{ location.label }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="mb-0 d-flex align-items-center gap-2 position-relative" style="width:200px;">
+              <div class="custom-dropdown w-100">
+                <div class="custom-dropdown-toggle form-control d-flex justify-content-between align-items-center"
+                  (click)="showDeadlineDropdown = !showDeadlineDropdown; $event.stopPropagation()">
+                  <span>
+                    {{
+                    (selectedDeadline) || 'Hạn nộp' }}
+                  </span>
+                  <i class="bi bi-chevron-down"></i>
+                </div>
+                <ul *ngIf="showDeadlineDropdown" class="custom-dropdown-menu shadow">
+                  <li *ngFor="let deadline of deadlines"
+                    (click)="onDeadlineChange(deadline.value); showDeadlineDropdown = false; $event.stopPropagation()"
+                    [class.active]="selectedDeadline === deadline.value">{{ deadline.label }}</li>
+                </ul>
+              </div>
+            </div>
+            <div class="mb-0 d-flex align-items-center gap-2 position-relative" style="width:200px;">
+              <div class="custom-dropdown w-100">
+                <div class="custom-dropdown-toggle form-control d-flex justify-content-between align-items-center"
+                  (click)="showStatusDropdown = !showStatusDropdown; $event.stopPropagation()">
+                  <span>
+                    {{
+                    (selectedStatus) || 'Trạng thái' }}
+                  </span>
+                  <i class="bi bi-chevron-down"></i>
+                </div>
+                <ul *ngIf="showStatusDropdown" class="custom-dropdown-menu shadow">
+                  <li *ngFor="let status of status"
+                    (click)="onStatusChange(status.value); showStatusDropdown = false; $event.stopPropagation()"
+                    [class.active]="selectedStatus === status.value">{{ status.label }}</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive overflow-auto max-h-40vh">
+            <table class="table table-bordered table-hover table-sm align-middle mb-0">
+              <thead class="table-primary">
+                <tr>
+                  <th scope="col" class="text-center">Vị trí</th>
+                  <th scope="col" class="text-center" style="width: 9%;">Địa điểm</th>
+                  <th scope="col" class="text-center" style="width: 7%;">Số lượng</th>
+                  <th scope="col" class="text-center" style="width: 10%;">Hạn ứng tuyển</th>
+                  <th scope="col" class="text-center" style="width: 7%;">Trạng thái</th>
+                  <th scope="col" class="text-center" style="width: 11%;">Hành động</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let job of jobs" style="cursor: pointer;">
+                  <td class="text-center">
+                    <a routerLink="/job-related-info/{{job.id}}">{{ job.title }}</a>
+                  </td>
+                  <td class="text-center">{{ job.location }}</td>
+                  <td class="text-center">{{ job.quantity }}</td>
+                  <td class="text-center">{{ job.deadline | date:'dd-MM-yyyy' }}</td>
+                  <td class="text-center">
+                    <span class="status-badge" [ngClass]="{
+                        'status-active': job.status === 'ACTIVE',
+                        'status-closed': job.status === 'CLOSED',
+                        'status-hidden': job.status === 'HIDDEN'
+                      }">
+                      {{ job.status }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <button class="btn btn-outline-primary btn-sm me-2"
+                      (click)="viewJobDetail(job); $event.stopPropagation()">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm me-2"
+                      (click)="openUpdateJob(job); $event.stopPropagation()">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm"
+                      (click)="openConfirm('deleteJob', job); $event.stopPropagation()">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="jobs.length === 0">
+                  <td colspan="7" class="text-center text-muted py-1">Chưa có tin tuyển dụng nào.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div *ngIf="totalPages > 1" class="d-flex justify-content-center align-items-center gap-3 mb-3 mt-2">
+            <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage === 0"
+              (click)="changePage(currentPage - 1)" style="width: 36px; height: 36px;" aria-label="Trang trước">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <span class="fw-bold text-primary" style="font-size: 1.1rem;">
+              {{ currentPage + 1 }} <span class="text-muted">/ {{ totalPages }} trang</span>
+            </span>
+            <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage + 1 >= totalPages"
+              (click)="changePage(currentPage + 1)" style="width: 36px; height: 36px;" aria-label="Trang sau">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: profile sidebar -->
+    <div class="mb-4" style="width: 20%;">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex flex-column align-items-center">
+            <div class="position-relative" style="width: 100px; height: 100px;">
+              <img [src]="user.avatarUrl || 'assets/user.jpg'" alt="Avatar" class="rounded-circle border w-100 h-100"
+                style="object-fit: cover;">
+              <button type="button" class="btn btn-sm btn-light p-1 position-absolute"
+                style="right: 0; bottom: 0; border-radius: 50%; background: #0d6efd;"
+                (click)="openAvatarDialog(); $event.stopPropagation()" title="Thay ảnh">
+                <i class="bi bi-camera-fill text-white" aria-hidden="true"></i>
+                <span class="visually-hidden">Thay ảnh</span>
+              </button>
+            </div>
+            <h2 class="card-title mb-2 text-center">{{ user.fullName }}</h2>
+          </div>
+          <p class="mb-1"><strong>Email:</strong> {{ user.email }}</p>
+          <p class="mb-1"><strong>Số điện thoại:</strong> {{ user.phone }}</p>
+          <p class="mb-1"><strong>Ngày sinh:</strong> {{ user.dob | date:'dd/MM/yyyy' }}</p>
+          <p class="mb-1"><strong>Địa chỉ:</strong> {{ user.address }}</p>
+          <p class="mb-1"><strong>Trạng thái: </strong> <span class="badge bg-success">{{ user.status }}</span></p>
+          <p class="mb-1"><strong>Ngày đăng ký:</strong> {{ user.createdAt | date:'dd/MM/yyyy' }}</p>
+        </div>
+        <div class="card-footer text-center">
+          <button class="btn btn-sm btn-outline-primary me-2" (click)="editUser()">Sửa</button>
+          <button class="btn btn-sm btn-outline-secondary" (click)="openConfirm('reset')">Reset mật khẩu</button>
+        </div>
+      </div>
+
+      <!-- MOVED: Công ty đang làm (đặt dưới profile) -->
+      <div class="card shadow-sm rounded p-3 position-relative mt-3">
+        <h5 class="card-title">Công ty đang làm</h5>
+        <div class="text-center mb-3">
+          <img [src]="company.logo || 'assets/logo1.png'" alt="Logo" width="96" height="96" class="mx-auto rounded" />
+        </div>
+
+        <div class="fw-bold mb-1 text-truncate">Tên công ty: <a routerLink="/company-related-info/{{company.id}}">{{ company.name }}</a></div>
+        <div class="text-muted small mb-1">Chức danh: {{ member.position }}</div>
+        <div class="text-muted small mb-2">Địa điểm: {{ company.location }} - {{ company.address }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-container *ngIf="showUserDialog">
+  <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.3);" (click)="closeUserDialog()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()">
+      <form [formGroup]="userForm" class="modal-content">
+        <div class="modal-header bg-primary">
+          <h5 class="modal-title">Sửa người dùng</h5>
+          <button type="button" class="btn-close" (click)="closeUserDialog()"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="col-12">
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" formControlName="email">
+              <div *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched" class="text-danger small">
+                Email không hợp lệ
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Họ tên</label>
+              <input type="text" class="form-control" formControlName="full_name">
+              <div *ngIf="userForm.get('full_name')?.invalid && userForm.get('full_name')?.touched"
+                class="text-danger small">
+                Họ tên là bắt buộc
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">SĐT</label>
+              <input type="text" class="form-control" formControlName="phone">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Ngày sinh</label>
+              <input type="date" class="form-control" formControlName="dob">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Địa chỉ</label>
+              <textarea name="address" id="" class="form-control" formControlName="address"></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Trạng thái</label>
+              <select class="form-select" formControlName="status">
+                <option value="ACTIVE">Hoạt động</option>
+                <option value="INACTIVE">Khóa</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="openConfirm('cancel')">Hủy</button>
+          <button type="submit" class="btn btn-primary" [disabled]="userForm.invalid"
+            (click)="openConfirm('save')">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</ng-container>
+
+<app-avatar-editor [data]="user" [visible]="showAvatarEditor" (saved)="onAvatarSaved($event)"
+  (closed)="onAvatarDialogClosed()">
+</app-avatar-editor>
+
+<app-notification-dialog *ngIf="showConfirmDialog" [title]="confirmTitle" [message]="confirmMessage"
+  (confirm)="handleConfirm()" (cancel)="handleCancel()">
+</app-notification-dialog>
+
+<app-error-dialog *ngIf="showErrorDialog" [title]="errorTitle" [message]="errorMessage" (cancel)="handleCancelError()">
+</app-error-dialog>
+
+<app-loading *ngIf="isLoading"></app-loading>
+
+<div class="modal fade show" tabindex="-1" *ngIf="showJobDetail" style="display: block; background: rgba(0,0,0,0.2);"
+  (click)="closeJobDetail()">
+  <div class="modal-dialog modal-lg modal-dialog-centered" style="min-width: 1200px;"
+    (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold">Chi tiết tin tuyển dụng</h5>
+        <button type="button" class="btn-close" (click)="closeJobDetail()"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Khối thông tin chung -->
+        <div class="row mb-2">
+          <div class="col-md-8">
+            <div class="fw-bold mb-2 text-primary" style="font-size:1.1rem;">Vị trí tuyển dụng</div>
+            <div class="mb-2"><span class="fw-bold">Vị trí:</span> {{ jobDetail.title }}</div>
+            <div class="mb-2"><span class="fw-bold">Người phụ trách:</span> {{ jobDetail.memberName }} <span
+                class="text-muted">({{ jobDetail.memberPosition }})</span></div>
+            <div class="mb-2"><span class="fw-bold">Địa điểm:</span> {{ jobDetail.location }}</div>
+            <div class="mb-2"><span class="fw-bold">Địa chỉ:</span> {{ jobDetail.address }}</div>
+            <div class="mb-2"><span class="fw-bold">Số lượng tuyển:</span> {{ jobDetail.quantity }}</div>
+            <div class="mb-2"><span class="fw-bold">Hạn ứng tuyển:</span> {{ jobDetail.deadline | date:'dd-MM-yyyy' }}
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="fw-bold mb-2 text-primary" style="font-size:1.1rem;">Thông tin công việc</div>
+            <div class="mb-2"><span class="fw-bold">Mức lương:</span> {{ jobDetail.salary }}</div>
+            <div class="mb-2"><span class="fw-bold">Kinh nghiệm:</span> {{ jobDetail.experience }}</div>
+            <div class="mb-2"><span class="fw-bold">Hình thức làm việc:</span> {{ jobDetail.jobType }}</div>
+            <div class="mb-2"><span class="fw-bold">Cấp bậc:</span> {{ jobDetail.level }}</div>
+            <div class="mb-2"><span class="fw-bold">Thời gian làm việc:</span> {{ jobDetail.workingTime }}</div>
+            <div class="mb-2"><span class="fw-bold">Kỹ năng yêu cầu:</span> {{ jobDetail.skills }}</div>
+          </div>
+        </div>
+        <!-- Khối mô tả, yêu cầu, quyền lợi -->
+        <div class="row mb-2">
+          <div class="col-md-8">
+            <div class="fw-bold mb-2 text-primary" style="font-size:1.1rem;">Mô tả & Yêu cầu</div>
+            <!-- Mô tả công việc -->
+            <div class="mb-2">
+              <span class="fw-bold">Mô tả công việc:</span>
+              <div class="text-body" style="white-space:pre-line;">
+                {{ showFullDescription ? jobDetail.description : (jobDetail.description | slice:0:300) }}
+                <span *ngIf="jobDetail.description?.length > 300 && !showFullDescription">...</span>
+              </div>
+              <a *ngIf="jobDetail.description?.length > 300" class="text-primary small cursor-pointer"
+                (click)="showFullDescription = !showFullDescription">
+                {{ showFullDescription ? 'Thu gọn' : 'Xem thêm' }}
+              </a>
+            </div>
+            <!-- Yêu cầu ứng viên -->
+            <div class="mb-2">
+              <span class="fw-bold">Yêu cầu ứng viên:</span>
+              <div class="text-body" style="white-space:pre-line;">
+                {{ showFullRequirement ? jobDetail.requirement : (jobDetail.requirement | slice:0:300) }}
+                <span *ngIf="jobDetail.requirement?.length > 300 && !showFullRequirement">...</span>
+              </div>
+              <a *ngIf="jobDetail.requirement?.length > 300" class="text-primary small cursor-pointer"
+                (click)="showFullRequirement = !showFullRequirement">
+                {{ showFullRequirement ? 'Thu gọn' : 'Xem thêm' }}
+              </a>
+            </div>
+            <!-- Quyền lợi -->
+            <div class="mb-2">
+              <span class="fw-bold">Quyền lợi:</span>
+              <div class="text-body" style="white-space:pre-line;">
+                {{ showFullBenefit ? jobDetail.benefit : (jobDetail.benefit | slice:0:300) }}
+                <span *ngIf="jobDetail.benefit?.length > 300 && !showFullBenefit">...</span>
+              </div>
+              <a *ngIf="jobDetail.benefit?.length > 300" class="text-primary small cursor-pointer"
+                (click)="showFullBenefit = !showFullBenefit">
+                {{ showFullBenefit ? 'Thu gọn' : 'Xem thêm' }}
+              </a>
+            </div>
+          </div>
+          <!-- Trạng thái -->
+          <div class="col-md-4">
+            <div class="fw-bold mb-2 text-primary" style="font-size:1.1rem;">Trạng thái</div>
+            <div>
+              <span class="status-badge" [ngClass]="{
+                'status-active': jobDetail.status === 'ACTIVE',
+                'status-closed': jobDetail.status === 'CLOSED',
+                'status-hidden': jobDetail.status === 'HIDDEN'
+              }">
+                {{ jobDetail.status }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" (click)="updateJob(jobDetail)">Chỉnh sửa</button>
+        <button type="button" class="btn btn-secondary" (click)="closeJobDetail()">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade show d-block" *ngIf="showUpdateJobModal" style="background: rgba(0,0,0,0.3);"
+  (click)="closeUpdateJobModal()">
+  <div class="modal-dialog modal-xl modal-dialog-centered" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <form [formGroup]="jobForm" (ngSubmit)="openConfirm('updateJob')">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title fw-bold">Chỉnh sửa tin tuyển dụng</h5>
+          <button type="button" class="btn-close" (click)="closeUpdateJobModal()"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="row mb-2">
+            <div class="col-md-6 mb-2">
+              <label class="form-label fw-bold">Vị trí tuyển dụng</label>
+              <input type="text" class="form-control" formControlName="title" placeholder="Nhập vị trí tuyển dụng">
+              <div
+                *ngIf="jobForm.get('title')?.invalid && (jobForm.get('title')?.dirty || jobForm.get('title')?.touched)"
+                class="text-danger">Vị trí tuyển dụng không được để trống.</div>
+            </div>
+
+            <div class="col-md-6 mb-2">
+              <label class="form-label fw-bold">Địa chỉ</label>
+              <input type="text" class="form-control" formControlName="address" placeholder="Nhập địa chỉ">
+            </div>
+
+            <div class="col-md-3 mb-2">
+              <label class="form-label fw-bold">Người phụ trách</label>
+              <select class="form-select" formControlName="memberName">
+                <option value="">Chọn người phụ trách</option>
+                <option *ngFor="let m of members" [value]="m.id">{{ m.fullName }} - {{ m.position }}</option>
+              </select>
+            </div>
+
+            <div class="col-md-3 mb-2">
+              <label class="form-label fw-bold">Địa điểm</label>
+              <select class="form-select" formControlName="location">
+                <option value="">Chọn địa điểm</option>
+                <option value="HANOI">Hà Nội</option>
+                <option value="HOCHIMINH">Hồ Chí Minh</option>
+                <option value="DANANG">Đà Nẵng</option>
+              </select>
+            </div>
+
+
+            <div class="col-md-3 mb-2">
+              <label class="form-label fw-bold">Số lượng tuyển</label>
+              <input type="number" class="form-control" formControlName="quantity" min="1">
+            </div>
+
+            <div class="col-md-3 mb-2">
+              <label class="form-label fw-bold">Hạn ứng tuyển</label>
+              <input type="date" class="form-control" formControlName="deadline">
+            </div>
+
+            <div class="col-md-3 mb-2">
+              <label class="form-label fw-bold">Mức lương</label>
+              <select class="form-select" formControlName="salary">
+                <option value="">Chọn mức lương</option>
+                <option value="THOA_THUAN">Thỏa thuận</option>
+                <option value="DUOI_10_TRIEU">Dưới 10 triệu</option>
+                <option value="TU_10_DEN_15_TRIEU">10 - 15 triệu</option>
+                <option value="TU_15_DEN_20_TRIEU">15 - 20 triệu</option>
+                <option value="TU_20_DEN_25_TRIEU">20 - 25 triệu</option>
+                <option value="TU_25_DEN_30_TRIEU">25 - 30 triệu</option>
+                <option value="TU_30_DEN_50_TRIEU">30 - 50 triệu</option>
+                <option value="HON_50_TRIEU">Trên 50 triệu</option>
+              </select>
+            </div>
+
+            <div class="col-md-3 mb-2">
+              <label class="form-label fw-bold">Loại hợp đồng</label>
+              <select class="form-select" formControlName="contractType">
+                <option value="">Chọn loại hợp đồng</option>
+                <option value="FULL_TIME">Toàn thời gian</option>
+                <option value="PART_TIME">Bán thời gian</option>
+                <option value="FREELANCE">Freelance</option>
+              </select>
+            </div>
+
+            <div class="col-md-3 mb-2">
+              <label class="form-label fw-bold">Kinh nghiệm</label>
+              <select class="form-select" formControlName="experience">
+                <option value="">Chọn kinh nghiệm</option>
+                <option value="KHONG_YEU_CAU">Không yêu cầu</option>
+                <option value="DUOI_1_NAM">Dưới 1 năm</option>
+                <option value="MOT_NAM">1 năm</option>
+                <option value="HAI_NAM">2 năm</option>
+                <option value="BA_NAM">3 năm</option>
+                <option value="BON_NAM">4 năm</option>
+                <option value="NAM_NAM">5 năm</option>
+                <option value="TREN_5_NAM">Trên 5 năm</option>
+              </select>
+            </div>
+
+            <div class="col-md-3 mb-2">
+              <label class="form-label fw-bold">Cấp bậc</label>
+              <select class="form-select" formControlName="level">
+                <option value="">Chọn cấp bậc</option>
+                <option value="INTERN">Intern</option>
+                <option value="FRESHER">Fresher</option>
+                <option value="JUNIOR">Junior</option>
+                <option value="SENIOR">Senior</option>
+              </select>
+            </div>
+
+            <div class="col-md-3 mb-2">
+              <label class="form-label fw-bold">Hình thức làm việc</label>
+              <select class="form-select" formControlName="jobType">
+                <option value="">Chọn hình thức</option>
+                <option value="IN_OFFICE">Tại văn phòng</option>
+                <option value="REMOTE">Remote</option>
+                <option value="HYBRID">Hybrid</option>
+              </select>
+            </div>
+
+            <div class="col-md-6 mb-2">
+              <label class="form-label fw-bold">Thời gian làm việc</label>
+              <input class="form-control" formControlName="workingTime"
+                placeholder="Ví dụ: Thứ 2 - Thứ 6, 8:00 - 17:00">
+            </div>
+
+            <div class="col-md-3 mb-2">
+              <label class="form-label fw-bold">Trạng thái</label>
+              <select class="form-select" formControlName="status">
+                <option value="">Chọn trạng thái</option>
+                <option value="ACTIVE">Đang hoạt động</option>
+                <option value="HIDDEN">Ẩn</option>
+                <option value="CLOSED">Đã đóng</option>
+              </select>
+            </div>
+
+            <div class="col-md-12 mb-2">
+              <label class="form-label fw-bold">Kỹ năng yêu cầu</label>
+              <!-- nếu dùng ng-select giữ nguyên, else dùng select multiple -->
+              <ng-select *ngIf="skillsList" [items]="skillsList" bindLabel="name" bindValue="id" [multiple]="true"
+                formControlName="skills" class="form-control" [closeOnSelect]="false">
+                <ng-template ng-option-tmp let-item="item">
+                  <div class="skill-option">
+                    <input type="checkbox" [checked]="jobForm.value.skills?.includes(item.id)"
+                      (change)="onSkillChange(item.id, $event)" style="margin-right:8px;">
+                    {{ item.name }}
+                  </div>
+                </ng-template>
+              </ng-select>
+            </div>
+
+            <div class="col-md-12 mb-2">
+              <label class="form-label fw-bold">Mô tả công việc</label>
+              <textarea class="form-control" rows="3" formControlName="description"></textarea>
+            </div>
+
+            <div class="col-md-12 mb-2">
+              <label class="form-label fw-bold">Yêu cầu ứng viên</label>
+              <textarea class="form-control" rows="3" formControlName="requirement"></textarea>
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label fw-bold">Quyền lợi</label>
+              <textarea class="form-control" rows="3" formControlName="benefit"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary" [disabled]="jobForm.invalid">Lưu thay đổi</button>
+          <button type="button" class="btn btn-secondary" (click)="openConfirm('cancelUpdateJob')">Hủy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

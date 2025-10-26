@@ -39,6 +39,7 @@ export class CompanyManagerComponent {
   editMemberData: CompanyMember | null = null;
   email: string = '';
   fullName: string = '';
+  pendingSearchText: string = '';
 
   constructor(
     private companyMemberService: CompanyMemberService
@@ -58,6 +59,7 @@ export class CompanyManagerComponent {
         this.members = response.data.content;
         this.totalPages = response.data.totalPages;
         this.currentPage = response.data.page;
+        this.pendingSearchText = this.searchText;
       }
     });
   }
@@ -75,8 +77,10 @@ export class CompanyManagerComponent {
   }
 
   changePage(page: number) {
-    if (page >= 0 && page < this.totalPages) {
-      this.currentPage = page;
+    if (this.pendingSearchText !== this.searchText) {
+      this.featchMembers(0);
+    } else if (page >= 0 && page < this.totalPages) {
+      this.featchMembers(page);
     }
   }
 

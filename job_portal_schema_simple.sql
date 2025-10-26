@@ -3,7 +3,7 @@
 -- =====================
 CREATE TYPE user_role_enum AS ENUM ('CANDIDATE', 'HR', 'ADMIN');
 CREATE TYPE user_status_enum AS ENUM ('ACTIVE', 'INACTIVE');
-CREATE TYPE company_status_enum AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
+CREATE TYPE company_status_enum AS ENUM ('PENDING', 'APPROVED', 'INACTIVE', 'REJECTED');
 CREATE TYPE member_status_enum AS ENUM ('PENDING', 'APPROVED', 'REJECTED', 'INACTIVE');
 CREATE TYPE application_status_enum AS ENUM ('APPLIED','VIEWED','SUITABLE','UNSUITABLE');
 CREATE TYPE job_status_enum AS ENUM ('ACTIVE','HIDDEN','CLOSED');

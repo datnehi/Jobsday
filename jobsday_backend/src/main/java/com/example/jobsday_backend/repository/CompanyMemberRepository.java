@@ -16,7 +16,7 @@ public interface CompanyMemberRepository extends JpaRepository<CompanyMember, Lo
             JOIN users u ON cm.user_id = u.id
             WHERE cm.company_id = :companyId AND cm.status = 'APPROVED' AND u.status = 'ACTIVE'
             """, nativeQuery = true)
-    List<Object[]> findByCompanyId(Long companyId);
+    List<Object[]> findAllMemberByCompanyId(Long companyId);
 
     @Query(value = """
             SELECT cm.id, cm.position, cm.is_admin, u.full_name, u.role, c.name AS company_name
@@ -30,11 +30,11 @@ public interface CompanyMemberRepository extends JpaRepository<CompanyMember, Lo
     CompanyMember findByUserId(Long userId);
 
     @Query(value = """
-        SELECT cm.id, cm.user_id, u.full_name, u.email, cm.position, cm.status
+        SELECT cm.id, cm.user_id, u.full_name, u.email, cm.position, cm.is_admin, cm.status
         FROM company_members cm
         JOIN users u ON cm.user_id = u.id
         WHERE cm.company_id = :companyId
-          AND cm.is_admin = false
+          AND (:isAdmin IS NULL OR cm.is_admin = :isAdmin)
           AND (cm.status = 'APPROVED' OR cm.status = 'INACTIVE')
           AND (:textSearch IS NULL 
                OR u.full_name ILIKE CONCAT('%', :textSearch, '%') 
@@ -44,6 +44,7 @@ public interface CompanyMemberRepository extends JpaRepository<CompanyMember, Lo
         """, nativeQuery = true)
     List<Object[]> findMemberByCompanyId(
             @Param("companyId") Long companyId,
+            @Param("isAdmin") Boolean isAdmin,
             @Param("textSearch") String textSearch,
             @Param("limit") int limit,
             @Param("offset") int offset
@@ -93,5 +94,5 @@ public interface CompanyMemberRepository extends JpaRepository<CompanyMember, Lo
             @Param("companyId") Long companyId
     );
 
-
+    List<CompanyMember> findByCompanyId(Long companyId);
 }

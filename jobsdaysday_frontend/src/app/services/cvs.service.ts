@@ -43,5 +43,8 @@ export class CvsService {
     });
   }
 
+  getCvOfUser(userId: number): Observable<ResponseDto> {
+    return this.http.get<ResponseDto>(`${this.apiUrl}/admin/candidate/${userId}`);
+  }
 
 }

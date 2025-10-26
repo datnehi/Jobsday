@@ -64,10 +64,9 @@ public class ApplicationController {
 
     @GetMapping("/{applicationId}/cv/download")
     public ResponseEntity<Resource> downloadCvFile(
-            @PathVariable Long applicationId,
-            @RequestParam(name = "mode", defaultValue = "download") String mode
+            @PathVariable Long applicationId
     ) throws Exception {
-        return applicationService.downloadCvFile(applicationId, mode);
+        return applicationService.downloadCvFile(applicationId);
     }
 
     @GetMapping("/candidate")
@@ -112,4 +111,26 @@ public class ApplicationController {
         );
     }
 
+    @GetMapping("/admin")
+    public ResponseEntity<ResponseDto> getApplicationsOfUser(
+            @RequestParam(value = "userId") Long userId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "status", required = false) Application.ApplicationStatus status
+    ) {
+        int pageSize = 10;
+        PageResultDto<AppliedJobDto> applications = applicationService.getApplicationsByCandidate(userId, status, page, pageSize);
+
+        return ResponseEntity.ok(
+                new ResponseDto(HttpStatus.OK.value(), "Lấy danh sách ứng tuyển thành công", applications));
+    }
+
+    @DeleteMapping("/admin/{applicationId}")
+    public ResponseEntity<ResponseDto> deleteApplicationByAdmin(
+            @PathVariable("applicationId") Long applicationId
+    ) {
+        applicationService.deleteApplication(applicationId);
+        return ResponseEntity.ok(
+                new ResponseDto(HttpStatus.OK.value(), "Xóa ứng tuyển thành công", null)
+        );
+    }
 }

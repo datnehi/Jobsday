@@ -54,14 +54,10 @@
         </div>
         <div class="card-body" style="font-size: 15px; min-height: 60px;">
           <span [innerHTML]="(shortDescription || 'Chưa có thông tin giới thiệu về công ty.') | newlineToBr"></span>
-          <a *ngIf="isLongDescription && !showFullDescription"
-             class="text-primary fw-bold ms-2"
-             style="cursor:pointer;"
-             (click)="showFullDescription = true">Xem thêm</a>
-          <a *ngIf="isLongDescription && showFullDescription"
-             class="text-primary fw-bold ms-2"
-             style="cursor:pointer;"
-             (click)="showFullDescription = false">Thu gọn</a>
+          <a *ngIf="isLongDescription && !showFullDescription" class="text-primary fw-bold ms-2" style="cursor:pointer;"
+            (click)="showFullDescription = true">Xem thêm</a>
+          <a *ngIf="isLongDescription && showFullDescription" class="text-primary fw-bold ms-2" style="cursor:pointer;"
+            (click)="showFullDescription = false">Thu gọn</a>
         </div>
       </div>
       <!-- Danh sách tuyển dụng -->
@@ -146,8 +142,6 @@
         <div *ngIf="jobs.length === 0" class="text-center text-muted py-4">
           Chưa có tin tuyển dụng nào.
         </div>
-
-        <!-- Phân trang -->
         <div *ngIf="totalPages > 1" class="d-flex justify-content-center align-items-center gap-3 my-3">
           <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage === 0"
             (click)="changePage(currentPage - 1)" style="width: 36px; height: 36px;" aria-label="Trang trước">
@@ -201,9 +195,5 @@
 
 <app-login-dialog [show]="showLoginDialog" (close)="showLoginDialog = false"></app-login-dialog>
 
-<app-error-dialog
-  *ngIf="showErrorDialog"
-  [title]="errorTitle"
-  [message]="errorMessage"
-  (cancel)="handleCancel()">
+<app-error-dialog *ngIf="showErrorDialog" [title]="errorTitle" [message]="errorMessage" (cancel)="handleCancel()">
 </app-error-dialog>

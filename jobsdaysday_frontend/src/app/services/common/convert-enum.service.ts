@@ -1,3 +1,4 @@
+import { map } from 'rxjs';
 import { Injectable } from '@angular/core';
 
 @Injectable({
@@ -131,6 +132,40 @@ export class ConvertEnumService {
       case 'NAM_NAM': return '5 năm';
       case 'TREN_5_NAM': return 'Trên 5 năm';
       default: return experience;
+    }
+  }
+
+  public mapJobStatusFromEnum(status: string): string {
+    switch (status) {
+      case 'ACTIVE': return 'Đang mở';
+      case 'HIDDEN': return 'Đã ẩn';
+      case 'CLOSED': return 'Đã đóng';
+      default: return status;
+    }
+  }
+
+  public mapJobStatusToEnum(status: string): string | undefined {
+    switch (status) {
+      case 'Đang mở': return 'ACTIVE';
+      case 'Đã ẩn': return 'HIDDEN';
+      case 'Đã đóng': return 'CLOSED';
+      default: return undefined;
+    }
+  }
+
+  public mapDeadlineToEnum(deadline: string): string | undefined {
+    switch (deadline) {
+      case 'Còn hiệu lực': return 'ACTIVE';
+      case 'Đã hết hạn': return 'EXPIRED';
+      default: return undefined;
+    }
+  }
+
+  public mapDeadlineFromEnum(deadline: string): string {
+    switch (deadline) {
+      case 'ACTIVE': return 'Còn hiệu lực';
+      case 'EXPIRED': return 'Đã hết hạn';
+      default: return deadline;
     }
   }
 }

@@ -30,7 +30,6 @@ public class Company {
     @Column(name = "tax_code", nullable = false)
     private String taxCode;
 
-    @Column( nullable = false)
     private String email;
 
     private String description;
@@ -45,7 +44,7 @@ public class Company {
     private LocalDateTime updatedAt;
 
     public enum CompanyStatusEnum {
-        PENDING, APPROVED, REJECTED
+        PENDING, APPROVED, INACTIVE, REJECTED
     }
 
     public enum Location {

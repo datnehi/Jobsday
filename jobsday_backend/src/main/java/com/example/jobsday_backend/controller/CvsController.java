@@ -90,5 +90,19 @@ public class CvsController {
     ) throws Exception {
         return cvService.downloadCv(id);
     }
+
+    @GetMapping("/admin/candidate/{userId}")
+    public ResponseEntity<ResponseDto> getCvByUserId(
+            @PathVariable Long userId
+    ) {
+        List<Cvs> cv = cvService.getCvByUserId(userId);
+        if (cv == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "CV not found", null));
+        }
+        return ResponseEntity.ok(
+                new ResponseDto(HttpStatus.OK.value(), "Get CV successfully", cv)
+        );
+    }
 }
 

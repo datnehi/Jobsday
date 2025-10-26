@@ -1,0 +1,242 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-lg-9 mb-4">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title">CV đã cập nhật</h5>
+          <div class="row">
+            <div class="col-md-4 mb-4" *ngFor="let cv of cvs">
+              <div class="card shadow-sm rounded h-100 text-center p-3 position-relative" style="cursor: pointer;"
+                (click)="viewCv(cv.id, 'view')">
+                <img src="assets/cv.png" alt="CV Folder" width="96" height="96" class="mx-auto mb-3" />
+                <div class="fw-bold mb-1">{{ cv.title }}</div>
+                <div class="text-muted small mb-2">Cập nhật {{ cv.updatedAt | date:'dd-MM-yyyy HH:mm' }}</div>
+                <div class="d-flex justify-content-center gap-2 mb-2">
+                  <button class="btn btn-primary btn-sm px-3"
+                    (click)="viewCv(cv.id, 'download'); $event.stopPropagation()">Tải về</button>
+                  <button class="btn btn-outline-secondary btn-sm px-3" type="button"
+                    (click)="deleteCv(cv.id); $event.stopPropagation()">Xóa Cv</button>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="cvs.length === 0" class="text-center text-muted fw-bold py-5">
+              Bạn chưa tải lên CV nào. Hãy tải lên để bắt đầu ứng tuyển các công việc phù hợp!
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold mb-0">Việc làm đã ứng tuyển</h4>
+            <div class="mb-0 d-flex align-items-center gap-2 position-relative" style="width:200px;">
+              <div class="custom-dropdown w-100">
+                <div class="custom-dropdown-toggle form-control d-flex justify-content-between align-items-center"
+                  (click)="showStatusDropdown = !showStatusDropdown; $event.stopPropagation()">
+                  <span>
+                    {{ getStatusLabel(selectedStatus) || 'Trạng thái' }}
+                  </span>
+                  <i class="bi bi-chevron-down"></i>
+                </div>
+                <ul *ngIf="showStatusDropdown" class="custom-dropdown-menu shadow">
+                  <li (click)="onStatusChange('')" [class.active]="selectedStatus === ''">Trạng thái</li>
+                  <li (click)="onStatusChange('APPLIED')" [class.active]="selectedStatus === 'APPLIED'">Đã ứng tuyển
+                  </li>
+                  <li (click)="onStatusChange('VIEWED')" [class.active]="selectedStatus === 'VIEWED'">NTD đã xem hồ sơ
+                  </li>
+                  <li (click)="onStatusChange('SUITABLE')" [class.active]="selectedStatus === 'SUITABLE'">Hồ sơ phù hợp
+                  </li>
+                  <li (click)="onStatusChange('UNSUITABLE')" [class.active]="selectedStatus === 'UNSUITABLE'">Hồ sơ chưa
+                    phù hợp</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <table *ngIf="appliedJobs?.length; else noJobs" class="table table-bordered align-middle text-center">
+            <thead class="table-primary">
+              <tr>
+                <th style="width: 270px;">Vị trí</th>
+                <th style="width: 270px;">Công ty</th>
+                <th style="width: 150px;">Ngày ứng tuyển</th>
+                <th style="width: 120px;">Trạng thái</th>
+                <th style="width: 120px;">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let job of appliedJobs">
+                <td><a routerLink="/job-related-info/{{ job.jobId }}">{{ job.title }}</a></td>
+                <td><a routerLink="/company-related-info/{{ job.companyId }}">{{ job.companyName }}</a></td>
+                <td>{{ job.appliedAt | date:'dd/MM/yyyy hh:mm:ss' }}</td>
+                <td>
+                  <span [ngClass]="getBadgeClass(job.status)">
+                    {{ job.status }}
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn-primary btn-sm me-2" (click)="viewDetail(job)">Xem</button>
+                  <button class="btn btn-secondary btn-sm" (click)="openConfirm('delete', job)">Xóa</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <ng-template #noJobs>
+            <span class="text-muted">Không tìm thấy lần ứng tuyển nào.</span>
+          </ng-template>
+        </div>
+        <div *ngIf="totalPages > 1" class="d-flex justify-content-center align-items-center gap-3 mb-3">
+          <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage === 0"
+            (click)="changePage(currentPage - 1)" style="width: 36px; height: 36px;" aria-label="Trang trước">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          <span class="fw-bold text-primary" style="font-size: 1.1rem;">
+            {{ currentPage + 1 }} <span class="text-muted">/ {{ totalPages }} trang</span>
+          </span>
+          <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage + 1 >= totalPages"
+            (click)="changePage(currentPage + 1)" style="width: 36px; height: 36px;" aria-label="Trang sau">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex flex-column align-items-center">
+            <div class="position-relative" style="width: 100px; height: 100px;">
+              <img [src]="user.avatarUrl || 'assets/user.jpg'" alt="Avatar" class="rounded-circle border w-100 h-100"
+                style="object-fit: cover;">
+              <button type="button" class="btn btn-sm btn-light p-1 position-absolute"
+                style="right: 0; bottom: 0; border-radius: 50%; background: #0d6efd;"
+                (click)="openAvatarDialog(); $event.stopPropagation()" title="Thay ảnh">
+                <i class="bi bi-camera-fill text-white" aria-hidden="true"></i>
+                <span class="visually-hidden">Thay ảnh</span>
+              </button>
+            </div>
+            <h2 class="card-title mb-2 text-center">{{ user.fullName }}</h2>
+          </div>
+          <p class="mb-1"><strong>Email:</strong> {{ user.email }}</p>
+          <p class="mb-1"><strong>Số điện thoại:</strong> {{ user.phone }}</p>
+          <p class="mb-1"><strong>Ngày sinh:</strong> {{ user.dob | date:'dd/MM/yyyy' }}</p>
+          <p class="mb-1"><strong>Địa chỉ:</strong> {{ user.address }}</p>
+          <p class="mb-1"><strong>Trạng thái: </strong> <span class="badge bg-success">{{ user.status }}</span></p>
+          <p class="mb-1"><strong>Ngày đăng ký:</strong> {{ user.createdAt | date:'dd/MM/yyyy' }}</p>
+          <p class="mb-1"><strong>NTD tìm kiếm: </strong> <span class="badge bg-info text-dark">{{ user.ntdSearch ? 'Có'
+              : 'Không' }}</span></p>
+        </div>
+        <div class="card-footer text-center">
+          <button class="btn btn-sm btn-outline-primary me-2" (click)="editUser()">Sửa</button>
+          <button class="btn btn-sm btn-outline-secondary" (click)="openConfirm('reset')">Reset mật
+            khẩu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-container *ngIf="showUserDialog">
+  <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.3);" (click)="closeUserDialog()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()">
+      <form [formGroup]="userForm" class="modal-content">
+        <div class="modal-header bg-primary">
+          <h5 class="modal-title">Sửa người dùng</h5>
+          <button type="button" class="btn-close" (click)="closeUserDialog()"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="col-12">
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" formControlName="email">
+              <div *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched" class="text-danger small">
+                Email không hợp lệ
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Họ tên</label>
+              <input type="text" class="form-control" formControlName="full_name">
+              <div *ngIf="userForm.get('full_name')?.invalid && userForm.get('full_name')?.touched"
+                class="text-danger small">
+                Họ tên là bắt buộc
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">SĐT</label>
+              <input type="text" class="form-control" formControlName="phone">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Ngày sinh</label>
+              <input type="date" class="form-control" formControlName="dob">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Địa chỉ</label>
+              <textarea name="address" id="" class="form-control" formControlName="address"></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Trạng thái</label>
+              <select class="form-select" formControlName="status">
+                <option value="ACTIVE">Hoạt động</option>
+                <option value="INACTIVE">Khóa</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">NTD Search</label>
+              <select class="form-select" formControlName="ntd_search">
+                <option [ngValue]="true">Có</option>
+                <option [ngValue]="false">Không</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="openConfirm('cancel')">Hủy</button>
+          <button type="submit" class="btn btn-primary" [disabled]="userForm.invalid"
+            (click)="openConfirm('save')">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</ng-container>
+
+<app-avatar-editor
+  [data]="user"
+  [visible]="showAvatarEditor"
+  (saved)="onAvatarSaved($event)"
+  (closed)="onAvatarDialogClosed()">
+</app-avatar-editor>
+
+<app-notification-dialog *ngIf="showConfirmDialog" [title]="confirmTitle" [message]="confirmMessage"
+  (confirm)="handleConfirm()" (cancel)="handleCancel()">
+</app-notification-dialog>
+
+<app-error-dialog *ngIf="showErrorDialog" [title]="errorTitle" [message]="errorMessage" (cancel)="handleCancelError()">
+</app-error-dialog>
+
+<app-loading *ngIf="isLoading"></app-loading>
+
+<div class="modal fade" tabindex="-1" [class.show]="showDetailDialog"
+  [style.display]="showDetailDialog ? 'block' : 'none'" style="background: rgba(0,0,0,0.2); z-index: 1;"
+  *ngIf="showDetailDialog" (click)="closeDetailDialog()">
+  <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Chi tiết ứng tuyển</h5>
+        <button type="button" class="btn-close btn-outline" (click)="closeDetailDialog()"></button>
+      </div>
+      <div class="modal-body" *ngIf="selectedApplication">
+        <div class="mb-2"><strong>CV: </strong> <a (click)="viewApplicationCv(selectedApplication.id)"
+            class="text-primary" style="cursor: pointer;">Xem CV</a></div>
+        <div class="mb-2"><strong>Thư ứng tuyển:</strong>
+          <div class="border rounded p-2" style="height: 200px;">
+            <span [innerHTML]="selectedApplication.coverLetter | newlineToBr"></span>
+          </div>
+        </div>
+        <div class="mb-2"><strong>Ngày ứng tuyển:</strong> {{ selectedApplication.appliedAt | date:'dd/MM/yyyy HH:mm'}}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeDetailDialog()">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>

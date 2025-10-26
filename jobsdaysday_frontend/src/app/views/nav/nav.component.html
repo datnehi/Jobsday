@@ -40,6 +40,12 @@
         <li><a routerLink="/company-info">Thông tin công ty</a></li>
       </ul>
     </li>
+    <li *ngIf="user?.role == 'ADMIN'" class="navbar-item">
+      <a routerLink="/user-manager">Quản lý Account</a>
+    </li>
+    <li *ngIf="user?.role == 'ADMIN'" class="navbar-item">
+      <a routerLink="/company-management">Quản lý Company</a>
+    </li>
   </ul>
 
   <ul class="navbar-right">

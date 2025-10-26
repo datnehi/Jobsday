@@ -10,7 +10,7 @@ import { SkillsService } from '../../../../services/skills.service';
 import { Skills } from '../../../../models/skills';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { NotificationDialogComponent } from '../../../common/notification-dialog/notification-dialog.component';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ErrorDialogComponent } from "../../../common/error-dialog/error-dialog.component";
 
 @Component({
@@ -49,11 +49,12 @@ export class UpdateJobComponent implements OnInit {
     private companyMemberService: CompanyMemberService,
     private jobSkillsService: JobSkillsService,
     private skillsService: SkillsService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
-    // Khởi tạo form với giá trị mẫu hoặc dữ liệu job cần chỉnh sửa
+    const jobId = Number(this.route.snapshot.paramMap.get('id'));
     this.jobForm = this.fb.group({
       title: ['', Validators.required],
       memberName: ['', Validators.required],
@@ -74,7 +75,7 @@ export class UpdateJobComponent implements OnInit {
       status: ['', Validators.required]
     });
 
-    this.jobService.getJobById(1).subscribe(response => {
+    this.jobService.getJobById(jobId).subscribe(response => {
       if (response.data) {
         this.job = response.data;
         this.populateForm(this.job);

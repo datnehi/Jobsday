@@ -27,22 +27,30 @@ import { CompanyManagerComponent } from './views/hr-features/company-manager/com
 import { isAdminCompanyGuard } from './guards/is-admin-company.guard';
 import { ApproveMemberComponent } from './views/hr-features/company-manager/approve-member/approve-member.component';
 import { CompanyInfoComponent } from './views/hr-features/company-manager/company-info/company-info.component';
+import { UserManagerComponent } from './views/admin-features/account-manager/user-manager/user-manager.component';
+import { homeRedirectGuard } from './guards/home-redirect.guard';
+import { CandidateRelatedInfoComponent } from './views/admin-features/account-manager/candidate-related-info/candidate-related-info.component';
+import { JobRelatedInfoComponent } from './views/admin-features/company-manager/job-related-info/job-related-info.component';
+import { CompanyRelatedInfoComponent } from './views/admin-features/company-manager/company-related-info/company-related-info.component';
+import { HrRelatedInfoComponent } from './views/admin-features/company-manager/hr-related-info/hr-related-info.component';
+import { CompanyManagementComponent } from './views/admin-features/company-manager/company-management/company-management.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'jobsday', pathMatch: 'full' },
+  { path: '', canActivate: [homeRedirectGuard], component: NotfoundComponent },
   { path: 'jobsday', component: DashboardComponent, canActivate: [candidateAuthGuard] },
   { path: 'login', component: LoginComponent, canActivate: [notAuthGuard] },
   { path: 'register', component: RegisterComponent, canActivate: [notAuthGuard] },
   { path: 'notfound', component: NotfoundComponent },
   { path: 'job/:id', component: JobDetailComponent, canActivate: [candidateAuthGuard] },
   { path: 'company-detail/:id', component: CompanyDetailComponent, canActivate: [candidateAuthGuard] },
+  { path: 'personal-info', component: PersonalInfoComponent, canActivate: [authGuard] },
+  { path: 'change-password', component: ChangePasswordComponent, canActivate: [authGuard] },
+  // Candidate routes
   { path: 'apply-success/:id', component: ApplyJobSuccessComponent, canMatch: [roleGuard(['CANDIDATE'])] },
   { path: 'saved-jobs', component: SavedJobComponent, canMatch: [roleGuard(['CANDIDATE'])] },
   { path: 'quan-ly-cv', component: CvManagerComponent, canMatch: [roleGuard(['CANDIDATE'])] },
   { path: 'upload-cv', component: UploadCvComponent, canMatch: [roleGuard(['CANDIDATE'])] },
   { path: 'applied-history', component: AppliedHistoryComponent, canMatch: [roleGuard(['CANDIDATE'])] },
-  { path: 'personal-info', component: PersonalInfoComponent, canActivate: [authGuard] },
-  { path: 'change-password', component: ChangePasswordComponent, canActivate: [authGuard] },
   { path: 'xem-ho-so', component: HrViewProfileComponent, canMatch: [roleGuard(['CANDIDATE'])] },
   // HR routes will be added later
   { path: 'quan-ly-job', component: ListJobComponent, canMatch: [roleGuard(['HR'])] },
@@ -52,7 +60,14 @@ export const routes: Routes = [
   { path: 'search-candidates', component: SearchCandiateComponent, canMatch: [roleGuard(['HR'])] },
   { path: 'company-manager', component: CompanyManagerComponent, canActivate: [isAdminCompanyGuard] },
   { path: 'approve-member', component: ApproveMemberComponent, canActivate: [isAdminCompanyGuard] },
-  { path: 'company-info', component: CompanyInfoComponent, canActivate: [isAdminCompanyGuard] }
+  { path: 'company-info', component: CompanyInfoComponent, canActivate: [isAdminCompanyGuard] },
+
+  { path: 'user-manager', component: UserManagerComponent, canMatch: [roleGuard(['ADMIN'])] },
+  { path: 'candidate/:id', component: CandidateRelatedInfoComponent, canMatch: [roleGuard(['ADMIN'])] },
+  { path: 'job-related-info/:id', component: JobRelatedInfoComponent, canMatch: [roleGuard(['ADMIN'])] },
+  { path: 'company-related-info/:id', component: CompanyRelatedInfoComponent, canMatch: [roleGuard(['ADMIN'])] },
+  { path: 'hr-related-info/:id', component: HrRelatedInfoComponent, canMatch: [roleGuard(['ADMIN'])] },
+  { path: 'company-management', component: CompanyManagementComponent, canMatch: [roleGuard(['ADMIN'])] },
 
 ];
 

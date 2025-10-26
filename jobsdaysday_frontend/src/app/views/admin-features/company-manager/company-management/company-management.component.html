@@ -1,0 +1,343 @@
+<div class="container py-4" style="max-width:1500px;">
+  <h3 class="mb-4 fw-bold text-primary text-center">Quản lý công ty</h3>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="nav nav-tabs border-0 p-2">
+        <span class="tab-hover"
+          [ngClass]="activeTab === 'list' ? 'fw-bold text-primary border-bottom border-3 border-primary' : 'text-dark'"
+          (click)="setTab('list')" role="button" style="cursor:pointer; padding: 8px 16px;">
+          Danh sách công ty
+        </span>
+        <span class="mx-2 text-muted">|</span>
+        <span class="tab-hover"
+          [ngClass]="activeTab === 'pending' ? 'fw-bold text-primary border-bottom border-3 border-primary' : 'text-dark'"
+          (click)="setTab('pending')" role="button" style="cursor:pointer; padding: 8px 16px;">
+          Duyệt công ty mới <span *ngIf="pendingCount>0" class="badge bg-danger ms-2">{{ pendingCount }}</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="tab-content p-3">
+      <!-- LIST TAB -->
+      <div class="tab-pane fade" [class.show]="activeTab === 'list'" [class.active]="activeTab === 'list'">
+        <!-- existing list content -->
+        <div class="d-flex align-items-center mb-3 gap-3">
+          <input type="text" class="form-control" placeholder="Tìm kiếm theo tên công ty, địa điểm..."
+            [(ngModel)]="activeSearchText" style="max-width: 360px;">
+          <button class="btn btn-primary" (click)="loadCompanies(0)">Tìm kiếm</button>
+          <div class="mb-0 d-flex align-items-center gap-2 position-relative" style="width:200px;">
+            <div class="custom-dropdown w-100">
+              <div class="custom-dropdown-toggle form-control d-flex justify-content-between align-items-center"
+                (click)="showLocationDropdown = !showLocationDropdown; $event.stopPropagation()">
+                <span>{{ (selectedLocation) || 'Địa điểm' }}</span>
+                <i class="bi bi-chevron-down"></i>
+              </div>
+              <ul *ngIf="showLocationDropdown" class="custom-dropdown-menu shadow">
+                <li *ngFor="let location of locations"
+                  (click)="onLocationChange(location.value); showLocationDropdown = false; $event.stopPropagation()"
+                  [class.active]="selectedLocation === location.value">
+                  {{ location.label }}
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered table-hover align-middle mb-0 text-center">
+            <thead class="table-primary">
+              <tr>
+                <th>Tên công ty</th>
+                <th style="width: 100px;">Khu vực</th>
+                <th style="width: 60px;">Logo</th>
+                <th>Địa chỉ</th>
+                <th>Email</th>
+                <th style="width: 90px;">Trạng thái</th>
+                <th style="width:160px">Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of companies" routerLink="/company-related-info/{{c.id}}" style="cursor:pointer;">
+                <td>{{ c.name }}</td>
+                <td>{{ c.location }}</td>
+                <td>
+                  <img [src]="c.logo || 'assets/logo1.png'" alt="Logo" class="rounded-circle"
+                    style="width:50px; height:50px; object-fit:cover; display:block; margin:0 auto;">
+                </td>
+                <td>{{ c.address }}</td>
+                <td>{{ c.email }}</td>
+                <td><span class="badge" [ngClass]="{
+                  'bg-success': c.status === 'APPROVED',
+                  'bg-warning': c.status === 'INACTIVE'
+                }">{{ c.status }}</span></td>
+                <td>
+                  <button class="btn btn-sm btn-outline-primary me-1" (click)="openDetail(c); $event.stopPropagation()">Xem</button>
+                  <button class="btn btn-sm btn-outline-secondary me-1" (click)="editCompany(c); $event.stopPropagation()">Sửa</button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="onDeleteCompany(c.id); $event.stopPropagation()">Xóa</button>
+                </td>
+              </tr>
+              <tr *ngIf="companies.length===0">
+                <td colspan="9" class="text-center text-muted">Không có dữ liệu</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="activeCurrentPage > 1" class="d-flex justify-content-center align-items-center gap-3 mt-3">
+          <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="activeCurrentPage === 0"
+            (click)="changePage(activeCurrentPage - 1)" style="width: 36px; height: 36px;" aria-label="Trang trước">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          <span class="fw-bold text-primary" style="font-size: 1.1rem;">
+            {{ activeCurrentPage + 1 }} <span class="text-muted">/ {{ activeTotalPages }} trang</span>
+          </span>
+          <button class="btn btn-outline-primary rounded-circle px-2"
+            [disabled]="activeCurrentPage + 1 >= activeTotalPages" (click)="changePage(activeCurrentPage + 1)"
+            style="width: 36px; height: 36px;" aria-label="Trang sau">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- PENDING TAB (replaced to match LIST layout) -->
+      <div class="tab-pane fade" [class.show]="activeTab === 'pending'" [class.active]="activeTab === 'pending'">
+        <div class="d-flex align-items-center mb-3 gap-3">
+          <input type="text" class="form-control" placeholder="Tìm kiếm theo tên công ty, địa điểm..."
+            [(ngModel)]="pendingSearchText" style="max-width: 360px;">
+          <button class="btn btn-primary" (click)="loadPendingCompanies()">Tìm kiếm</button>
+
+          <div class="mb-0 d-flex align-items-center gap-2 position-relative" style="width:200px;">
+            <div class="custom-dropdown w-100">
+              <div class="custom-dropdown-toggle form-control d-flex justify-content-between align-items-center"
+                (click)="showPendingLocationDropdown = !showPendingLocationDropdown; $event.stopPropagation()">
+                <span>{{ (pendingSelectedLocation) || 'Địa điểm' }}</span>
+                <i class="bi bi-chevron-down"></i>
+              </div>
+              <ul *ngIf="showPendingLocationDropdown" class="custom-dropdown-menu shadow">
+                <li *ngFor="let location of locations"
+                  (click)="onPendingLocationChange(location.value); showPendingLocationDropdown = false; $event.stopPropagation()"
+                  [class.active]="pendingSelectedLocation === location.value">
+                  {{ location.label }}
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered table-hover align-middle mb-0 text-center">
+            <thead class="table-primary">
+              <tr>
+                <th>Tên công ty</th>
+                <th style="width: 110px;">Khu vực</th>
+                <th>Địa chỉ</th>
+                <th>Email</th>
+                <th style="width:200px">Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let p of pendingCompanies" style="cursor:pointer;" (click)="openDetail(p)">
+                <td>{{ p.name }}</td>
+                <td>{{ p.location }}</td>
+                <td>{{ p.address }}</td>
+                <td>{{ p.email }}</td>
+                <td>
+                  <button class="btn btn-sm btn-outline-primary me-1" (click)="openDetail(p); $event.stopPropagation()">Xem</button>
+                  <button class="btn btn-sm btn-success me-1" (click)="openConfirm('approveCompany', p); $event.stopPropagation()">Duyệt</button>
+                  <button class="btn btn-sm btn-danger" (click)="openConfirm('rejectCompany', p); $event.stopPropagation()">Từ chối</button>
+                </td>
+              </tr>
+
+              <tr *ngIf="pendingCompanies.length===0">
+                <td colspan="7" class="text-center text-muted">Không có công ty cần duyệt</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="pendingTotalPages > 1" class="d-flex justify-content-center align-items-center gap-3 mt-3">
+          <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="pendingCurrentPage === 0"
+            (click)="changePendingPage(pendingCurrentPage - 1)" style="width: 36px; height: 36px;" aria-label="Trang trước">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          <span class="fw-bold text-primary" style="font-size: 1.1rem;">
+            {{ pendingCurrentPage + 1 }} <span class="text-muted">/ {{ pendingTotalPages }} trang</span>
+          </span>
+          <button class="btn btn-outline-primary rounded-circle px-2"
+            [disabled]="pendingCurrentPage + 1 >= pendingTotalPages" (click)="changePendingPage(pendingCurrentPage + 1)"
+            style="width: 36px; height: 36px;" aria-label="Trang sau">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Company detail modal -->
+  <div class="modal fade show d-block" *ngIf="showCompanyDetail" style="background: rgba(0,0,0,0.35);"
+    (click)="closeCompanyDetail()">
+    <div class="modal-dialog modal-lg modal-dialog-centered" (click)="$event.stopPropagation()">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title fw-bold">Chi tiết công ty</h5>
+          <button type="button" class="btn-close" (click)="closeCompanyDetail()"></button>
+        </div>
+
+        <div class="modal-body">
+          <div *ngIf="selectedCompany">
+            <div class="row g-3">
+              <div class="col-md-4 text-center">
+                <img [src]="selectedCompany.logo || 'assets/logo1.png'" alt="Logo" class="rounded"
+                  style="width:160px;height:160px;object-fit:cover;">
+                <div class="mt-2">
+                  <span class="badge" [ngClass]="{
+                  'bg-success': selectedCompany.status === 'APPROVED',
+                  'bg-warning': selectedCompany.status === 'INACTIVE',
+                  'bg-secondary': selectedCompany.status === 'PENDING'
+                }">{{ selectedCompany.status }}</span>
+                </div>
+              </div>
+
+              <div class="col-md-8">
+                <h4 class="fw-bold mb-1">{{ selectedCompany.name }}</h4>
+                <div class="text-muted mb-2">{{ selectedCompany.location }} — {{ selectedCompany.address }}</div>
+
+                <div class="mb-2"><strong>Mã số thuế:</strong> {{ selectedCompany.taxCode ||
+                  '-' }}</div>
+                <div class="mb-2"><strong>Email:</strong> {{ selectedCompany.email || '-' }}</div>
+                <div class="mb-2"><strong>Website: </strong> <a *ngIf="selectedCompany.website" target="_blank"
+                    rel="noopener noreferrer" href="{{ selectedCompany.website }}">{{ selectedCompany.website
+                    }}</a><span *ngIf="!selectedCompany.website"> -</span></div>
+
+                <div class="mb-2"><strong>Ngày gửi:</strong> {{ selectedCompany.createdAt
+                  | date:'dd-MM-yyyy HH:mm' }}</div>
+              </div>
+
+              <div class="col-12">
+                <hr>
+                <h6 class="mb-1">Mô tả</h6>
+                <div class="flex-grow-1">
+                  <div *ngIf="selectedCompany.description; else noDesc">
+                    <div *ngIf="!isDescExpanded; else fullDesc">
+                      <div [innerHTML]="(selectedCompany.description | slice:0:200) | newlineToBr"></div>
+                      <span *ngIf="selectedCompany.description.length > 200" class="text-primary" role="button"
+                        style="cursor: pointer;" (click)="toggleDesc()">
+                        ... xem thêm
+                      </span>
+                    </div>
+                    <ng-template #fullDesc>
+                      <div [innerHTML]="selectedCompany.description | newlineToBr"></div>
+                      <span class="text-primary" role="button" style="cursor: pointer;" (click)="toggleDesc()">Rút
+                        gọn</span>
+                    </ng-template>
+                  </div>
+
+                  <ng-template #noDesc>
+                    <div class="text-muted">Chưa có mô tả</div>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button *ngIf="selectedCompany?.status === 'PENDING'" type="button" class="btn btn-success"
+            (click)="openConfirm('approveCompany'); $event.stopPropagation()">Duyệt</button>
+          <button *ngIf="selectedCompany?.status === 'PENDING'" type="button" class="btn btn-danger"
+            (click)="openConfirm('rejectCompany'); $event.stopPropagation()">Từ chối</button>
+          <button *ngIf="selectedCompany?.status !== 'PENDING'" type="button" class="btn btn-primary"
+            (click)="editCompany(selectedCompany); $event.stopPropagation()">Sửa</button>
+          <button type="button" class="btn btn-secondary" (click)="closeCompanyDetail()">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade show d-block" *ngIf="showEditCompanyModal" style="background: rgba(0,0,0,0.35);"
+  (click)="closeEditCompanyModal()">
+  <div class="modal-dialog modal-lg modal-dialog-centered" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <form [formGroup]="companyForm" (ngSubmit)="openConfirm('editCompany')">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title fw-bold">Chỉnh sửa thông tin công ty</h5>
+          <button type="button" class="btn-close" (click)="closeEditCompanyModal()"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="row g-2">
+            <div class="col-md-12 mb-2">
+              <label class="form-label fw-bold">Tên công ty <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="name" placeholder="Tên công ty">
+              <div
+                *ngIf="companyForm.get('name')?.invalid && (companyForm.get('name')?.touched || companyForm.get('name')?.dirty)"
+                class="text-danger">Tên công ty không được để trống</div>
+            </div>
+
+            <div class="col-md-6 mb-2">
+              <label class="form-label fw-bold">Khu vực <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="location">
+                <option value="">-- Chọn khu vực --</option>
+                <option value="Hà Nội">Hà Nội</option>
+                <option value="Đà Nẵng">Đà Nẵng</option>
+                <option value="Hồ Chí Minh">Hồ Chí Minh</option>
+              </select>
+            </div>
+
+            <div class="col-md-6 mb-2">
+              <label class="form-label fw-bold">Mã số thuế <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="taxCode" placeholder="Mã số thuế">
+            </div>
+
+            <div class="col-md-12 mb-2">
+              <label class="form-label fw-bold">Địa chỉ <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="address" placeholder="Địa chỉ">
+            </div>
+
+            <div class="col-md-6 mb-2">
+              <label class="form-label fw-bold">Email <span class="text-danger">*</span></label>
+              <input type="email" class="form-control" formControlName="email" placeholder="Email liên hệ">
+            </div>
+
+            <div class="col-md-6 mb-2">
+              <label class="form-label fw-bold">Website</label>
+              <input type="text" class="form-control" formControlName="website" placeholder="https://...">
+            </div>
+
+            <div class="col-md-12 mb-2">
+              <label class="form-label fw-bold">Mô tả</label>
+              <textarea class="form-control" formControlName="description" rows="4"
+                placeholder="Mô tả ngắn về công ty"></textarea>
+            </div>
+
+            <div class="col-md-4 mb-2">
+              <label class="form-label fw-bold">Trạng thái</label>
+              <select class="form-select" formControlName="status">
+                <option value="">Chọn trạng thái</option>
+                <option value="APPROVED">Đang hoạt động</option>
+                <option value="INACTIVE">Ẩn</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary" [disabled]="companyForm.invalid"
+            (click)="openConfirm('editCompany')">Lưu thay đổi</button>
+          <button type="button" class="btn btn-secondary" (click)="openConfirm('cancelEditCompany')">Hủy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<app-notification-dialog *ngIf="showConfirmDialog" [title]="confirmTitle" [message]="confirmMessage"
+  (confirm)="handleConfirm()" (cancel)="handleCancel()"></app-notification-dialog>
+
+<app-error-dialog *ngIf="showErrorDialog" [title]="errorTitle" [message]="errorMessage"
+  (cancel)="handleCancelError()"></app-error-dialog>
+
+<app-loading *ngIf="isLoading"></app-loading>
+

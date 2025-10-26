@@ -31,7 +31,6 @@ export class JobService {
     if (filter.userId) params = params.set('userId', filter.userId);
     if (filter.companyId) params = params.set('companyId', filter.companyId);
 
-    // Phân trang cho jobs
     if (filter.jobsPage !== undefined) params = params.set('page', filter.jobsPage);
     if (filter.size !== undefined) params = params.set('size', filter.size);
     return this.http.get<ResponseDto>(`${this.apiUrl}/company/${filter.companyId}`, { params });
@@ -45,7 +44,6 @@ export class JobService {
     if (filter.status) params = params.set('status', filter.status);
     if (filter.memberId) params = params.set('memberId', filter.memberId);
 
-    // Phân trang cho jobs
     if (filter.page !== undefined) params = params.set('page', filter.page);
     if (filter.size !== undefined) params = params.set('size', filter.size);
     return this.http.get<ResponseDto>(`${this.apiUrl}/search/${filter.companyId}`, { params });
@@ -56,6 +54,11 @@ export class JobService {
   }
 
   deleteJob(id: number): Observable<ResponseDto> {
+    if (id === null || id === undefined) {
+      return new Observable<ResponseDto>(observer => {
+        observer.error(new Error('Invalid job ID'));
+      });
+    }
     return this.http.delete<ResponseDto>(`${this.apiUrl}/delete/${id}`);
   }
 
@@ -66,4 +69,5 @@ export class JobService {
   checkOwnerJob(jobId: number): Observable<ResponseDto> {
     return this.http.get<ResponseDto>(`${this.apiUrl}/checkown/${jobId}`);
   }
+
 }

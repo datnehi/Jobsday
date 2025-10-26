@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { User } from '../models/user';
@@ -38,5 +38,31 @@ export class UserService {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.put<ResponseDto>(`${this.api}/update-avatar`, formData);
+  }
+
+  getAllUsers(filter: any): Observable<ResponseDto> {
+    let params = new HttpParams();
+    if (filter.textSearch) params = params.set('textSearch', filter.textSearch);
+    if (filter.page !== undefined) params = params.set('page', filter.page);
+    if (filter.size !== undefined) params = params.set('size', filter.size);
+    return this.http.get<ResponseDto>(`${this.api}/admin`, { params });
+  }
+
+  resetPassword(id: number): Observable<ResponseDto> {
+    return this.http.put<ResponseDto>(`${this.api}/admin/reset-password/${id}`, {});
+  }
+
+  updateAvatarUser(id: number, file: File): Observable<ResponseDto> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.put<ResponseDto>(`${this.api}/admin/update-avatar/${id}`, formData);
+  }
+
+  updateUserInfoByAdmin(user: User): Observable<ResponseDto> {
+    return this.http.put<ResponseDto>(`${this.api}/admin/update-info`, user);
+  }
+
+  deleteUser(id: number): Observable<ResponseDto> {
+    return this.http.delete<ResponseDto>(`${this.api}/admin/${id}`);
   }
 }

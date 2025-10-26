@@ -13,4 +13,4 @@ export interface Company {
   updatedAt?: string;
 }
 
-export type CompanyStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+export type CompanyStatus = 'PENDING' | 'APPROVED' | 'INACTIVE' | 'REJECTED';

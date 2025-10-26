@@ -1,0 +1,227 @@
+<div class="container py-4" style="max-width: 1800px;">
+  <h3 class="mb-4 fw-bold text-primary text-center">Quản lý người dùng hệ thống</h3>
+  <div class="d-flex align-items-center mb-3 gap-3 justify-content-center">
+    <input type="text" class="form-control" placeholder="Tìm kiếm theo tên, email, số điện thoại..."
+      [(ngModel)]="searchText" style="max-width: 300px;">
+    <button class="btn btn-primary" (click)="loadUsers(0)">Tìm kiếm</button>
+    <div class="flex-grow-1"></div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle text-center table-hover">
+      <thead class="table-primary align-middle">
+        <tr>
+          <th style="width: 300px;">Email</th>
+          <th style="width: 300px;">Họ tên</th>
+          <th style="width: 100px;">SĐT</th>
+          <th style="width: 100px;">Ngày sinh</th>
+          <th style="width: 270px;">Địa chỉ</th>
+          <th style="width: 60px;">Ảnh</th>
+          <th style="width: 50px;">Vai trò</th>
+          <th style="width: 60px;">Trạng thái</th>
+          <th style="width: 50px;">Xác thực</th>
+          <th style="width: 80px;">Mã xác thực</th>
+          <th style="width: 100px;">Hạn xác thực</th>
+          <th style="width: 70px;">NTD Search</th>
+          <th style="width: 100px;">Ngày tạo</th>
+          <th style="width: 130px;">Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users; let i = index" (click)="viewCandidateInfo(user)" style="cursor: pointer;">
+          <td>{{ user.email }}</td>
+          <td>{{ user.fullName }}</td>
+          <td>{{ user.phone }}</td>
+          <td>{{ user.dob | date:'dd/MM/yyyy' }}</td>
+          <td>{{ user.address }}</td>
+          <td class="text-center" style="width: 60px; height: 60px;">
+            <div style="width:40px; height:40px; margin:0 auto; position:relative;">
+              <img [src]="user.avatarUrl || 'assets/user.jpg'" [alt]="'avatar'" class="rounded-circle border"
+                style="width:40px; height:40px; object-fit:cover; display:block;" />
+              <button type="button" class="btn btn-sm btn-light p-1 position-absolute bottom-0 end-0 border-0 shadow"
+                style="border-radius:50%; background:#0d6efd; transform: translate(25%,25%);"
+                (click)="openAvatarDialog(user); $event.stopPropagation()" title="Thay ảnh">
+                <i class="bi bi-camera-fill text-white" aria-hidden="true"></i>
+                <span class="visually-hidden">Thay ảnh</span>
+              </button>
+            </div>
+          </td>
+          <td>{{ user.role === 'HR' ? 'Hr' : 'Ứng viên' }}</td>
+          <td>
+            <span [ngClass]="{'text-success': user.status === 'ACTIVE', 'text-danger': user.status !== 'ACTIVE'}">
+              {{ user.status === 'ACTIVE' ? 'Hoạt động' : 'Khóa' }}
+            </span>
+          </td>
+          <td>
+            <span [ngClass]="{'text-success': user.emailVerified, 'text-danger': !user.emailVerified}">
+              {{ user.emailVerified ? 'True' : 'False' }}
+            </span>
+          </td>
+          <td>{{ user.verificationCode }}</td>
+          <td>{{ user.verificationExpiry | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td>
+            <span [ngClass]="{'text-success': user.ntdSearch, 'text-danger': !user.ntdSearch}">
+              {{ user.ntdSearch ? 'True' : 'False' }}
+            </span>
+          </td>
+          <td>{{ user.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary mb-1" (click)="editUser(user)">Sửa</button>
+            <button class="btn btn-sm btn-outline-secondary" (click)="openConfirm('reset', user)">Reset mật
+              khẩu</button>
+          </td>
+        </tr>
+        <tr *ngIf="users.length === 0">
+          <td colspan="16" class="text-center text-muted">Không có người dùng nào phù hợp.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div *ngIf="totalPages > 1" class="d-flex justify-content-center align-items-center gap-3 mt-3">
+    <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage === 0"
+      (click)="changePage(currentPage - 1)" style="width: 36px; height: 36px;" aria-label="Trang trước">
+      <i class="bi bi-chevron-left"></i>
+    </button>
+    <span class="fw-bold text-primary" style="font-size: 1.1rem;">
+      {{ currentPage + 1 }} <span class="text-muted">/ {{ totalPages }} trang</span>
+    </span>
+    <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage + 1 >= totalPages"
+      (click)="changePage(currentPage + 1)" style="width: 36px; height: 36px;" aria-label="Trang sau">
+      <i class="bi bi-chevron-right"></i>
+    </button>
+  </div>
+</div>
+
+<ng-container *ngIf="showUserDialog">
+  <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.3);" (click)="closeUserDialog()">
+    <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
+      <form [formGroup]="userForm" class="modal-content">
+        <div class="modal-header bg-primary">
+          <h5 class="modal-title">Sửa người dùng</h5>
+          <button type="button" class="btn-close" (click)="closeUserDialog()"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="row gx-3">
+            <!-- Left column -->
+            <div class="col-12 col-md-7">
+              <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" formControlName="email">
+                <div *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched" class="text-danger small">
+                  Email không hợp lệ
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Họ tên</label>
+                <input type="text" class="form-control" formControlName="full_name">
+                <div *ngIf="userForm.get('full_name')?.invalid && userForm.get('full_name')?.touched" class="text-danger small">
+                  Họ tên là bắt buộc
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">SĐT</label>
+                <input type="text" class="form-control" formControlName="phone">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Ngày sinh</label>
+                <input type="date" class="form-control" formControlName="dob">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Địa chỉ</label>
+                <textarea name="address" id="" class="form-control" formControlName="address"></textarea>
+              </div>
+            </div>
+
+            <!-- Right column -->
+            <div class="col-12 col-md-5">
+              <div class="mb-3">
+                <label class="form-label">Trạng thái</label>
+                <select class="form-select" formControlName="status">
+                  <option value="ACTIVE">Hoạt động</option>
+                  <option value="INACTIVE">Khóa</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Email xác thực</label>
+                <select class="form-select" formControlName="email_verified">
+                  <option [ngValue]="true">Đã xác thực</option>
+                  <option [ngValue]="false">Chưa xác thực</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">NTD Search</label>
+                <select class="form-select" formControlName="ntd_search">
+                  <option [ngValue]="true">Có</option>
+                  <option [ngValue]="false">Không</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Mã xác thực</label>
+                <input type="text" class="form-control" formControlName="verification_code">
+              </div>
+              <div>
+                <label class="form-label">Hạn xác thực</label>
+                <input type="datetime-local" class="form-control" formControlName="verification_expiry">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="openConfirm('cancel')">Hủy</button>
+          <button type="submit" class="btn btn-primary" [disabled]="userForm.invalid" (click)="openConfirm('save')">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</ng-container>
+
+<div class="modal fade" id="avatarModal" tabindex="-1" aria-labelledby="avatarModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" style="width: 670px;">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title w-100 text-center">CHỈNH SỬA ẢNH ĐẠI DIỆN</h5>
+      </div>
+      <div class="modal-body d-flex flex-wrap gap-4 justify-content-center align-items-start">
+        <!-- Ảnh gốc -->
+        <div style="width: 65%;">
+          <div class="border border-primary border-dashed rounded mb-2 d-flex align-items-center justify-content-center"
+            style="width: 350px; height: 180px; cursor: pointer;" (click)="fileInput.click()">
+            <span *ngIf="!selectedFile">Click chọn ảnh để tải lên!</span>
+            <img *ngIf="selectedFileUrl" [src]="selectedFileUrl" alt="Ảnh gốc"
+              style="max-width: 100%; max-height: 100%;">
+            <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" hidden>
+          </div>
+          <div class="text-danger small">
+            Nếu ảnh của bạn có dung lượng trên 5MB, vui lòng <a href="https://compressor.io/compress" target="_blank">
+              bấm vào đây</a> để giảm dung lượng ảnh.
+          </div>
+        </div>
+        <!-- Ảnh hiển thị trên CV -->
+        <div class="text-center">
+          <div class="mb-2">Ảnh hiển thị trên CV</div>
+          <img [src]="previewUrl || user?.avatarUrl || 'assets/user.jpg'" alt="Preview" width="120" height="120"
+            class="rounded-circle border">
+          <div class="mt-2 d-flex justify-content-center gap-2">
+            <button class="btn btn-primary btn-sm" (click)="fileInput.click()">Đổi ảnh</button>
+            <button class="btn btn-danger btn-sm" (click)="removeImage()" [disabled]="!selectedFile">Xóa ảnh</button>
+          </div>
+          <button class="btn btn-success btn-block mt-2" (click)="saveAvatar()" [disabled]="!selectedFile">Xong</button>
+          <div>
+            <a href="#" class="text-danger small" (click)="closeAvatarDialog(); $event.preventDefault()">Đóng lại (Không
+              lưu)</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-notification-dialog *ngIf="showConfirmDialog" [title]="confirmTitle" [message]="confirmMessage"
+  (confirm)="handleConfirm(filter)" (cancel)="handleCancel()">
+</app-notification-dialog>
+
+<app-error-dialog *ngIf="showErrorDialog" [title]="errorTitle" [message]="errorMessage" (cancel)="handleCancelError()">
+</app-error-dialog>
+
+<app-loading *ngIf="isLoading"></app-loading>

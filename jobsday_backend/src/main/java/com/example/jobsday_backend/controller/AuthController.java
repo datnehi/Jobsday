@@ -121,14 +121,23 @@ public class AuthController {
     public ResponseEntity<ResponseDto> login(@RequestBody LoginRequestDto body) {
         User user = userService.findByEmail(body.getEmail());
 
-        if(user != null && user.getRole() == User.Role.HR && user.getStatus() == User.Status.INACTIVE) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new ResponseDto(HttpStatus.FORBIDDEN.value(), "Your account is inactive. Please wait for admin approval.", null));
-        }
-
         if (user == null || Boolean.FALSE.equals(user.getEmailVerified())) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "User not found", null));
+        }
+
+        if(user.getRole() == User.Role.HR) {
+            CompanyMember member = companyMemberService.getMemberByUserId(user.getId());
+            if (member.getStatus() != CompanyMember.MemberStatusEnum.APPROVED) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(new ResponseDto(HttpStatus.FORBIDDEN.value(), "Your company member account is inactive. Please wait for admin approval.", null));
+            }
+
+            Company company = companyService.getById(member.getCompanyId());
+            if (company.getStatus() != Company.CompanyStatusEnum.APPROVED) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(new ResponseDto(HttpStatus.FORBIDDEN.value(), "Your company account is inactive. Please contact support.", null));
+            }
         }
 
         if (!passwordEncoder.matches(body.getPassword() + passwordSecret, user.getPasswordHash())) {

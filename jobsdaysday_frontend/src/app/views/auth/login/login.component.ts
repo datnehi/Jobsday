@@ -41,7 +41,7 @@ export class LoginComponent {
         next: () => {
           this.authService.loadUserBeforeApp().then(() => {
             if (this.authService.currentUser?.role === 'ADMIN') {
-              this.router.navigate(['/admin']);
+              this.router.navigate(['/user-manager']);
             } else if (this.authService.currentUser?.role === 'HR') {
               this.router.navigate(['/quan-ly-job']);
             } else {

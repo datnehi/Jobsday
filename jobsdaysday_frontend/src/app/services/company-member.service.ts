@@ -45,4 +45,16 @@ export class CompanyMemberService {
     if (filter.size !== undefined) params = params.set('size', filter.size);
     return this.http.get<ResponseDto>(`${this.apiUrl}/member-requests`, { params });
   }
+
+  getMemberByAdmin(filter: any): Observable<ResponseDto> {
+    let params = new HttpParams();
+    if (filter.textSearch !== undefined) params = params.set('textSearch', filter.textSearch);
+    if (filter.page !== undefined) params = params.set('page', filter.page);
+    if (filter.size !== undefined) params = params.set('size', filter.size);
+    return this.http.get<ResponseDto>(`${this.apiUrl}/admin/${filter.id}`, { params });
+  }
+
+  getMemberByUserId(userId: number): Observable<ResponseDto> {
+    return this.http.get<ResponseDto>(`${this.apiUrl}/admin/member/${userId}`);
+  }
 }

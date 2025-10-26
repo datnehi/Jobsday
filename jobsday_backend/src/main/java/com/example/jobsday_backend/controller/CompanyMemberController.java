@@ -55,6 +55,7 @@ public class CompanyMemberController {
     public ResponseEntity<ResponseDto> updateMember(
             @RequestBody CompanyMember member
     ) {
+        System.out.println("Updating member: " + member);
         CompanyMember memberInfo = companyMemberService.getMemberInfoById(member.getId());
         if (memberInfo == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -80,8 +81,9 @@ public class CompanyMemberController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new ResponseDto(HttpStatus.FORBIDDEN.value(), "You are not a company member", null));
         }
+        boolean isAdmin = false;
         int pageSize = (size == null ? 13 : size);
-        PageResultDto<Map<String, Object>> members = companyMemberService.getMembers(member.getCompanyId(), textSearch, page, pageSize);
+        PageResultDto<Map<String, Object>> members = companyMemberService.getMembers(member.getCompanyId(), isAdmin, textSearch, page, pageSize);
         return ResponseEntity.ok(
                 new ResponseDto(HttpStatus.OK.value(), "Get members successfully", members)
         );
@@ -114,6 +116,37 @@ public class CompanyMemberController {
         PageResultDto<Map<String, Object>> members = companyMemberService.getMemberRequest(member.getCompanyId(), page, pageSize);
         return ResponseEntity.ok(
                 new ResponseDto(HttpStatus.OK.value(), "Get members successfully", members)
+        );
+    }
+
+    @GetMapping("/admin/{companyId}")
+    public ResponseEntity<ResponseDto> getMembersListByAdmin(
+            @PathVariable Long companyId,
+            @RequestParam(value = "isAdmin", required = false) Boolean isAdmin,
+            @RequestParam(value = "textSearch", required = false) String textSearch,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", required = false) Integer size
+    ) {
+        int pageSize = (size == null ? 13 : size);
+        PageResultDto<Map<String, Object>> members = companyMemberService.getMembers(companyId, null, textSearch, page, pageSize);
+        return ResponseEntity.ok(
+                new ResponseDto(HttpStatus.OK.value(), "Get members successfully", members)
+        );
+    }
+
+    @GetMapping("/admin/member/{userId}")
+    public ResponseEntity<ResponseDto> getMemberByUserIdByAdmin(
+            @PathVariable Long userId
+    ) {
+        CompanyMember member = companyMemberService.getMemberByUserId(userId);
+        if (member == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "No member found", null));
+        }
+        member.setStatus(CompanyMember.MemberStatusEnum.INACTIVE);
+        companyMemberService.updateMember(member);
+        return ResponseEntity.ok(
+                new ResponseDto(HttpStatus.OK.value(), "Get member successfully", member)
         );
     }
 }

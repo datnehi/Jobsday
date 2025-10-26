@@ -199,4 +199,6 @@ public interface JobRepository extends JpaRepository<Job, Long> {
     );
 
     void deleteJobById(Long id);
+
+    List<Job> findJobsByCompanyId(Long companyId);
 }

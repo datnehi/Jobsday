@@ -27,7 +27,7 @@ public class CompanyMemberService {
     }
 
     public List<Map<String, Object>> getMembersOfCompany(Long companyId) {
-        List<Object[]> rows = companyMemberRepository.findByCompanyId(companyId);
+        List<Object[]> rows = companyMemberRepository.findAllMemberByCompanyId(companyId);
 
         List<Map<String, Object>> result = new ArrayList<>();
         for (Object[] row : rows) {
@@ -66,11 +66,12 @@ public class CompanyMemberService {
 
     public PageResultDto<Map<String, Object>> getMembers(
             Long companyId,
+            Boolean isAdmin,
             String textSearch,
             int page,
             int size) {
         int offset = page * size;
-        List<Object[]> rows = companyMemberRepository.findMemberByCompanyId(companyId, textSearch, size, offset);
+        List<Object[]> rows = companyMemberRepository.findMemberByCompanyId(companyId, isAdmin, textSearch, size, offset);
 
         List<Map<String, Object>> result = new ArrayList<>();
         for (Object[] row : rows) {
@@ -80,7 +81,8 @@ public class CompanyMemberService {
             map.put("fullName", row[2]);
             map.put("email", row[3]);
             map.put("position", row[4]);
-            map.put("status", row[5]);
+            map.put("isAdmin", row[5]);
+            map.put("status", row[6]);
             result.add(map);
         }
         long totalElements = companyMemberRepository.countMemberByCompanyId(companyId, textSearch);
@@ -130,6 +132,10 @@ public class CompanyMemberService {
                 totalPages,
                 page >= totalPages - 1
         );
+    }
+
+    public List<CompanyMember> getMenbersByCompanyId(Long companyId) {
+        return companyMemberRepository.findByCompanyId(companyId);
     }
 
 }

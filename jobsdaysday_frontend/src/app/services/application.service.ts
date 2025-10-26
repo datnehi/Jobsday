@@ -44,4 +44,16 @@ export class ApplicationService {
     return this.http.put<ResponseDto>(url, {});
   }
 
+  getApplicationByUserId(filter: any): Observable<ResponseDto> {
+    let params = new HttpParams();
+    if (filter.userId !== undefined) params = params.set('userId', filter.userId);
+    if (filter.status) params = params.set('status', filter.status);
+    if (filter.page !== undefined) params = params.set('page', filter.page);
+    return this.http.get<ResponseDto>(this.apiUrl + `/admin`, { params });
+  }
+
+  deleteByAdmin(applicationId: number): Observable<ResponseDto> {
+    return this.http.delete<ResponseDto>(this.apiUrl + `/admin/${applicationId}`);
+  }
+
 }

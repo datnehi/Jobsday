@@ -267,4 +267,8 @@ public class JobService {
         Job job = jobRepository.findJobById(jobId);
         return job != null && job.getMemberId().equals(memberId);
     }
+
+    List<Job> getJobsByCompanyId(Long companyId) {
+        return jobRepository.findJobsByCompanyId(companyId);
+    }
 }

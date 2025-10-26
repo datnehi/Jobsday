@@ -12,6 +12,8 @@ import { Router } from '@angular/router';
 import { CompanyMember } from '../../../../models/company_member';
 import { Job } from '../../../../models/job';
 import { ErrorDialogComponent } from "../../../common/error-dialog/error-dialog.component";
+import { LoadingComponent } from "../../../common/loading/loading.component";
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-create-job',
@@ -21,7 +23,8 @@ import { ErrorDialogComponent } from "../../../common/error-dialog/error-dialog.
     CommonModule,
     NgSelectModule,
     NotificationDialogComponent,
-    ErrorDialogComponent
+    ErrorDialogComponent,
+    LoadingComponent
 ],
   templateUrl: './create-job.component.html',
   styleUrl: './create-job.component.css'
@@ -41,6 +44,7 @@ export class CreateJobComponent {
   showErrorDialog = false;
   errorTitle = '';
   errorMessage = '';
+  isLoading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -103,7 +107,10 @@ export class CreateJobComponent {
         benefit: formValues.benefit,
         status: "ACTIVE"
       };
-      this.jobService.createJob(updatedJob).subscribe(response => {
+      this.isLoading = true;
+      this.jobService.createJob(updatedJob)
+      .pipe(finalize(() => { this.isLoading = false; }))
+      .subscribe(response => {
         if (response.data) {
           const skillsToUpdate = formValues.skills;
           this.jobSkills.updateSkillsForJob(response.data.id, skillsToUpdate).subscribe(skillsResponse => {
@@ -111,14 +118,14 @@ export class CreateJobComponent {
               this.router.navigate([`quan-ly-job`]);
             } else {
               this.showErrorDialog = true;
-              this.errorTitle = 'Cập nhật job thất bại!';
-              this.errorMessage = 'Đã xảy ra lỗi khi cập nhật job. Vui lòng thử lại sau.';
+              this.errorTitle = 'Tạo job thất bại!';
+              this.errorMessage = 'Đã xảy ra lỗi khi thêm kỹ năng cho job. Vui lòng thử lại sau.';
             }
           });
         } else {
           this.showErrorDialog = true;
-          this.errorTitle = 'Cập nhật job thất bại!';
-          this.errorMessage = 'Đã xảy ra lỗi khi cập nhật job. Vui lòng thử lại sau.';
+          this.errorTitle = 'Tạo job thất bại!';
+          this.errorMessage = 'Đã xảy ra lỗi khi tạo job. Vui lòng thử lại sau.';
         }
       });
     }

@@ -57,7 +57,7 @@ export class JobDetailComponent {
   constructor(
     private jobService: JobService,
     private companyService: CompanyService,
-    private jobSkillsService: JobSkillsService, // Inject service
+    private jobSkillsService: JobSkillsService,
     private route: ActivatedRoute,
     public convertEnum: ConvertEnumService,
     private applicationService: ApplicationService,
@@ -81,7 +81,6 @@ export class JobDetailComponent {
             contractType: this.convertEnum.mapContractTypeFromEnum(response.data.contractType),
             jobType: this.convertEnum.mapWorkTypeFromEnum(response.data.jobType)
           };
-          // Lấy skill của job
           this.jobSkillsService.getSkillsByJobId(jobId).subscribe(skillsResponse => {
             if (skillsResponse.data) {
               this.skills = skillsResponse.data.map((s: any) => s.name);
@@ -134,7 +133,6 @@ export class JobDetailComponent {
   onCVFileChange(event: any) {
     const file = event.target.files[0];
     if (file) {
-      // Giới hạn loại file
       const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
       if (!allowedTypes.includes(file.type)) {
         this.showErrorDialog = true;
@@ -142,7 +140,6 @@ export class JobDetailComponent {
         this.errorMessage = 'Chỉ hỗ trợ file .pdf, .doc, .docx!';
         return;
       }
-      // Giới hạn kích thước file (5MB)
       if (file.size > 5 * 1024 * 1024) {
         this.showErrorDialog = true;
         this.errorTitle = 'Kích thước file không hợp lệ!';
@@ -183,13 +180,10 @@ export class JobDetailComponent {
     }
   }
 
-  // Hàm kiểm tra đăng nhập (ví dụ, thay bằng logic thực tế)
   isLoggedIn(): boolean {
-    // Ví dụ: kiểm tra token hoặc trạng thái đăng nhập
     return !!localStorage.getItem('token');
   }
 
-  // Khi ấn ứng tuyển/lưu tin
   onApplyClick() {
     if (!this.isLoggedIn()) {
       this.showLoginDialog = true;
@@ -200,7 +194,6 @@ export class JobDetailComponent {
         if (res.data) {
           this.userCVs = res.data;
         }
-        // Hiển thị modal ứng tuyển sau khi đã có dữ liệu
         const modal = document.getElementById('applyModal');
         if (modal) {
           (window as any).bootstrap.Modal.getOrCreateInstance(modal).show();
@@ -417,10 +410,6 @@ export class JobDetailComponent {
   }
 
   onMessageClick() {
-    // if (this.application && this.application.id) {
-    //   this.router.navigate(['/chat'], { queryParams: { applicationId: this.application.id } });
-    //   this.closeModalLogin();
-    // }
   }
 
   get isExpired(): boolean {

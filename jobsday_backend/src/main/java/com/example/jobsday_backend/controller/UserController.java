@@ -1,6 +1,7 @@
 package com.example.jobsday_backend.controller;
 
 import com.example.jobsday_backend.dto.CustomUserDetail;
+import com.example.jobsday_backend.dto.PageResultDto;
 import com.example.jobsday_backend.dto.ResponseDto;
 import com.example.jobsday_backend.dto.UserResponseDto;
 import com.example.jobsday_backend.entity.User;
@@ -41,18 +42,19 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ResponseDto(HttpStatus.OK.value(), "Find successfully", user));
     }
-    @GetMapping("/{email}")
-    public ResponseEntity<ResponseDto> getUserByEmail(@PathVariable String email){
-        User user = userService.findByEmail(email);
 
-        if(user == null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "User not found", null));
-        }
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseDto(HttpStatus.OK.value(), "Find successfully", user));
-    }
+//    @GetMapping("/{email}")
+//    public ResponseEntity<ResponseDto> getUserByEmail(@PathVariable String email){
+//        User user = userService.findByEmail(email);
+//
+//        if(user == null){
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                    .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "User not found", null));
+//        }
+//
+//        return ResponseEntity.status(HttpStatus.OK)
+//                .body(new ResponseDto(HttpStatus.OK.value(), "Find successfully", user));
+//    }
 
     @GetMapping("/me")
     public ResponseEntity<ResponseDto> getCurrentUser(@AuthenticationPrincipal CustomUserDetail user) {
@@ -139,9 +141,64 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "User not found", null));
         }
-        userService.updateAvatar(user.getId(), file);
+        userService.updateAvatar(user, file);
         return ResponseEntity.ok(
                 new ResponseDto(HttpStatus.OK.value(), "Update avatar successfully", null)
+        );
+    }
+
+    @GetMapping("/admin")
+    public ResponseEntity<ResponseDto> getAllUsers(
+            @RequestParam(value = "textSearch", required = false) String textSearch,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", required = false) Integer size
+    ) {
+        int pageSize = (size == null ? 20 : size);
+        PageResultDto<User> users = userService.getAllUser(textSearch, page, pageSize);
+        return ResponseEntity.ok(
+                new ResponseDto(HttpStatus.OK.value(), "Get all users successfully", users)
+        );
+    }
+
+    @PutMapping("/admin/reset-password/{userId}")
+    public ResponseEntity<ResponseDto> resetPassword(@PathVariable Long userId) {
+        User user = userService.findById(userId);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "User not found", null));
+        }
+        userService.resetPassword(user);
+        return ResponseEntity.ok(
+                new ResponseDto(HttpStatus.OK.value(), "Reset password successfully", null)
+        );
+    }
+
+    @PutMapping("/admin/update-avatar/{userId}")
+    public ResponseEntity<ResponseDto> updateAvatarUser(
+            @PathVariable Long userId,
+            @RequestParam("file") MultipartFile file) {
+        User user = userService.findById(userId);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "User not found", null));
+        }
+        userService.updateAvatar(user, file);
+        return ResponseEntity.ok(
+                new ResponseDto(HttpStatus.OK.value(), "Update avatar successfully", null)
+        );
+    }
+
+    @PutMapping("/admin/update-info")
+    public ResponseEntity<ResponseDto> updateUserInfoAdmin(
+            @RequestBody User user) {
+        User userInfo = userService.findById(user.getId());
+        if (userInfo == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "User not found", null));
+        }
+        userService.updateUser(user);
+        return ResponseEntity.ok(
+                new ResponseDto(HttpStatus.OK.value(), "Update user info successfully", user)
         );
     }
 
