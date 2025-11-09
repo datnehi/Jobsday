@@ -30,6 +30,7 @@ export class ApplicationService {
     let params = new HttpParams();
     if (filter.status) params = params.set('status', filter.status);
     if (filter.page !== undefined) params = params.set('page', filter.page);
+    if (filter.size !== undefined) params = params.set('size', filter.size);
     return this.http.get<ResponseDto>(this.apiUrl + '/candidate', { params });
   }
 

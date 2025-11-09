@@ -1,9 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
+  <!-- Ensure Node-like globals exist before any bundle runs -->
+  <script>
+    window.global = window;
+    window.process = window.process || { env: {} };
+    // optional: if you use buffer polyfill and installed it, uncomment:
+    // (async () => { const { Buffer } = await import('/node_modules/buffer/index.js'); window.Buffer = window.Buffer || Buffer; })();
+  </script>
+
   <title>Jobsday</title>
-  <base href="/">
+  <base href="/" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="assets/logo.png">
 </head>

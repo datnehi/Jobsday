@@ -239,5 +239,9 @@ public class CvsService {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "filename=\"" + fileName + "\"")
                 .body(resource);
     }
+
+    public Cvs getCvPublicByUserId(Long userId) {
+        return cvsRepository.findByUserIdAndIsPublicTrue(userId);
+    }
 }
 

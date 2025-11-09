@@ -8,6 +8,8 @@ import { ErrorDialogComponent } from "../../../common/error-dialog/error-dialog.
 import { CvsService } from '../../../../services/cvs.service';
 import { HrViewCandidateService } from '../../../../services/hr-view-candidate.service';
 import { NotificationService } from '../../../../services/notification.service';
+import { CompanyMemberService } from '../../../../services/company-member.service';
+import { ConversationService } from '../../../../services/conversation.service';
 
 @Component({
   selector: 'app-search-candiate',
@@ -30,6 +32,7 @@ export class SearchCandiateComponent {
   selectedLevel: string = 'Tất cả';
 
   candidates: any[] = [];
+  companyMembers: any | null = null;
 
   currentPage: number = 0;
   totalPages: number = 1;
@@ -44,10 +47,17 @@ export class SearchCandiateComponent {
     private convertEnum: ConvertEnumService,
     private cvsService: CvsService,
     private hrViewCandidateService: HrViewCandidateService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private companyMemberService: CompanyMemberService,
+    private conversationService: ConversationService
   ) { }
 
   ngOnInit() {
+    this.companyMemberService.getMe().subscribe(response => {
+      if (response.data) {
+        this.companyMembers = response.data;
+      }
+    });
     this.onSearch();
   }
 
@@ -170,5 +180,18 @@ export class SearchCandiateComponent {
 
   handleCancel() {
     this.showErrorDialog = false;
+  }
+
+  openChatWithCandidate(candidateId: number) {
+    if (!candidateId || !this.companyMembers) return;
+    this.conversationService.createByCandidateAndCompany(candidateId, this.companyMembers.companyId).subscribe(res => {
+      if(!res.data) {
+        this.showErrorDialog = true;
+        this.errorTitle = 'Lỗi tạo cuộc trò chuyện';
+        this.errorMessage = 'Đã xảy ra lỗi khi tạo cuộc trò chuyện. Vui lòng thử lại sau.';
+        return;
+      }
+      window.open(`/chat?conversationId=${res.data.conversationId ?? res.data.id}`, '_blank');
+    });
   }
 }

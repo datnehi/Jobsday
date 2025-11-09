@@ -7,6 +7,7 @@ import { Notification } from '../../models/notification';
 import { CompanyMemberService } from '../../services/company-member.service';
 import { CompanyMember } from '../../models/company_member';
 import { NotificationService } from '../../services/notification.service';
+import { ConversationService } from '../../services/conversation.service';
 @Component({
   selector: 'app-nav',
   standalone: true,
@@ -24,12 +25,14 @@ export class NavComponent {
   showNotificationDropdown = false;
   notifications: Notification[] = [];
   baseUrl: string = 'http://localhost:4200/';
+  unreadConversationsCount: number = 0;
 
   constructor(
     public authService: AuthService,
     private router: Router,
     private notificationService: NotificationService,
-    private companyMemberService: CompanyMemberService
+    private companyMemberService: CompanyMemberService,
+    private conversationService: ConversationService
     ) { }
 
   ngOnInit() {
@@ -48,6 +51,11 @@ export class NavComponent {
         }
         this.notificationService.getNotifications().subscribe(response => {
           this.notifications = response.data;
+        });
+        this.conversationService.getCountOfUnreadMessages().subscribe(response => {
+          if (response.data) {
+            this.unreadConversationsCount = response.data;
+          }
         });
       }
     });
@@ -92,5 +100,9 @@ export class NavComponent {
         this.notifications = [];
       }
     });
+  }
+
+  openChatModal() {
+    window.open(this.baseUrl + '/chat', '_blank');
   }
 }

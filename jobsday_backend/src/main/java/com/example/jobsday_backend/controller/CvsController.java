@@ -3,7 +3,9 @@ package com.example.jobsday_backend.controller;
 import com.example.jobsday_backend.dto.CustomUserDetail;
 import com.example.jobsday_backend.dto.ResponseDto;
 import com.example.jobsday_backend.entity.Cvs;
+import com.example.jobsday_backend.entity.User;
 import com.example.jobsday_backend.service.CvsService;
+import com.example.jobsday_backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,9 @@ import java.util.List;
 public class CvsController {
     @Autowired
     private CvsService cvService;
+
+    @Autowired
+    private UserService userService;
 
     @PostMapping("/upload")
     public ResponseEntity<ResponseDto> uploadCV(
@@ -95,6 +100,11 @@ public class CvsController {
     public ResponseEntity<ResponseDto> getCvByUserId(
             @PathVariable Long userId
     ) {
+        User user = userService.findById(userId);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "User not found", null));
+        }
         List<Cvs> cv = cvService.getCvByUserId(userId);
         if (cv == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -102,6 +112,25 @@ public class CvsController {
         }
         return ResponseEntity.ok(
                 new ResponseDto(HttpStatus.OK.value(), "Get CV successfully", cv)
+        );
+    }
+
+    @GetMapping("/candidate/{userId}/public")
+    public ResponseEntity<ResponseDto> getPublicCvByUserId(
+            @PathVariable Long userId
+    ) {
+        User user = userService.findById(userId);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "User not found", null));
+        }
+        Cvs cv = cvService.getCvPublicByUserId(userId);
+        if (cv == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "Public CV not found", null));
+        }
+        return ResponseEntity.ok(
+                new ResponseDto(HttpStatus.OK.value(), "Get public CV successfully", cv)
         );
     }
 }

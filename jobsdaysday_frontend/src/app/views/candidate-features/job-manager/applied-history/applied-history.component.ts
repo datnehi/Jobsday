@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ErrorDialogComponent } from "../../../common/error-dialog/error-dialog.component";
 import { LoadingComponent } from "../../../common/loading/loading.component";
+import { ConversationService } from '../../../../services/conversation.service';
 
 @Component({
   selector: 'app-applied-history',
@@ -38,7 +39,8 @@ export class AppliedHistoryComponent {
   constructor(
     private applicationService: ApplicationService,
     private authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    private conversationService: ConversationService
   ) { }
 
   ngOnInit(): void {
@@ -159,4 +161,20 @@ export class AppliedHistoryComponent {
     this.showErrorDialog = false;
   }
 
+  onOpenChatWithNTD(companyId: number) {
+    if (this.authService.currentUser?.id && companyId) {
+      this.conversationService.createByCandidateAndCompany(
+        this.authService.currentUser?.id,
+        companyId
+      ).subscribe((res) => {
+        if (!res.data) {
+          this.errorTitle = 'Lỗi tạo cuộc trò chuyện';
+          this.errorMessage = 'Không thể tạo hoặc mở cuộc trò chuyện vào lúc này. Vui lòng thử lại sau.';
+          this.showErrorDialog = true;
+          return;
+        }
+        window.open(`/chat?conversationId=${res.data.conversationId}`, '_blank');
+      });
+    }
+  }
 }

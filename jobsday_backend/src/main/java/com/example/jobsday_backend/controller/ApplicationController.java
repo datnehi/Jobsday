@@ -73,11 +73,11 @@ public class ApplicationController {
     public ResponseEntity<ResponseDto> getApplicationsByCandidate(
             @AuthenticationPrincipal CustomUserDetail userDetails,
             @RequestParam(value = "status", required = false) Application.ApplicationStatus status,
-            @RequestParam(value = "page", defaultValue = "0") int page
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
     ) {
-        int pageSize = 10;
         PageResultDto<AppliedJobDto> applications =
-                applicationService.getApplicationsByCandidate(userDetails.getId(), status, page, pageSize);
+                applicationService.getApplicationsByCandidate(userDetails.getId(), status, page, size);
 
         return ResponseEntity.ok(
                 new ResponseDto(HttpStatus.OK.value(), "Lấy danh sách ứng tuyển thành công", applications));

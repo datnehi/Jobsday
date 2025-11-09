@@ -55,7 +55,6 @@ public class CompanyMemberController {
     public ResponseEntity<ResponseDto> updateMember(
             @RequestBody CompanyMember member
     ) {
-        System.out.println("Updating member: " + member);
         CompanyMember memberInfo = companyMemberService.getMemberInfoById(member.getId());
         if (memberInfo == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -143,8 +142,6 @@ public class CompanyMemberController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "No member found", null));
         }
-        member.setStatus(CompanyMember.MemberStatusEnum.INACTIVE);
-        companyMemberService.updateMember(member);
         return ResponseEntity.ok(
                 new ResponseDto(HttpStatus.OK.value(), "Get member successfully", member)
         );

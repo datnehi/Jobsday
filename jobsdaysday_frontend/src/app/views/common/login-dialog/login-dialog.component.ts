@@ -184,10 +184,10 @@ export class LoginDialogComponent implements OnChanges {
             this.authService.currentUser$.subscribe(user => {
               if (user) {
                 if (user.role === 'HR') {
-                  this.router.navigate(['/company/jobsday']);
+                  this.router.navigate(['/quan-ly-job']);
                   return;
                 } else if (user.role === 'ADMIN') {
-                  this.router.navigate(['/admin/jobsday']);
+                  this.router.navigate(['/user-manager']);
                   return;
                 } else {
                   this.closeModalLogin();

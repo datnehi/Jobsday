@@ -2,7 +2,9 @@ package com.example.jobsday_backend.repository;
 
 import com.example.jobsday_backend.entity.Company;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -83,4 +85,8 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
             @RequestParam("text") String text,
             @RequestParam("location") String location
     );
+
+    @Modifying
+    @Query("UPDATE Company c SET c.isOnline = :online WHERE c.id = :companyId")
+    void updateCompanyOnline(@Param("companyId") Long companyId, @Param("online") boolean online);
 }

@@ -16,6 +16,7 @@ import { Cvs } from '../../../models/cvs';
 import { CvsService } from '../../../services/cvs.service';
 import { ErrorDialogComponent } from "../../common/error-dialog/error-dialog.component";
 import { LoadingComponent } from '../../common/loading/loading.component';
+import { ConversationService } from '../../../services/conversation.service';
 
 @Component({
   selector: 'app-job-detail',
@@ -64,7 +65,8 @@ export class JobDetailComponent {
     private savedJobService: SavedJobService,
     private authService: AuthService,
     private router: Router,
-    private cvsService: CvsService
+    private cvsService: CvsService,
+    private conversationService: ConversationService,
   ) { }
 
   ngOnInit() {
@@ -410,6 +412,24 @@ export class JobDetailComponent {
   }
 
   onMessageClick() {
+    if (!this.isLoggedIn()) {
+      this.showLoginDialog = true;
+      return;
+    }
+    if (this.authService.currentUser?.id && this.company?.id) {
+      this.conversationService.createByCandidateAndCompany(
+        this.authService.currentUser?.id,
+        this.company?.id!
+      ).subscribe((res) => {
+        if (!res.data) {
+          this.errorTitle = 'Lỗi tạo cuộc trò chuyện';
+          this.errorMessage = 'Không thể tạo hoặc mở cuộc trò chuyện vào lúc này. Vui lòng thử lại sau.';
+          this.showErrorDialog = true;
+          return;
+        }
+        window.open(`/chat?conversationId=${res.data.conversationId}`, '_blank');
+      });
+    }
   }
 
   get isExpired(): boolean {

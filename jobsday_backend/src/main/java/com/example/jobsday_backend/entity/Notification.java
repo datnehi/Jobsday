@@ -13,7 +13,7 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_from", nullable = false)
+    @Column(name = "user_from")
     private Long userFrom;
 
     @Column(name = "user_to", nullable = false)

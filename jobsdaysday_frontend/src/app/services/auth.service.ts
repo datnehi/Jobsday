@@ -98,4 +98,8 @@ export class AuthService {
   verifyOtp(request: any): Observable<any> {
     return this.http.post(`${this.api}/verify-otp`, request);
   }
+
+  get userId(): number | null {
+    return this.currentUserSubject.value?.id ?? null;
+  }
 }

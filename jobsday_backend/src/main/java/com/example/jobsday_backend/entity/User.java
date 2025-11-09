@@ -56,6 +56,12 @@ public class User {
     private LocalDateTime verificationExpiry;
     private Boolean ntdSearch = false;
 
+    @Column(name = "is_online")
+    private Boolean isOnline;
+
+    @Column(name = "last_online_at")
+    private LocalDateTime lastOnlineAt;
+
     @PrePersist
     public void prePersist() {
         LocalDateTime now = LocalDateTime.now();

@@ -34,6 +34,7 @@ import { JobRelatedInfoComponent } from './views/admin-features/company-manager/
 import { CompanyRelatedInfoComponent } from './views/admin-features/company-manager/company-related-info/company-related-info.component';
 import { HrRelatedInfoComponent } from './views/admin-features/company-manager/hr-related-info/hr-related-info.component';
 import { CompanyManagementComponent } from './views/admin-features/company-manager/company-management/company-management.component';
+import { ChatComponent } from './views/chat/chat/chat.component';
 
 export const routes: Routes = [
   { path: '', canActivate: [homeRedirectGuard], component: NotfoundComponent },
@@ -68,6 +69,8 @@ export const routes: Routes = [
   { path: 'company-related-info/:id', component: CompanyRelatedInfoComponent, canMatch: [roleGuard(['ADMIN'])] },
   { path: 'hr-related-info/:id', component: HrRelatedInfoComponent, canMatch: [roleGuard(['ADMIN'])] },
   { path: 'company-management', component: CompanyManagementComponent, canMatch: [roleGuard(['ADMIN'])] },
+
+  { path: 'chat', component: ChatComponent, data: { layout: 'blank' }, canActivate: [authGuard] },
 
 ];
 

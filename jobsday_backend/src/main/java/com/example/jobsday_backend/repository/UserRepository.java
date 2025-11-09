@@ -2,6 +2,7 @@ package com.example.jobsday_backend.repository;
 
 import com.example.jobsday_backend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -39,4 +40,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
                    OR phone ILIKE CONCAT('%', :textSearch, '%'))
         """, nativeQuery = true)
     long countAllNonAdminUsers(@Param("textSearch") String textSearch);
+
+//    @Modifying
+//    @Query("UPDATE UserEntity u SET u.isOnline = :online, u.lastOnlineAt = CASE WHEN :online = false THEN :lastAt ELSE u.lastOnlineAt END WHERE u.id = :id")
+//    void updateOnline(@Param("id") Long id, @Param("online") boolean online, @Param("lastAt") java.time.Instant lastAt);
 }

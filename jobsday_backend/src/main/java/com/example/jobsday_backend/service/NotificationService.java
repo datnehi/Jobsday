@@ -47,6 +47,14 @@ public class NotificationService {
             notification.setUrl("xem-ho-so");
             notificationRepository.save(notification);
         } else if (type.equalsIgnoreCase("NEW_MESSAGE")) {
+            String[] parts = message.split("_");
+            String conversationId = parts[0];
+            String name = parts.length > 1 ? parts[1] : "";
+            notification.setUserFrom(userFrom);
+            notification.setUserTo(userTo);
+            notification.setTitle("Bạn có cuộc trò chuyện mới");
+            notification.setMessage("Ban đã nhận được tin nhắn mới từ " + name);
+            notification.setUrl("/chat?conversationId=" + conversationId);
             notificationRepository.save(notification);
         } else if (type.equalsIgnoreCase("SYSTEM_ALERT")) {
             notificationRepository.save(notification);
@@ -67,8 +75,8 @@ public class NotificationService {
     }
 
     @Transactional
-    public int markReadAllOfUser(Long userId) {
-        return notificationRepository.markAllAsReadByUserId(userId);
+    public void markReadAllOfUser(Long userId) {
+        notificationRepository.markAllAsReadByUserId(userId);
     }
 
 }

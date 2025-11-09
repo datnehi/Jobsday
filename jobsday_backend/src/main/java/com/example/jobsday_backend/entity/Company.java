@@ -43,6 +43,12 @@ public class Company {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "is_online")
+    private Boolean isOnline;
+
+    @Column(name = "last_online_at")
+    private LocalDateTime lastOnlineAt;
+
     public enum CompanyStatusEnum {
         PENDING, APPROVED, INACTIVE, REJECTED
     }

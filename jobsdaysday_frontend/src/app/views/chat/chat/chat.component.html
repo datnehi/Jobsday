@@ -1,0 +1,186 @@
+<div class="container-fluid vh-100">
+  <div class="row h-100">
+    <div class="col-3 border-end p-0 bg-light d-flex flex-column">
+      <div class="p-3 border-bottom bg-white sticky-top left-header">
+        <div class="d-flex align-items-center justify-content-between">
+          <img src="assets/baner.png" alt="logo" class="left-logo" style="height: 72px; object-fit: contain;" />
+          <button class="btn btn-primary" (click)="backToHome()">Về trang chủ</button>
+        </div>
+        <div class="mt-2">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Tìm kiếm..." [(ngModel)]="searchText"
+              (keyup.enter)="loadConversations()" />
+            <button class="btn btn-primary" type="button" (click)="loadConversations()">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="list-group list-group-flush left-list" (scroll)="onScrollConversations($event)" #convScroll>
+        <a *ngFor="let conv of conversations" (click)="selectConversation(conv)"
+          [class.active]="isActiveConversation(conv)"
+          class="list-group-item list-group-item-action d-flex align-items-center" style="cursor: pointer;">
+          <img *ngIf="currentUserRole === 'HR'" [src]="conv.avatarUrl || 'assets/user.jpg'" alt="{{ conv.name }} avatar"
+            class="conv-avatar me-3" />
+          <img *ngIf="currentUserRole === 'CANDIDATE'" [src]="conv.avatarUrl || 'assets/logo1.png'"
+            alt="{{ conv.name }} avatar" class="conv-avatar me-3" />
+          <div class="flex-grow-1" style="min-width:0;">
+            <div class="fw-bold text-truncate">{{ conv.title || conv.name }}</div>
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-muted text-truncate d-block flex-grow-1 me-2"
+                style="min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">
+                {{ conv.lastMessage }}
+              </small>
+              <small class="text-muted" *ngIf="conv.lastMessageAt" style="flex:0 0 auto;">
+                {{ formatTime(conv.lastMessageAt) }}
+              </small>
+            </div>
+          </div>
+          <div *ngIf="conv.unread && conv.unread > 0" class="badge bg-danger rounded-pill ms-2">
+            {{ (conv.unread || 0) > 99 ? '+99' : conv.unread }}
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="col-6 d-flex flex-column p-0 bg-light middle-col">
+      <ng-container *ngIf="selectedConversation; else noConversation">
+        <div class="p-3 border-bottom bg-white d-flex align-items-center chat-header">
+          <img *ngIf="currentUserRole == 'HR'" [src]="selectedConversation?.avatarUrl || 'assets/user.jpg'" alt="avatar"
+            class="rounded-circle me-3" width="40" height="40" style="object-fit: cover;" />
+          <img *ngIf="currentUserRole == 'CANDIDATE'" [src]="selectedConversation?.avatarUrl || 'assets/logo1.png'"
+            alt="avatar" class="rounded-circle me-3" width="40" height="40" style="object-fit: cover;" />
+          <div class="me-3">
+            <div class="fw-bold">
+              {{ selectedConversation?.title || selectedConversation?.name }}
+            </div>
+            <ng-container *ngIf="isHr()">
+              <small [class.text-success]="isOnline(selectedConversation?.candidateId)"
+                [class.text-muted]="!isOnline(selectedConversation?.candidateId)">
+                <ng-container *ngIf="isOnline(selectedConversation?.candidateId); else offlineCandidate">
+                  Đang hoạt động
+                </ng-container>
+                <ng-template #offlineCandidate>
+                  Ngoại tuyến · {{ getLastOnline() }}
+                </ng-template>
+              </small>
+            </ng-container>
+            <ng-container *ngIf="isCandidate()">
+              <small [class.text-success]="isOnline(selectedConversation?.companyId)"
+                [class.text-muted]="!isOnline(selectedConversation?.companyId)">
+                <ng-container *ngIf="isOnline(selectedConversation?.companyId); else offlineCompany">
+                  Đang hoạt động
+                </ng-container>
+                <ng-template #offlineCompany>
+                  Ngoại tuyến · {{ getLastOnline() }}
+                </ng-template>
+              </small>
+            </ng-container>
+          </div>
+        </div>
+        <div class="flex-grow-1 overflow-auto p-3 chat-messages" (scroll)="onScrollMessages($event)" #chatScroll>
+          <div *ngFor="let group of groupedMessages; let gi = index" class="mb-3 msg-group" [attr.data-idx]="gi">
+            <div class="text-center mb-2">
+              <small class="text-muted group-time">{{ formatGroupTime(group.time) }}</small>
+            </div>
+            <div *ngFor="let msg of group.msgs; let mi = index; trackBy: trackByMessage"
+              class="mb-1 d-flex align-items-start">
+              <ng-container *ngIf="isIncomingMessage(msg); else outgoingMsg">
+                <div class="avatar-slot me-2">
+                  <img *ngIf="showAvatarForMessage(group, mi)"
+                    [src]="selectedConversation?.avatarUrl || (currentUserRole=='HR' ? 'assets/user.jpg':'assets/logo1.png')"
+                    class="rounded-circle" width="30" height="30" style="object-fit: cover;" />
+                  <div *ngIf="!showAvatarForMessage(group, mi)" class="avatar-placeholder"></div>
+                </div>
+                <div class="bubble bg-white p-2 rounded shadow-sm rounded-4">
+                  <div>{{ msg.content }}</div>
+                  <div class="bubble-time small text-muted">{{ formatTime(msg.createdAt) }}</div>
+                </div>
+              </ng-container>
+              <ng-template #outgoingMsg>
+                <div class="flex-grow-1"></div>
+                <div class="bubble me-bubble bg-primary text-white p-2 rounded shadow-sm text-end ms-2 rounded-4">
+                  <div>{{ msg.content }}</div>
+                  <div class="bubble-time small text-light">{{ formatTime(msg.createdAt) }}</div>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+        <div class="chat-input p-3 border-top bg-white">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Nhập tin nhắn..." [(ngModel)]="newMessage"
+              (keyup.enter)="send()" />
+            <button class="btn btn-primary" [disabled]="!newMessage.trim()" (click)="send()">
+              <i class="bi bi-send"></i>
+            </button>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #noConversation>
+        <div class="d-flex flex-column justify-content-center align-items-center flex-grow-1 text-muted">
+          <i class="bi bi-chat-dots display-4 mb-3"></i>
+          <p>Chọn một cuộc trò chuyện để bắt đầu</p>
+        </div>
+      </ng-template>
+    </div>
+    <div class="col-3 border-start p-3 bg-white">
+      <div *ngIf="isHr() && selectedConversation?.candidateId" class="candidate-profile-block">
+        <h4 class="fw-bold mb-3">Hồ sơ ứng viên</h4>
+        <div class="d-flex align-items-start">
+          <div class="me-3">
+            <img [src]="candidateSelected?.avatarUrl || 'assets/user.jpg'" alt="avatar"
+              style="height: 60px; width: 60px;" class="logo" />
+          </div>
+          <div class="flex-grow-1">
+            <div class="row">
+              <div class="col-12 mb-1"><strong>Tên:</strong> <span class="ms-1">{{ candidateSelected?.fullName || '---'
+                  }}</span></div>
+              <div class="col-12 mb-1"><strong>Email:</strong> <span class="ms-1">{{ candidateSelected?.email || '---'
+                  }}</span></div>
+              <div class="col-12 mb-1"><strong>Số điện thoại:</strong> <span class="ms-1">{{ candidateSelected?.phone ||
+                  '---' }}</span></div>
+            </div>
+            <div class="d-grid gap-2 mt-3" *ngIf="candidateSelected?.ntdSearch">
+              <button class="btn btn-outline-primary" (click)="viewCv()">Xem CV</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="isCandidate()">
+        <div *ngIf="companySelected || selectedConversation?.name">
+          <h4 class="fw-bold">Nhà tuyển dụng</h4>
+          <div class="d-flex align-items-center mb-3">
+            <img [src]="companySelected?.logo || 'assets/logo1.png'" alt="company logo" class="logo me-3" />
+            <div>
+              <div class="fw-bold" style="cursor: pointer;" (click)="openCompanyDetail(companySelected?.id)">{{
+                companySelected?.name || selectedConversation?.company?.name || '---' }}</div>
+              <div class="text-muted small">{{ companySelected?.location || '' }}</div>
+            </div>
+          </div>
+          <hr />
+        </div>
+        <h4 class="fw-bold">Tin tuyển dụng đã ứng tuyển gần đây</h4>
+        <ul class="list-unstyled mb-0 recent-jobs">
+          <li *ngFor="let job of appliedJobs" class="d-flex align-items-center py-2">
+            <img [src]="job.companyLogo || 'assets/logo1.png'" alt="logo" class="logo me-3" />
+            <div class="flex-grow-1">
+              <div class="fw-bold text-truncate">{{ job.title }}</div>
+              <div class="text-muted small text-truncate">{{ job.companyName }} · {{ job.shortDesc }}</div>
+            </div>
+            <button class="btn btn-sm btn-outline-primary ms-3" (click)="openConversationWithEmployer(job)">Nhắn
+              tin</button>
+          </li>
+        </ul>
+      </div>
+      <div *ngIf="!isHr() && !isCandidate()">
+        <h6 class="fw-bold">Thông tin</h6>
+        <p class="mb-1">Không có thông tin chi tiết</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-loading *ngIf="isLoading"></app-loading>
+
+<app-error-dialog *ngIf="showErrorDialog" [title]="errorTitle" [message]="errorMessage" (cancel)="handleCancelError()">
+</app-error-dialog>

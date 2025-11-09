@@ -1,0 +1,138 @@
+.conv-avatar,
+.logo {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid #f0f0f0;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.col-3.d-flex {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.left-list {
+  height: calc(100vh - 151px);
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.list-group .flex-grow-1 {
+  min-width: 0;
+}
+
+.list-group-item .text-truncate {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.list-group-item.active {
+  background-color: #0d6efd;
+  color: #fff;
+}
+
+.list-group-item.active small {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.col-6.d-flex,
+.middle-col {
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-messages {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+  -webkit-overflow-scrolling: touch;
+  padding: 1rem;
+  padding-bottom: 1.25rem;
+}
+
+.avatar-slot {
+  width: 30px;
+  min-width: 30px;
+  display: flex;
+  align-items: flex-end;
+}
+.avatar-placeholder {
+  width: 30px;
+  height: 30px;
+}
+
+.msg-group .bubble,
+.msg-group .me-bubble {
+  max-width: 65%;
+  word-break: break-word;
+  position: relative; /* enable absolute positioning for tooltip */
+}
+
+.me-bubble {
+  margin-left: auto;
+}
+
+.msg-group .bubble .bubble-time,
+.msg-group .me-bubble .bubble-time {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  transform: translateY(-4px);
+  white-space: nowrap;
+  padding: 6px 8px;
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.78);
+  color: #fff !important;
+  border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+  z-index: 50;
+}
+
+.msg-group .bubble:hover .bubble-time {
+  display: block;
+  left: 0;
+}
+
+.msg-group .me-bubble:hover .bubble-time {
+  display: block;
+  right: 0;
+  left: auto;
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 3px;
+}
+
+.left-header {
+  z-index: 2;
+}
+
+.list-group-item {
+  position: relative;
+}
+
+.list-group-item .badge {
+  position: absolute;
+  right: 12px;
+  top: 18px;
+  transform: translateY(-8px);
+  margin: 0;
+}
+
+.list-group-item .d-flex > small.text-muted {
+  flex: 0 0 auto;
+}
+

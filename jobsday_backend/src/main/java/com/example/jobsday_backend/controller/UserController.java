@@ -39,22 +39,11 @@ public class UserController {
                     .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "User not found", null));
         }
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseDto(HttpStatus.OK.value(), "Find successfully", user));
-    }
+        UserResponseDto userDto = new UserResponseDto(user);
 
-//    @GetMapping("/{email}")
-//    public ResponseEntity<ResponseDto> getUserByEmail(@PathVariable String email){
-//        User user = userService.findByEmail(email);
-//
-//        if(user == null){
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                    .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "User not found", null));
-//        }
-//
-//        return ResponseEntity.status(HttpStatus.OK)
-//                .body(new ResponseDto(HttpStatus.OK.value(), "Find successfully", user));
-//    }
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ResponseDto(HttpStatus.OK.value(), "Find successfully", userDto));
+    }
 
     @GetMapping("/me")
     public ResponseEntity<ResponseDto> getCurrentUser(@AuthenticationPrincipal CustomUserDetail user) {

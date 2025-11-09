@@ -95,4 +95,7 @@ public interface CompanyMemberRepository extends JpaRepository<CompanyMember, Lo
     );
 
     List<CompanyMember> findByCompanyId(Long companyId);
+
+    @Query("SELECT COUNT(cm) FROM CompanyMember cm JOIN User u ON u.id = cm.userId WHERE cm.companyId = :companyId AND u.isOnline = true")
+    int countOnlineHrByCompanyId(@Param("companyId") Long companyId);
 }

@@ -7,6 +7,7 @@ import { ErrorDialogComponent } from "../../../common/error-dialog/error-dialog.
 import { LoadingComponent } from "../../../common/loading/loading.component";
 import { NewlineToBrPipe } from "../../../../services/common/newline-to-br-pipe.service";
 import { NotificationService } from '../../../../services/notification.service';
+import { ConversationService } from '../../../../services/conversation.service';
 
 interface Candidate {
   fullName: string;
@@ -39,17 +40,22 @@ export class ListCandidateAppliedComponent {
   showErrorDialog: boolean = false;
   errorTitle: string = '';
   errorMessage: string = '';
+  job: any = null;
 
   constructor(
     private applicationService: ApplicationService,
     private route: ActivatedRoute,
     private notificationService: NotificationService,
     private jobService: JobService,
-    private router: Router
+    private router: Router,
+    private conversationService: ConversationService
   ) { }
 
   ngOnInit() {
     const jobId = this.route.snapshot.params['id'];
+    this.jobService.getJobById(jobId).subscribe(response => {
+      this.job = response.data;
+    });
     this.jobService.checkOwnerJob(jobId).subscribe(response => {
       if (response.data) {
         this.loadApplications(jobId, 0);
@@ -188,5 +194,18 @@ export class ListCandidateAppliedComponent {
 
   handleCancel() {
     this.showErrorDialog = false;
+  }
+
+  openChatWithCandidate(application: any) {
+    this.conversationService.createByCandidateAndCompany(application.candidateId, this.job.companyId).subscribe(res => {
+      if (!res.data){
+        this.errorTitle = 'Lỗi mở cuộc trò chuyện';
+        this.errorMessage = 'Không thể tạo hoặc mở cuộc trò chuyện vào lúc này. Vui lòng thử lại sau.';
+        this.showErrorDialog = true;
+        return;
+      }
+      const convId = res.data.conversationId ?? res.data.id;
+      window.open(`/chat?conversationId=${convId}`, '_blank');
+    });
   }
 }

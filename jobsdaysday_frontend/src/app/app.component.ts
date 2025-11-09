@@ -18,7 +18,7 @@ export class AppComponent {
 
   constructor(private router: Router) {
     this.router.events.subscribe(() => {
-      this.displayNav = this.router.url.includes('login') || this.router.url.includes('register');
+      this.displayNav = this.router.url.includes('login') || this.router.url.includes('register') || this.router.url.includes('chat');
     });
   }
 }

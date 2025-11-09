@@ -51,7 +51,6 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<ResponseDto> register(@RequestBody RegisterRequestDto body) {
-        System.out.println("Register request received: " + body);
         User userCheck = userService.findByEmail(body.getEmail());
         if (userCheck != null && Boolean.TRUE.equals(userCheck.getEmailVerified())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

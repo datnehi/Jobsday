@@ -35,7 +35,7 @@
             </span>
           </td>
           <td class="text-center align-middle" style="width: 12em;">
-            <button class="btn btn-outline-info btn-sm me-2" title="Nhắn tin">
+            <button class="btn btn-outline-info btn-sm me-2" title="Nhắn tin" (click)="openChatWithCandidate(application); $event.stopPropagation();">
               <i class="bi bi-chat"></i>
             </button>
             <button class="btn btn-outline-primary btn-sm me-2" (click)="viewDetail(application); $event.stopPropagation();" title="Chi tiết">

@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 public interface CvsRepository extends JpaRepository<Cvs, Long> {
-    public List<Cvs> findByUserId(Long userId);
+    List<Cvs> findByUserId(Long userId);
 
     @Query(value = """
         SELECT COUNT(DISTINCT cvs.id)
@@ -19,5 +19,7 @@ public interface CvsRepository extends JpaRepository<Cvs, Long> {
         """, nativeQuery = true)
     int countCvOfCandidate(@Param("candidateId") long candidateId);
 
-    public Cvs findTopByUserIdOrderByUpdatedAtDesc(Long userId);
+    Cvs findTopByUserIdOrderByUpdatedAtDesc(Long userId);
+
+    Cvs findByUserIdAndIsPublicTrue(Long userId);
 }
