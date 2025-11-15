@@ -1,6 +1,5 @@
 <div class="container py-4" style="max-width:1200px;">
   <div class="row">
-    <!-- LEFT: Job main info -->
     <div class="col-lg-8 mb-4">
       <div class="card shadow-sm mb-3">
         <div class="card-body d-flex align-items-center">
@@ -45,7 +44,6 @@
                 Hạn nộp hồ sơ: {{ job?.deadline | date:'dd/MM/yyyy' }}
               </span>
             </div>
-            <!-- Button group nằm dưới thông tin -->
             <div class="d-flex align-items-center gap-3 flex-nowrap mt-2" style="width: 740px;">
               <ng-container *ngIf="!isExpired; else expiredBlock">
                 <button class="btn btn-primary flex-grow-1 fw-bold" style="font-size: 18px;" (click)="onApplyClick()">
@@ -120,7 +118,6 @@
         </div>
       </div>
 
-      <!-- Sau card chi tiết tuyển dụng -->
       <div class="card mb-3">
         <div class="card-body">
           <h5 class="fw-bold mb-3 text-primary">Việc làm liên quan</h5>
@@ -173,7 +170,6 @@
       </div>
     </div>
 
-    <!-- RIGHT: Company & related info -->
     <div class="col-lg-4 mb-4">
       <div class="card mb-3">
         <div class="card-body d-flex align-items-center">
@@ -224,7 +220,6 @@
   </div>
 </div>
 
-<!-- Modal Ứng tuyển -->
 <div class="modal fade" id="applyModal" tabindex="-1" aria-labelledby="applyModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" style="width: 35%;">
     <div class="modal-content">
@@ -235,7 +230,6 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
       </div>
       <div class="modal-body">
-        <!-- Chọn CV -->
         <div class="mb-3">
           <label class="fw-bold mb-2"><i class="bi bi-folder"></i> Chọn CV để ứng tuyển</label>
           <div class="form-check mb-2">
@@ -266,7 +260,6 @@
               Tải file CV từ máy tính
             </label>
           </div>
-          <!-- Option tải lên CV từ máy tính -->
           <div *ngIf="cvOption === 'uploadNew'" class="mb-2 border border-primary rounded p-3"
             style="background: #fafefe; cursor: pointer;" (click)="cvInput.click()" (dragover)="onDragOver($event)"
             (drop)="onDrop($event)" (dragleave)="onDragLeave($event)" [class.bg-light]="isDragOver">
@@ -297,13 +290,11 @@
             </div>
           </div>
         </div>
-        <!-- Thư giới thiệu -->
         <div class="mb-3">
           <label class="fw-bold mb-2"><i class="bi bi-pencil"></i> Thư giới thiệu:</label>
           <textarea class="form-control" rows="4" placeholder="Viết thư giới thiệu ngắn gọn..."
             [(ngModel)]="coverLetter"></textarea>
         </div>
-        <!-- Lưu ý -->
         <div class="alert alert-warning">
           <b>Lưu ý: </b> Jobsday khuyên tất cả các bạn hãy luôn cẩn trọng trong quá trình tìm việc và chủ động nghiên
           cứu

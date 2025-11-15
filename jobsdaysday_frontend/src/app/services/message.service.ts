@@ -11,7 +11,6 @@ export class MessageService {
   private apiUrl = environment.apiUrl + 'chat';
   constructor(private http: HttpClient) { }
 
-  // paged messages endpoint: page=0 newest page (desc)
   getMessages(conversationId: number, page = 0): Observable<ResponseDto> {
     return this.http.get<ResponseDto>(`${this.apiUrl}/conversations/${conversationId}/messages?page=${page}`);
   }

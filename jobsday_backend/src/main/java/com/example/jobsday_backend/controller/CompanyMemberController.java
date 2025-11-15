@@ -133,8 +133,8 @@ public class CompanyMemberController {
         );
     }
 
-    @GetMapping("/admin/member/{userId}")
-    public ResponseEntity<ResponseDto> getMemberByUserIdByAdmin(
+    @GetMapping("/member/{userId}")
+    public ResponseEntity<ResponseDto> getMemberByUserId(
             @PathVariable Long userId
     ) {
         CompanyMember member = companyMemberService.getMemberByUserId(userId);

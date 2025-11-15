@@ -1,0 +1,135 @@
+<div class="analytics-page">
+  <div class="controls-row">
+    <mat-button-toggle-group [value]="range" (change)="setRange($event.value)">
+      <mat-button-toggle value="7">7 ngày</mat-button-toggle>
+      <mat-button-toggle value="30">30 ngày</mat-button-toggle>
+      <mat-button-toggle value="90">90 ngày</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  <div class="kpi-row">
+    <mat-card class="kpi-card" style="background-color: #e81416;">
+      <div class="kpi-label">Tổng số lượt ứng tuyển</div>
+      <div class="kpi-value">{{ totalApplications | number }}</div>
+    </mat-card>
+    <mat-card class="kpi-card" style="background-color: #ffa500;">
+      <div class="kpi-label">Ứng tuyển mới hôm nay</div>
+      <div class="kpi-value">{{ newToday | number }}</div>
+    </mat-card>
+    <mat-card class="kpi-card" style="background-color: #79c314;">
+      <div class="kpi-label">Tỉ lệ Apply → Response</div>
+      <div class="kpi-value">{{ funnelConversion }}%</div>
+    </mat-card>
+    <mat-card class="kpi-card" style="background-color: #487de7;">
+      <div class="kpi-label">Công ty đăng ký mới hôm nay</div>
+      <div class="kpi-value">{{ newCompaniesToday }}</div>
+    </mat-card>
+
+    <mat-card class="kpi-card" style="background-color: #4b369d;">
+      <div class="kpi-label">Ứng viên đăng ký mới hôm nay</div>
+      <div class="kpi-value">{{ newCandidatesToday }}</div>
+    </mat-card>
+
+    <mat-card class="kpi-card" style="background-color: #70369d;">
+      <div class="kpi-label">Số job đang hoạt động</div>
+      <div class="kpi-value">{{ activeJobsCount }}</div>
+    </mat-card>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card">
+      <mat-card>
+        <mat-card-title>Ứng tuyển theo thời gian</mat-card-title>
+        <apx-chart
+          [series]="lineChart.series || []"
+          [chart]="lineChart.chart || { type: 'line', height: 320, zoom: { enabled: false } }"
+          [xaxis]="lineChart.xaxis || { categories: [] }"
+          [stroke]="lineChart.stroke || { curve: 'smooth' }"
+          [tooltip]="lineChart.tooltip || { enabled: true }">
+        </apx-chart>
+      </mat-card>
+    </div>
+
+    <div class="chart-card">
+      <mat-card>
+        <mat-card-title>Job mới tạo theo thời gian</mat-card-title>
+        <apx-chart
+          [series]="jobsCreatedChart.series || []"
+          [chart]="jobsCreatedChart.chart || { type: 'line', height: 320 }"
+          [xaxis]="jobsCreatedChart.xaxis || { categories: [] }"
+          [stroke]="jobsCreatedChart.stroke || { curve: 'smooth' }"
+          [tooltip]="jobsCreatedChart.tooltip || { enabled: true }">
+        </apx-chart>
+      </mat-card>
+    </div>
+
+    <div class="chart-card">
+      <mat-card>
+        <mat-card-title>Ngành nghề nhiều ứng tuyển</mat-card-title>
+        <apx-chart
+          [series]="barChart.series || []"
+          [chart]="barChart.chart || { type: 'bar', height: 320 }"
+          [xaxis]="barChart.xaxis || { categories: [] }"
+          [plotOptions]="barChart.plotOptions"
+          [dataLabels]="barChart.dataLabels">
+        </apx-chart>
+      </mat-card>
+    </div>
+  </div>
+
+  <div class="lists-grid">
+    <div class="list-chart-card">
+      <mat-card>
+        <mat-card-title>Top job theo số lượng ứng tuyển</mat-card-title>
+        <apx-chart
+          [series]="topJobsChart.series || []"
+          [chart]="topJobsChart.chart || { type: 'bar', height: 320 }"
+          [xaxis]="topJobsChart.xaxis || { categories: [] }"
+          [plotOptions]="topJobsChart.plotOptions"
+          [dataLabels]="topJobsChart.dataLabels">
+        </apx-chart>
+      </mat-card>
+    </div>
+
+    <div class="list-chart-card">
+      <mat-card>
+        <mat-card-title>Top Công ty tạo nhiều job nhất</mat-card-title>
+        <apx-chart
+          [series]="topCompaniesJobsChart.series || []"
+          [chart]="topCompaniesJobsChart.chart || { type: 'bar', height: 320 }"
+          [xaxis]="topCompaniesJobsChart.xaxis || { categories: [] }"
+          [plotOptions]="topCompaniesJobsChart.plotOptions"
+          [dataLabels]="topCompaniesJobsChart.dataLabels">
+        </apx-chart>
+      </mat-card>
+    </div>
+
+    <div class="list-chart-card">
+      <mat-card>
+        <mat-card-title>Top Công ty có nhiều ứng viên ứng tuyển nhất</mat-card-title>
+        <apx-chart
+          [series]="topCompaniesApplicantsChart.series || []"
+          [chart]="topCompaniesApplicantsChart.chart || { type: 'bar', height: 320 }"
+          [xaxis]="topCompaniesApplicantsChart.xaxis || { categories: [] }"
+          [plotOptions]="topCompaniesApplicantsChart.plotOptions"
+          [dataLabels]="topCompaniesApplicantsChart.dataLabels">
+        </apx-chart>
+      </mat-card>
+    </div>
+
+    <div class="list-chart-card">
+      <mat-card>
+        <mat-card-title>Top ứng viên có nhiều lượt ứng tuyển nhất</mat-card-title>
+        <apx-chart
+          [series]="topCandidatesChart.series || []"
+          [chart]="topCandidatesChart.chart || { type: 'bar', height: 320 }"
+          [xaxis]="topCandidatesChart.xaxis || { categories: [] }"
+          [plotOptions]="topCandidatesChart.plotOptions"
+          [dataLabels]="topCandidatesChart.dataLabels">
+        </apx-chart>
+      </mat-card>
+    </div>
+  </div>
+</div>
+
+<app-loading *ngIf="isLoading"></app-loading>

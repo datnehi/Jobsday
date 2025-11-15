@@ -8,6 +8,6 @@ export interface Application {
   cv_url: string;
   cover_letter?: string;
   status: ApplicationStatus;
-  applied_at: string;   // ISO date string
-  updated_at: string;   // ISO date string
+  applied_at: string;
+  updated_at: string;   
 }

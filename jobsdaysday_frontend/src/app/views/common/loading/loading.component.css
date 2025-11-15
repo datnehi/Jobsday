@@ -15,7 +15,6 @@
   animation: dot-spinner 1.2s linear infinite;
 }
 
-/* Tính toán lại vị trí các chấm theo vòng tròn bán kính ~32px */
 .dot-spinner .dot:nth-child(1) { top: 0px; left: 32px; animation-delay: 0s; }
 .dot-spinner .dot:nth-child(2) { top: 11px; left: 56px; animation-delay: 0.15s; }
 .dot-spinner .dot:nth-child(3) { top: 32px; left: 64px; animation-delay: 0.3s; }

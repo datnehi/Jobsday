@@ -7,10 +7,8 @@
   ">
   <div class="container" style="max-width:1200px;">
     <div class="d-flex align-items-center justify-content-center gap-3">
-      <!-- Thanh search liền mạch -->
       <div class="flex-grow-1">
         <div class="d-flex align-items-center rounded-pill shadow-sm" style="background: #f8f9fa; height: 48px;">
-          <!-- Ô nhập từ khóa -->
           <i class="bi bi-search text-secondary ms-4 me-2"></i>
           <input type="text" class="form-control border-0 bg-transparent"
             placeholder="Tìm kiếm kỹ năng, vị trí, công ty..." [(ngModel)]="searchText"
@@ -21,7 +19,6 @@
           </button>
         </div>
       </div>
-      <!-- Nút tìm kiếm tách riêng -->
       <button class="btn btn-primary rounded-pill px-4 ms-2" (click)="search()" style="font-weight:bold; height:48px;">
         Tìm kiếm
       </button>
@@ -29,17 +26,13 @@
   </div>
 </div>
 
-<!-- Content: Sidebar + Search Result, căn giữa và nhỏ lại -->
 <div class="container" style="max-width:1200px; margin-top: 30px;">
   <div class="row justify-content-center">
-    <!-- Sidebar lọc nâng cao -->
     <div class="col-lg-3 mb-4">
       <div class="bg-white rounded shadow-sm p-3 mb-3 d-flex flex-column sidebar-sticky" style="height: 700px;">
-        <!-- Tiêu đề cố định -->
         <h5 class="fw-bold mb-3 text-primary flex-shrink-0">
           <i class="bi bi-funnel"></i> Lọc nâng cao
         </h5>
-        <!-- Vùng scroll cho các trường lọc -->
         <div style="overflow-y: auto; flex-grow: 1;">
           <div class="mb-3 ms-1">
             <label class="fw-bold mb-2">Địa điểm</label>
@@ -102,13 +95,10 @@
             </div>
           </div>
         </div>
-        <!-- Nút xóa lọc cố định -->
         <button class="btn btn-outline-secondary w-100 mt-2 flex-shrink-0" (click)="clearFilters()">Xóa lọc</button>
       </div>
     </div>
-    <!-- Nội dung search -->
     <div class="col-lg-9">
-      <!-- Tabs -->
       <div class="bg-white rounded shadow-sm p-3 mb-4">
         <div class="nav nav-tabs border-0">
           <span class="tab-hover" [ngClass]="{
@@ -125,7 +115,6 @@
           </span>
         </div>
       </div>
-      <!-- Danh sách việc làm -->
       <div *ngIf="selectedTab === 'jobs'">
         <div *ngFor="let job of jobs; let i = index" class="card job-card mb-3" (mouseenter)="hoveredJobIndex = i"
           (mouseleave)="hoveredJobIndex = null" (click)="openJobDetail(job.id)"
@@ -155,7 +144,6 @@
                     +{{ job.skills.length - 3 }}
                   </span>
                 </div>
-                <!-- Đặt cả hai trường hợp vào cùng một vị trí tuyệt đối -->
                 <div *ngIf="job.applied || (!job.applied && hoveredJobIndex === i)"
                   style="position: absolute; right: 0; bottom: -5px; display: flex; align-items: center;">
                   <span class="text-muted small" style="margin-right: 8px;">
@@ -172,7 +160,6 @@
                     Ứng tuyển
                   </button>
                 </div>
-                <!-- Nếu chưa ứng tuyển và không hover: ngày đăng ở góc phải -->
                 <span *ngIf="!job.applied && hoveredJobIndex !== i" class="text-muted small"
                   style="position: absolute; right: 0; bottom: 0;">
                   {{ getPostedLabel(job.postedAt) }}
@@ -192,7 +179,6 @@
           </div>
         </div>
       </div>
-      <!-- Danh sách công ty -->
       <div *ngIf="selectedTab === 'companies'">
         <div *ngFor="let company of companies" class="card company-card mb-3" (click)="openCompanyDetail(company.id)">
           <div class="card-body d-flex gap-4 align-items-center">
@@ -208,7 +194,6 @@
           </div>
         </div>
       </div>
-      <!-- Phân trang cho jobs -->
       <div *ngIf="selectedTab === 'jobs' && totalPages > 1"
         class="d-flex justify-content-center align-items-center gap-3 my-3">
         <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage === 0"
@@ -224,7 +209,6 @@
         </button>
       </div>
 
-      <!-- Phân trang cho companies -->
       <div *ngIf="selectedTab === 'companies' && companiesTotalPages > 1"
         class="d-flex justify-content-center align-items-center gap-3 my-3">
         <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="companiesCurrentPage === 0"

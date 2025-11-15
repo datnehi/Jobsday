@@ -8,7 +8,6 @@
           <div *ngIf="step === 'REGISTER'">
             <h3 class="mb-4 text-center">Đăng ký tài khoản</h3>
             <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-              <!-- Loại tài khoản -->
               <div class="mb-4">
                 <ul class="nav nav-tabs">
                   <li class="nav-item">
@@ -31,7 +30,6 @@
               <ng-container *ngIf="registerForm.get('role')?.value === 'HR'; else candidateForm">
                 <div class="row">
                   <div class="col-md-6">
-                    <!-- Thông tin cá nhân -->
                     <div class="mb-3">
                       <label for="fullName" class="form-label">Họ và tên</label>
                       <input type="text" id="fullName" class="form-control" formControlName="fullName" required>
@@ -95,7 +93,6 @@
                     </div>
                   </div>
                   <div class="col-md-6">
-                    <!-- Thông tin công ty -->
                     <h5 class="mb-3">Thông tin công ty</h5>
                     <div class="mb-3">
                       <label for="companyCode" class="form-label">Mã công ty (do HRAdmin cung cấp)</label>
@@ -112,7 +109,6 @@
                       </div>
                     </div>
                     <ng-container *ngIf="!companyExists">
-                      <!-- Các trường nhập thông tin công ty như trước -->
                       <div class="mb-3">
                         <label for="companyName" class="form-label">Tên công ty</label>
                         <input type="text" id="companyName" class="form-control" formControlName="companyName" required>
@@ -169,7 +165,6 @@
               </ng-container>
 
               <ng-template #candidateForm>
-                <!-- Form ứng viên -->
                 <div class="mb-3">
                   <label for="fullName" class="form-label">Họ và tên</label>
                   <input type="text" id="fullName" class="form-control" formControlName="fullName" required>

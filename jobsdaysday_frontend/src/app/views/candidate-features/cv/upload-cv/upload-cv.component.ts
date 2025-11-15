@@ -30,7 +30,6 @@ export class UploadCvComponent {
   onCVFileChange(event: any) {
     const file = event.target.files[0];
     if (file) {
-      // Giới hạn loại file
       const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
       if (!allowedTypes.includes(file.type)) {
         this.showErrorDialog = true;
@@ -38,7 +37,6 @@ export class UploadCvComponent {
         this.errorMessage = 'Chỉ chấp nhận file PDF hoặc Word!';
         return;
       }
-      // Giới hạn kích thước file (5MB)
       if (file.size > 5 * 1024 * 1024) {
         this.showErrorDialog = true;
         this.errorTitle = 'Lỗi tải CV';

@@ -35,6 +35,8 @@ import { CompanyRelatedInfoComponent } from './views/admin-features/company-mana
 import { HrRelatedInfoComponent } from './views/admin-features/company-manager/hr-related-info/hr-related-info.component';
 import { CompanyManagementComponent } from './views/admin-features/company-manager/company-management/company-management.component';
 import { ChatComponent } from './views/chat/chat/chat.component';
+import { AnalyticsDashboardComponent } from './views/admin-features/analytics/analytics-dashboard/analytics-dashboard.component';
+import { AnalyticsHrComponent } from './views/hr-features/analytics/analytics-hr/analytics-hr.component';
 
 export const routes: Routes = [
   { path: '', canActivate: [homeRedirectGuard], component: NotfoundComponent },
@@ -46,14 +48,12 @@ export const routes: Routes = [
   { path: 'company-detail/:id', component: CompanyDetailComponent, canActivate: [candidateAuthGuard] },
   { path: 'personal-info', component: PersonalInfoComponent, canActivate: [authGuard] },
   { path: 'change-password', component: ChangePasswordComponent, canActivate: [authGuard] },
-  // Candidate routes
   { path: 'apply-success/:id', component: ApplyJobSuccessComponent, canMatch: [roleGuard(['CANDIDATE'])] },
   { path: 'saved-jobs', component: SavedJobComponent, canMatch: [roleGuard(['CANDIDATE'])] },
   { path: 'quan-ly-cv', component: CvManagerComponent, canMatch: [roleGuard(['CANDIDATE'])] },
   { path: 'upload-cv', component: UploadCvComponent, canMatch: [roleGuard(['CANDIDATE'])] },
   { path: 'applied-history', component: AppliedHistoryComponent, canMatch: [roleGuard(['CANDIDATE'])] },
   { path: 'xem-ho-so', component: HrViewProfileComponent, canMatch: [roleGuard(['CANDIDATE'])] },
-  // HR routes will be added later
   { path: 'quan-ly-job', component: ListJobComponent, canMatch: [roleGuard(['HR'])] },
   { path: 'update-job/:id', component: UpdateJobComponent, canMatch: [roleGuard(['HR'])] },
   { path: 'create-job', component: CreateJobComponent, canMatch: [roleGuard(['HR'])] },
@@ -62,6 +62,7 @@ export const routes: Routes = [
   { path: 'company-manager', component: CompanyManagerComponent, canActivate: [isAdminCompanyGuard] },
   { path: 'approve-member', component: ApproveMemberComponent, canActivate: [isAdminCompanyGuard] },
   { path: 'company-info', component: CompanyInfoComponent, canActivate: [isAdminCompanyGuard] },
+  { path: 'analytics-hr', component: AnalyticsHrComponent, canMatch: [roleGuard(['HR'])] },
 
   { path: 'user-manager', component: UserManagerComponent, canMatch: [roleGuard(['ADMIN'])] },
   { path: 'candidate/:id', component: CandidateRelatedInfoComponent, canMatch: [roleGuard(['ADMIN'])] },
@@ -69,6 +70,7 @@ export const routes: Routes = [
   { path: 'company-related-info/:id', component: CompanyRelatedInfoComponent, canMatch: [roleGuard(['ADMIN'])] },
   { path: 'hr-related-info/:id', component: HrRelatedInfoComponent, canMatch: [roleGuard(['ADMIN'])] },
   { path: 'company-management', component: CompanyManagementComponent, canMatch: [roleGuard(['ADMIN'])] },
+  { path: 'analytics', component: AnalyticsDashboardComponent, canMatch: [roleGuard(['ADMIN'])] },
 
   { path: 'chat', component: ChatComponent, data: { layout: 'blank' }, canActivate: [authGuard] },
 

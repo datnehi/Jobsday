@@ -32,8 +32,8 @@ public class ChatWebSocketController {
         if (senderId == null) {
             return;
         }
-
         Message saved = messageService.saveMessage(conversationId, senderId, content);
+        System.out.println("Saved message " + saved.getId() + " in conversation " + conversationId);
         chatService.notifyConversation(conversationId, saved);
     }
 }

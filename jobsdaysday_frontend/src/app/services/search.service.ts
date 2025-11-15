@@ -21,7 +21,6 @@ export class SearchService {
     if (filters.workType) params = params.set('jobType', filters.workType);
     if (filters.userId) params = params.set('userId', filters.userId);
 
-    // Phân trang cho jobs
     if (filters.jobsPage !== undefined) params = params.set('page', filters.jobsPage);
     if (filters.size !== undefined) params = params.set('size', filters.size);
 
@@ -33,7 +32,6 @@ export class SearchService {
     if (filters.keyword) params = params.set('q', filters.keyword);
     if (filters.location) params = params.set('location', filters.location);
 
-    // Phân trang cho companies
     if (filters.companiesPage !== undefined) params = params.set('page', filters.companiesPage);
     if (filters.size !== undefined) params = params.set('size', filters.size);
 
@@ -47,7 +45,6 @@ export class SearchService {
     if (filters.experience) params = params.set('experience', filters.experience);
     if (filters.level) params = params.set('level', filters.level);
 
-    // Phân trang cho candidates
     if (filters.candidatesPage !== undefined) params = params.set('page', filters.candidatesPage);
     if (filters.size !== undefined) params = params.set('size', filters.size);
 

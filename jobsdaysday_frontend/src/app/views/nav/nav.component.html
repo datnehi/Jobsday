@@ -6,44 +6,63 @@
   </div>
 
   <ul class="navbar-menu">
-    <li *ngIf="isLogging == false || user?.role == 'CANDIDATE'" class="navbar-item dropdown">
+    <li *ngIf="isLogging == false || user?.role == 'CANDIDATE'"
+        class="navbar-item dropdown"
+        routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
       <a routerLink="/jobsday">Việc làm <i class="bi bi-chevron-down"></i></a>
       <ul class="dropdown-menu" style="width: max-content;">
-        <li><a routerLink="/jobsday">Tìm việc làm</a></li>
-        <li><a routerLink="/saved-jobs">Việc làm đã lưu</a></li>
-        <li><a routerLink="/applied-history">Việc làm đã ứng tuyển</a></li>
+        <li><a routerLink="/jobsday" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Tìm việc làm</a></li>
+        <li><a routerLink="/saved-jobs" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Việc làm đã lưu</a></li>
+        <li><a routerLink="/applied-history" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Việc làm đã ứng tuyển</a></li>
       </ul>
     </li>
-    <li *ngIf="user?.role == 'CANDIDATE'" class="navbar-item dropdown">
+
+    <li *ngIf="user?.role == 'CANDIDATE'" class="navbar-item dropdown"
+        routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
       <a routerLink="/quan-ly-cv">Quản lý CV <i class="bi bi-chevron-down"></i></a>
       <ul class="dropdown-menu" style="width: max-content;">
-        <li><a routerLink="/quan-ly-cv">CV của tôi</a></li>
-        <li><a routerLink="/upload-cv">Tải CV lên</a></li>
-        <li><a routerLink="/xem-ho-so">Nhà tuyển dụng xem hồ sơ</a></li>
+        <li><a routerLink="/quan-ly-cv" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">CV của tôi</a></li>
+        <li><a routerLink="/upload-cv" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Tải CV lên</a></li>
+        <li><a routerLink="/xem-ho-so" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Nhà tuyển dụng xem hồ sơ</a></li>
       </ul>
     </li>
-    <li *ngIf="user?.role == 'HR'" class="navbar-item dropdown">
+
+    <li *ngIf="user?.role == 'HR'" class="navbar-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <a routerLink="/analytics-hr">Thống kê</a>
+    </li>
+
+    <li *ngIf="user?.role == 'HR'" class="navbar-item dropdown"
+        routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
       <a routerLink="/quan-ly-job">Quản lý Job<i class="bi bi-chevron-down"></i></a>
       <ul class="dropdown-menu">
-        <li><a routerLink="/quan-ly-job">Danh sách Job</a></li>
-        <li><a routerLink="/create-job">Đăng tin mới</a></li>
+        <li><a routerLink="/quan-ly-job" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Danh sách Job</a></li>
+        <li><a routerLink="/create-job" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Đăng tin mới</a></li>
       </ul>
     </li>
-    <li *ngIf="user?.role == 'HR'" class="navbar-item">
+
+    <li *ngIf="user?.role == 'HR'" class="navbar-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
       <a routerLink="/search-candidates">Tìm kiếm ứng viên</a>
     </li>
-    <li *ngIf="user?.role == 'HR' && member?.isAdmin == true" class="navbar-item dropdown">
+
+    <li *ngIf="user?.role == 'HR' && member?.isAdmin == true" class="navbar-item dropdown"
+        routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
       <a routerLink="/company-manager">Quản lý Công ty <i class="bi bi-chevron-down"></i></a>
       <ul class="dropdown-menu" style="width: max-content;">
-        <li><a routerLink="/company-manager">Quản lý thành viên</a></li>
-        <li><a routerLink="/approve-member">Duyệt thành viên</a></li>
-        <li><a routerLink="/company-info">Thông tin công ty</a></li>
+        <li><a routerLink="/company-manager" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Quản lý thành viên</a></li>
+        <li><a routerLink="/approve-member" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Duyệt thành viên</a></li>
+        <li><a routerLink="/company-info" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Thông tin công ty</a></li>
       </ul>
     </li>
-    <li *ngIf="user?.role == 'ADMIN'" class="navbar-item">
+
+    <li *ngIf="user?.role == 'ADMIN'" class="navbar-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <a routerLink="/analytics">Thống kê</a>
+    </li>
+
+    <li *ngIf="user?.role == 'ADMIN'" class="navbar-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
       <a routerLink="/user-manager">Quản lý Account</a>
     </li>
-    <li *ngIf="user?.role == 'ADMIN'" class="navbar-item">
+
+    <li *ngIf="user?.role == 'ADMIN'" class="navbar-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
       <a routerLink="/company-management">Quản lý Company</a>
     </li>
   </ul>
@@ -81,7 +100,6 @@
           </div>
         </div>
       </li>
-      <!-- ...existing code... -->
       <li class="icon-item">
         <button class="icon-content position-relative" (click)="openChatModal()">
           <div class="icon-container">
@@ -92,7 +110,6 @@
           </div>
         </button>
       </li>
-      <!-- ...existing code... -->
       <li class="icon-item dropdown">
         <a routerLink="/profile" class="user-link">
           <img [src]="user?.avatarUrl || 'assets/user.jpg'" alt="Avatar" class="avatar">
@@ -101,7 +118,6 @@
           </div>
         </a>
         <ul class="dropdown-menu p-0" style="min-width: 260px;">
-          <!-- Thông tin cá nhân -->
           <li class="px-3 py-3 border-bottom">
             <div class="d-flex align-items-center gap-3">
               <img [src]="user?.avatarUrl || 'assets/user.jpg'" alt="Avatar" width="48" height="48"
@@ -115,7 +131,6 @@
             </div>
           </li>
           <li class="py-1"></li>
-          <!-- Các menu chức năng -->
           <li><a routerLink="/personal-info" class="fw-bold">Thông tin cá nhân</a></li>
           <li><a routerLink="/change-password" class="fw-bold">Đổi mật khẩu</a></li>
           <li class="px-3 py-3">

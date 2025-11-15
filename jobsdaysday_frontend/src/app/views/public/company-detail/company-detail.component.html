@@ -1,14 +1,11 @@
 <div class="container py-4" style="max-width:1200px;">
-  <!-- Banner + Box thông tin + Logo công ty -->
   <div class="position-relative mb-4" style="min-height: 250px;">
-    <!-- Banner -->
     <div style="
       background: url('assets/baner4.jpg') center center/cover no-repeat;
       height: 180px;
       border-radius: 8px;
       ">
     </div>
-    <!-- Box thông tin chồng lên banner -->
     <div style="
       background: #1b19a4;
       border-radius: 0 0 8px 8px;
@@ -31,7 +28,6 @@
           </a>
         </div>
       </div>
-      <!-- Logo công ty: dùng position absolute để nổi lên trên góc trái -->
       <img [src]="company?.logo || 'assets/logo1.png'" alt="Logo công ty" class="rounded-4 bg-white shadow" style="
              width:120px;
              height:120px;
@@ -45,7 +41,6 @@
   </div>
 
   <div class="row">
-    <!-- Giới thiệu công ty -->
     <div class="col-lg-8 mb-4">
       <div class="card mb-3 shadow-sm">
         <div class="card-header bg-primary text-white fw-bold" style="font-size: 18px;">
@@ -59,7 +54,6 @@
             (click)="showFullDescription = false">Thu gọn</a>
         </div>
       </div>
-      <!-- Danh sách tuyển dụng -->
       <div class="card mb-3 shadow-sm">
         <div class="card-header bg-primary text-white fw-bold" style="font-size: 18px;">
           Tuyển dụng
@@ -101,7 +95,6 @@
                       +{{ job.skills.length - 3 }}
                     </span>
                   </div>
-                  <!-- Đặt cả hai trường hợp vào cùng một vị trí tuyệt đối -->
                   <div *ngIf="job.applied || (!job.applied && hoveredJobIndex === i)"
                     style="position: absolute; right: 0; bottom: -5px; display: flex; align-items: center;">
                     <span class="text-muted small" style="margin-right: 8px;">
@@ -118,7 +111,6 @@
                       Ứng tuyển
                     </button>
                   </div>
-                  <!-- Nếu chưa ứng tuyển và không hover: ngày đăng ở góc phải -->
                   <span *ngIf="!job.applied && hoveredJobIndex !== i" class="text-muted small"
                     style="position: absolute; right: 0; bottom: 0;">
                     {{ getPostedLabel(job.postedAt) }}
@@ -156,7 +148,6 @@
         </div>
       </div>
     </div>
-    <!-- Thông tin liên hệ + bản đồ + chia sẻ -->
     <div class="col-lg-4 mb-4">
       <div class="card mb-3 shadow-sm">
         <div class="card-header bg-primary text-white fw-bold" style="font-size: 18px;">

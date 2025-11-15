@@ -42,7 +42,6 @@
                   +{{ job.skills.length - 3 }}
                 </span>
               </div>
-              <!-- Đặt cả hai trường hợp vào cùng một vị trí tuyệt đối -->
               <div *ngIf="job.applied || (!job.applied && hoveredJobIndex === i)"
                 style="position: absolute; right: 0; bottom: -5px; display: flex; align-items: center;">
                 <span class="text-muted small" style="margin-right: 8px;">
@@ -59,7 +58,6 @@
                   Ứng tuyển
                 </button>
               </div>
-              <!-- Nếu chưa ứng tuyển và không hover: ngày đăng ở góc phải -->
               <span *ngIf="!job.applied && hoveredJobIndex !== i" class="text-muted small"
                 style="position: absolute; right: 0; bottom: 0;">
                 {{ getPostedLabel(job.postedAt) }}
@@ -78,7 +76,6 @@
         Bạn chưa lưu công việc nào. Hãy tìm kiếm và lưu các công việc phù hợp để dễ dàng truy cập và ứng tuyển sau này!
       </div>
 
-      <!-- Phân trang -->
       <div *ngIf="totalPages > 1" class="d-flex justify-content-center align-items-center gap-2 my-4">
         <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage === 0"
           (click)="changePage(currentPage - 1)" style="width: 36px; height: 36px;">

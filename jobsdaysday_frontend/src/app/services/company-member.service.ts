@@ -55,6 +55,6 @@ export class CompanyMemberService {
   }
 
   getMemberByUserId(userId: number): Observable<ResponseDto> {
-    return this.http.get<ResponseDto>(`${this.apiUrl}/admin/member/${userId}`);
+    return this.http.get<ResponseDto>(`${this.apiUrl}/member/${userId}`);
   }
 }

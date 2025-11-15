@@ -15,7 +15,6 @@
         <button type="button" class="btn-close" (click)="closeModalLogin()"></button>
       </div>
       <div class="modal-body">
-        <!-- Đăng nhập -->
         <ng-container *ngIf="loginTab === 'login'">
           <form [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()">
             <div class="mb-3">
@@ -40,7 +39,6 @@
             </div>
           </form>
         </ng-container>
-        <!-- Đăng ký -->
         <ng-container *ngIf="loginTab === 'register'">
           <ng-container *ngIf="registerStep === 'form'; else verifyBlock">
             <form [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit()">

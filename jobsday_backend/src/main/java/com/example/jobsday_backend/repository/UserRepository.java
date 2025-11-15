@@ -41,7 +41,22 @@ public interface UserRepository extends JpaRepository<User, Long> {
         """, nativeQuery = true)
     long countAllNonAdminUsers(@Param("textSearch") String textSearch);
 
-//    @Modifying
-//    @Query("UPDATE UserEntity u SET u.isOnline = :online, u.lastOnlineAt = CASE WHEN :online = false THEN :lastAt ELSE u.lastOnlineAt END WHERE u.id = :id")
-//    void updateOnline(@Param("id") Long id, @Param("online") boolean online, @Param("lastAt") java.time.Instant lastAt);
+    @Query(value = """
+        SELECT COUNT(*) 
+        FROM users 
+        WHERE role = 'CANDIDATE'
+          AND DATE(created_at) = CURRENT_DATE
+          AND email_verified = TRUE
+    """, nativeQuery = true)
+    long newCandidatesToday();
+
+    @Query(value = """
+        SELECT u.full_name, COUNT(a.id)
+        FROM users u
+        JOIN applications a ON a.candidate_id = u.id
+        GROUP BY u.id, u.full_name
+        ORDER BY COUNT(a.id) DESC
+        LIMIT 10
+    """, nativeQuery = true)
+    List<Object[]> topCandidates();
 }

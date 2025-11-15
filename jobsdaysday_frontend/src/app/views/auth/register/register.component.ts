@@ -76,7 +76,6 @@ export class RegisterComponent {
     });
   }
 
-  // B1: Đăng ký -> gửi OTP về email
   onSubmit() {
     if (this.registerForm.valid) {
       this.isLoading = true;
@@ -126,7 +125,6 @@ export class RegisterComponent {
     }
   }
 
-  // B2: Nhập OTP (và thông tin công ty nếu HR)
   onVerifyOtp() {
     if (this.otpForm.valid) {
       this.isLoading = true;
@@ -178,7 +176,6 @@ export class RegisterComponent {
     }
   }
 
-  // Optional: kiểm tra companyCode hợp lệ
   checkCompanyCode() {
     const code = this.registerForm.get('companyCode')?.value;
     if (!code) {

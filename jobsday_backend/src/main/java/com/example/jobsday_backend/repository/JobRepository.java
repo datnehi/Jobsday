@@ -201,4 +201,26 @@ public interface JobRepository extends JpaRepository<Job, Long> {
     void deleteJobById(Long id);
 
     List<Job> findJobsByCompanyId(Long companyId);
+
+    @Query(value = """
+            SELECT COUNT(*) FROM jobs WHERE status = 'ACTIVE' AND deadline > NOW()
+            """, nativeQuery = true)
+    long activeJobs();
+
+    @Query(value = """
+        SELECT to_char(created_at, 'YYYY-MM-DD'), COUNT(*)
+        FROM jobs
+        WHERE created_at >= now() - make_interval(days => :days)
+        GROUP BY 1
+        ORDER BY 1
+    """, nativeQuery = true)
+    List<Object[]> jobsCreated(@Param("days") int days);
+
+    @Query(value = """
+        SELECT COUNT(*) 
+        FROM jobs 
+        WHERE company_id = :companyId 
+          AND status = 'ACTIVE'
+    """, nativeQuery = true)
+    Integer countActiveJobs(long companyId);
 }

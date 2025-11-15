@@ -61,7 +61,6 @@ export class SearchCandiateComponent {
     this.onSearch();
   }
 
-  // Xử lý lọc nâng cao và phân trang
   onSearch(page: number = 0) {
     this.isLoading = true;
     const filters = {

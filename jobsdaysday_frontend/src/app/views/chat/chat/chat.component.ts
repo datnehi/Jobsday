@@ -97,7 +97,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.token = this.authService.token || '';
 
         if (this.currentUserRole === 'HR') {
-          return this.companyMemberService.getMemberById(this.currentUserId || 0).pipe(
+          return this.companyMemberService.getMemberByUserId(this.currentUserId || 0).pipe(
             map(res => ({ user: u, member: res?.data || null }))
           );
         }
@@ -207,7 +207,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }, () => { });
 
     this.selectedConversation = conv;
-    console.log('Selected conversation:', this.selectedConversation);
     this.messages = [];
     this.messagePage = 0;
     this.totalPageMessages = 0;
@@ -657,37 +656,30 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (idx > 0) {
       const [item] = this.conversations.splice(idx, 1);
       this.conversations.unshift(item);
-    } else if (idx === -1) {
-      // nothing to do here unless you want to fetch or create the conversation locally
     }
   }
 
   openConversationById(id: string | number) {
     if (!id) return;
     const idKey = String(id);
-    // Nếu đã có trong danh sách conversations thì chọn luôn
     const existing = this.conversations.find(c => String(c.conversationId ?? c.id) === idKey);
     if (existing) {
-      // đảm bảo chọn sau khi danh sách load xong; nếu cần có thể delay 0
       this.selectConversation(existing);
       return;
     }
 
-    // Nếu chưa có thì fetch từ server (conversationService.getConversationById có sẵn)
     if (this.convFetchPending.has(idKey)) return;
     this.convFetchPending.add(idKey);
 
     this.conversationService.getConversationById(id as any).pipe(takeUntil(this.destroy$)).subscribe(res => {
       this.convFetchPending.delete(idKey);
       if (res && res.data) {
-        // chèn vào danh sách và chọn
         this.conversations.unshift(res.data);
         this.selectConversation(res.data);
         this.cd.detectChanges();
       }
     }, () => {
       this.convFetchPending.delete(idKey);
-      // fallback: tạo placeholder và chọn
       const placeholder: any = {
         conversationId: id,
         title: 'Tin nhắn',

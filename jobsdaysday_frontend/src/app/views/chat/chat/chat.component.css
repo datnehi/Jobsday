@@ -73,7 +73,7 @@
 .msg-group .me-bubble {
   max-width: 65%;
   word-break: break-word;
-  position: relative; /* enable absolute positioning for tooltip */
+  position: relative;
 }
 
 .me-bubble {

@@ -98,7 +98,9 @@ export class JobDetailComponent {
                   location: this.convertEnum.mapLocationFromEnum(companyResponse.data.location)
                 } as Company;
               } else {
-                console.error('Failed to load company details');
+                this.showErrorDialog = true;
+                this.errorTitle = 'Lỗi tải công ty';
+                this.errorMessage = 'Không thể tải thông tin công ty. Vui lòng thử lại sau.';
               }
             });
             this.jobService.getSimilarJobsById(this.job.id!, this.authService.currentUser?.id! || 0)
@@ -115,7 +117,9 @@ export class JobDetailComponent {
               });
           }
         } else {
-          console.error('Failed to load job details');
+          this.showErrorDialog = true;
+          this.errorTitle = 'Lỗi tải việc làm';
+          this.errorMessage = 'Không thể tải thông tin việc làm. Vui lòng thử lại sau.';
         }
       });
 

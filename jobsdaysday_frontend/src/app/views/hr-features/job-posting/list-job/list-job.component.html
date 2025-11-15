@@ -1,7 +1,6 @@
 <div class="container py-4" style="max-width:1500px;">
   <div class="row">
     <div class="col-lg-12">
-      <!-- Tiêu đề và nút đăng tin mới -->
       <div class="card shadow-sm mb-4">
         <div class="card-body d-flex justify-content-between align-items-center">
           <h4 class="fw-bold mb-0">Danh sách tin tuyển dụng</h4>
@@ -9,7 +8,6 @@
         </div>
       </div>
       <div class="row g-4">
-        <!-- Card bộ lọc bên trái -->
         <div class="col-md-2">
           <div class="card shadow-sm h-100">
             <div class="card-body">
@@ -56,7 +54,6 @@
             </div>
           </div>
         </div>
-        <!-- Card bảng danh sách job bên phải -->
         <div class="col-md-10">
           <div style="height: 90.6%;">
             <table class="table table-bordered table-hover align-middle mb-0">
@@ -129,7 +126,6 @@
   </div>
 </div>
 
-<!-- Job Detail Dialog -->
 <div class="modal fade show" tabindex="-1" *ngIf="showJobDetail" style="display: block; background: rgba(0,0,0,0.2);"
   (click)="closeJobDetail()">
   <div class="modal-dialog modal-lg modal-dialog-centered" style="min-width: 1200px;"
@@ -140,7 +136,6 @@
         <button type="button" class="btn-close" (click)="closeJobDetail()"></button>
       </div>
       <div class="modal-body">
-        <!-- Khối thông tin chung -->
         <div class="row mb-2">
           <div class="col-md-8">
             <div class="fw-bold mb-2 text-primary" style="font-size:1.1rem;">Vị trí tuyển dụng</div>
@@ -163,11 +158,9 @@
             <div class="mb-2"><span class="fw-bold">Kỹ năng yêu cầu:</span> {{ jobDetail.skills }}</div>
           </div>
         </div>
-        <!-- Khối mô tả, yêu cầu, quyền lợi -->
         <div class="row mb-2">
           <div class="col-md-8">
             <div class="fw-bold mb-2 text-primary" style="font-size:1.1rem;">Mô tả & Yêu cầu</div>
-            <!-- Mô tả công việc -->
             <div class="mb-2">
               <span class="fw-bold">Mô tả công việc:</span>
               <div class="text-body" style="white-space:pre-line;">
@@ -179,7 +172,6 @@
                 {{ showFullDescription ? 'Thu gọn' : 'Xem thêm' }}
               </a>
             </div>
-            <!-- Yêu cầu ứng viên -->
             <div class="mb-2">
               <span class="fw-bold">Yêu cầu ứng viên:</span>
               <div class="text-body" style="white-space:pre-line;">
@@ -191,7 +183,6 @@
                 {{ showFullRequirement ? 'Thu gọn' : 'Xem thêm' }}
               </a>
             </div>
-            <!-- Quyền lợi -->
             <div class="mb-2">
               <span class="fw-bold">Quyền lợi:</span>
               <div class="text-body" style="white-space:pre-line;">
@@ -204,7 +195,6 @@
               </a>
             </div>
           </div>
-          <!-- Trạng thái -->
           <div class="col-md-4">
             <div class="fw-bold mb-2 text-primary" style="font-size:1.1rem;">Trạng thái</div>
             <div>

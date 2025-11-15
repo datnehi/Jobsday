@@ -171,7 +171,6 @@ export class LoginDialogComponent implements OnChanges {
     this.loginTab = 'register';
   }
 
-  // Khi submit:
   onLoginSubmit() {
     if (this.loginForm.valid) {
       const loginData = {
@@ -184,10 +183,10 @@ export class LoginDialogComponent implements OnChanges {
             this.authService.currentUser$.subscribe(user => {
               if (user) {
                 if (user.role === 'HR') {
-                  this.router.navigate(['/quan-ly-job']);
+                  this.router.navigate(['/analytics-hr']);
                   return;
                 } else if (user.role === 'ADMIN') {
-                  this.router.navigate(['/user-manager']);
+                  this.router.navigate(['/analytics']);
                   return;
                 } else {
                   this.closeModalLogin();

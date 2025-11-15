@@ -65,7 +65,6 @@
 .status-closed { background: #f2c94c; color: #000; }
 .status-hidden { background: #bdbdbd; color: #000; }
 
-/* Container thực sự chứa các option */
 ::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items.scroll-host > div:nth-child(2) {
   display: flex !important;
   flex-wrap: wrap !important;
@@ -74,9 +73,8 @@
   overflow-y: auto;
 }
 
-/* Mỗi option */
 ::ng-deep .ng-dropdown-panel .ng-option {
-  flex: 0 0 calc(33.33% - 12px); /* 3 item mỗi hàng */
+  flex: 0 0 calc(33.33% - 12px);
   box-sizing: border-box;
   border: 1px solid #ccc;
   border-radius: 8px;

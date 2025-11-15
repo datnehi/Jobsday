@@ -41,10 +41,10 @@
             <button class="btn btn-outline-primary btn-sm me-2" (click)="viewDetail(application); $event.stopPropagation();" title="Chi tiết">
               <i class="bi bi-eye"></i>
             </button>
-            <button class="btn btn-outline-success btn-sm me-2" (click)="acceptCandidate(application); $event.stopPropagation();" title="Duyệt">
+            <button class="btn btn-outline-success btn-sm me-2" (click)="acceptCandidate(application.applicationId); $event.stopPropagation();" title="Duyệt">
               <i class="bi bi-check-lg"></i>
             </button>
-            <button class="btn btn-outline-danger btn-sm" (click)="rejectCandidate(application); $event.stopPropagation();" title="Từ chối">
+            <button class="btn btn-outline-danger btn-sm" (click)="rejectCandidate(application.applicationId); $event.stopPropagation();" title="Từ chối">
               <i class="bi bi-x-lg"></i>
             </button>
           </td>
@@ -90,14 +90,12 @@
       </div>
       <div class="modal-body" *ngIf="selectedApplication">
         <div class="row">
-          <!-- Thông tin cá nhân -->
           <div class="col-md-4 d-flex flex-column align-items-center border-end justify-content-center">
             <img [src]="selectedApplication.candidateAvatar || 'assets/user.jpg'" alt="Avatar" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
             <div class="fw-bold fs-5 mb-2">{{ selectedApplication.candidateName }}</div>
             <div class="mb-2" *ngIf="selectedApplication.candidateEmail"><i class="bi bi-envelope"></i> {{ selectedApplication.candidateEmail }}</div>
             <div class="mb-2" *ngIf="selectedApplication.candidatePhone"><i class="bi bi-telephone"></i> {{ selectedApplication.candidatePhone }}</div>
           </div>
-          <!-- Thông tin ứng tuyển -->
           <div class="col-md-8">
             <div class="mb-2"><strong>CV: </strong> <a (click)="viewCv(selectedApplication.applicationId)" class="text-primary" style="cursor: pointer;">Xem CV</a></div>
             <div class="mb-2"><strong>Thư ứng tuyển:</strong>

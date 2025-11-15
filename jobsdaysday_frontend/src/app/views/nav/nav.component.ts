@@ -74,7 +74,6 @@ export class NavComponent {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
-    // Nếu click không phải vào nút chuông hoặc dropdown thì đóng dropdown
     if (!target.closest('.icon-item.dropdown')) {
       this.showNotificationDropdown = false;
     }

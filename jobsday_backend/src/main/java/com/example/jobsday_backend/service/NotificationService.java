@@ -26,10 +26,10 @@ public class NotificationService {
             String[] parts = message.split("_");
             String status = parts[0];
             String jobId = parts.length > 1 ? parts[1] : "";
-            if (status.equalsIgnoreCase("APPROVED")) {
+            if (status.equalsIgnoreCase("SUITABLE")) {
                 notification.setTitle("Nhà tuyển dụng đã chấp nhận ứng tuyển của bạn");
                 notification.setMessage(memberInfo.get("fullName") + " - " + memberInfo.get("position") + " - " + memberInfo.get("companyName") + ", đã đánh giá Cv của bạn phù hợp.");
-            } else if (status.equalsIgnoreCase("REJECTED")) {
+            } else if (status.equalsIgnoreCase("UNSUITABLE")) {
                 notification.setTitle("Nhà tuyển dụng đã từ chối ứng tuyển của bạn");
                 notification.setMessage(memberInfo.get("fullName") + " - " + memberInfo.get("position") + " - " + memberInfo.get("companyName") + ", đã đánh giá Cv của bạn chưa phù hợp.");
             } else if (status.equalsIgnoreCase("VIEWED")) {

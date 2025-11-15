@@ -102,7 +102,6 @@
 
         <div class="modal-body">
           <div class="row gx-3">
-            <!-- Left column -->
             <div class="col-12 col-md-7">
               <div class="mb-3">
                 <label class="form-label">Email</label>
@@ -132,7 +131,6 @@
               </div>
             </div>
 
-            <!-- Right column -->
             <div class="col-12 col-md-5">
               <div class="mb-3">
                 <label class="form-label">Trạng thái</label>
@@ -183,7 +181,6 @@
         <h5 class="modal-title w-100 text-center">CHỈNH SỬA ẢNH ĐẠI DIỆN</h5>
       </div>
       <div class="modal-body d-flex flex-wrap gap-4 justify-content-center align-items-start">
-        <!-- Ảnh gốc -->
         <div style="width: 65%;">
           <div class="border border-primary border-dashed rounded mb-2 d-flex align-items-center justify-content-center"
             style="width: 350px; height: 180px; cursor: pointer;" (click)="fileInput.click()">
@@ -197,7 +194,6 @@
               bấm vào đây</a> để giảm dung lượng ảnh.
           </div>
         </div>
-        <!-- Ảnh hiển thị trên CV -->
         <div class="text-center">
           <div class="mb-2">Ảnh hiển thị trên CV</div>
           <img [src]="previewUrl || user?.avatarUrl || 'assets/user.jpg'" alt="Preview" width="120" height="120"

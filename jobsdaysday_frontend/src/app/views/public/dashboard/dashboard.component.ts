@@ -26,7 +26,6 @@ import { ErrorDialogComponent } from "../../common/error-dialog/error-dialog.com
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent {
-  // Filter options
   experiences = ['Tất cả', 'Không yêu cầu', 'Dưới 1 năm', '2 năm', '3 năm', '4 năm', '5 năm', 'Trên 5 năm'];
   levels = ['Tất cả', 'Fresher', 'Intern', 'Junior', 'Senior'];
   locations = ['Tất cả', 'Hà Nội', 'TP.Hồ Chí Minh', 'Đà Nẵng'];
@@ -34,7 +33,6 @@ export class DashboardComponent {
   contractTypes = ['Tất cả', 'Full-time', 'Part-time', 'Freelance'];
   workTypes = ['Tất cả', 'In Office', 'Remote', 'Hybrid'];
 
-  // Filter state
   selectedTab: 'jobs' | 'companies' = 'jobs';
   selectedLocations: string = 'Tất cả';
   selectedExperience: string = 'Tất cả';
@@ -45,7 +43,6 @@ export class DashboardComponent {
   searchText: string = '';
   pendingSearchText: string = '';
 
-  // Data
   jobs: any[] = [];
   companies: any[] = [];
   user: User | null = null;
@@ -80,7 +77,6 @@ export class DashboardComponent {
     this.searchCompanies();
   }
 
-  // Filter handlers
   selectLocation(location: string) {
     this.selectedLocations = location;
     this.search();
@@ -121,7 +117,6 @@ export class DashboardComponent {
     this.search();
   }
 
-  // Lấy jobs từ backend
   searchJobs(jobsPage: number = 0) {
     this.isLoading = true;
     const filters = {
@@ -163,7 +158,6 @@ export class DashboardComponent {
     });
   }
 
-  // Lấy companies từ backend
   searchCompanies(companiesPage: number = 0) {
     this.isLoading = true;
     const filters = {
@@ -194,10 +188,8 @@ export class DashboardComponent {
     });
   }
 
-  // Sửa lại changePage để gọi đúng hàm
   changePage(page: number, tab: string) {
     if (tab === 'jobs') {
-      // Nếu text đang nhập khác text đã search, về trang đầu với text mới
       if (this.pendingSearchText !== this.searchText) {
         this.searchJobs(0);
       } else if (page >= 0 && page < this.totalPages) {

@@ -89,4 +89,36 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
     @Modifying
     @Query("UPDATE Company c SET c.isOnline = :online WHERE c.id = :companyId")
     void updateCompanyOnline(@Param("companyId") Long companyId, @Param("online") boolean online);
+
+    @Query(value = """
+        SELECT COUNT(*) 
+        FROM companies 
+        WHERE DATE(created_at) = CURRENT_DATE
+    """, nativeQuery = true)
+    long newCompaniesToday();
+
+    @Query(value = """
+        SELECT c.name, 
+               COUNT(DISTINCT j.id) AS jobs
+        FROM companies c
+        LEFT JOIN jobs j ON j.company_id = c.id
+        WHERE j.created_at >= NOW() - make_interval(days => :days)
+        GROUP BY c.id, c.name
+        ORDER BY jobs DESC
+        LIMIT 10
+    """, nativeQuery = true)
+    List<Object[]> topCompaniesJob(@Param("days") int days);
+
+    @Query(value = """
+        SELECT c.name, 
+               COUNT(DISTINCT a.candidate_id) AS applicants
+        FROM companies c
+        LEFT JOIN jobs j ON j.company_id = c.id
+        LEFT JOIN applications a ON a.job_id = j.id
+        WHERE a.applied_at >= NOW() - make_interval(days => :days)
+        GROUP BY c.id, c.name
+        ORDER BY applicants DESC
+        LIMIT 10
+    """, nativeQuery = true)
+    List<Object[]> topCompaniesApplication(@Param("days") int days);
 }

@@ -1,8 +1,6 @@
 <div class="container mt-4" style="max-width: 1700px;">
   <div class="row">
-    <!-- LEFT: main content -->
     <div class="mb-4" style="width: 80%;">
-      <!-- Applied jobs card -->
       <div class="card">
         <div class="card-body">
           <h4 class="text-center text-primary">Danh sách việc làm quản lý</h4>
@@ -131,7 +129,6 @@
       </div>
     </div>
 
-    <!-- RIGHT: profile sidebar -->
     <div class="mb-4" style="width: 20%;">
       <div class="card">
         <div class="card-body">
@@ -161,7 +158,6 @@
         </div>
       </div>
 
-      <!-- MOVED: Công ty đang làm (đặt dưới profile) -->
       <div class="card shadow-sm rounded p-3 position-relative mt-3">
         <h5 class="card-title">Công ty đang làm</h5>
         <div class="text-center mb-3">
@@ -257,7 +253,6 @@
         <button type="button" class="btn-close" (click)="closeJobDetail()"></button>
       </div>
       <div class="modal-body">
-        <!-- Khối thông tin chung -->
         <div class="row mb-2">
           <div class="col-md-8">
             <div class="fw-bold mb-2 text-primary" style="font-size:1.1rem;">Vị trí tuyển dụng</div>
@@ -280,11 +275,9 @@
             <div class="mb-2"><span class="fw-bold">Kỹ năng yêu cầu:</span> {{ jobDetail.skills }}</div>
           </div>
         </div>
-        <!-- Khối mô tả, yêu cầu, quyền lợi -->
         <div class="row mb-2">
           <div class="col-md-8">
             <div class="fw-bold mb-2 text-primary" style="font-size:1.1rem;">Mô tả & Yêu cầu</div>
-            <!-- Mô tả công việc -->
             <div class="mb-2">
               <span class="fw-bold">Mô tả công việc:</span>
               <div class="text-body" style="white-space:pre-line;">
@@ -296,7 +289,6 @@
                 {{ showFullDescription ? 'Thu gọn' : 'Xem thêm' }}
               </a>
             </div>
-            <!-- Yêu cầu ứng viên -->
             <div class="mb-2">
               <span class="fw-bold">Yêu cầu ứng viên:</span>
               <div class="text-body" style="white-space:pre-line;">
@@ -308,7 +300,6 @@
                 {{ showFullRequirement ? 'Thu gọn' : 'Xem thêm' }}
               </a>
             </div>
-            <!-- Quyền lợi -->
             <div class="mb-2">
               <span class="fw-bold">Quyền lợi:</span>
               <div class="text-body" style="white-space:pre-line;">
@@ -321,7 +312,6 @@
               </a>
             </div>
           </div>
-          <!-- Trạng thái -->
           <div class="col-md-4">
             <div class="fw-bold mb-2 text-primary" style="font-size:1.1rem;">Trạng thái</div>
             <div>
@@ -477,7 +467,6 @@
 
             <div class="col-md-12 mb-2">
               <label class="form-label fw-bold">Kỹ năng yêu cầu</label>
-              <!-- nếu dùng ng-select giữ nguyên, else dùng select multiple -->
               <ng-select *ngIf="skillsList" [items]="skillsList" bindLabel="name" bindValue="id" [multiple]="true"
                 formControlName="skills" class="form-control" [closeOnSelect]="false">
                 <ng-template ng-option-tmp let-item="item">

@@ -193,10 +193,10 @@ export class UpdateJobComponent implements OnInit {
     } else {
       const idx = this.selectedSkills.indexOf(skillId);
       if (idx > -1) {
-        this.selectedSkills.splice(idx, 1); // Xóa trực tiếp trên mảng gốc
+        this.selectedSkills.splice(idx, 1);
       }
     }
-    this.jobForm.get('skills')?.setValue([...this.selectedSkills]); // Tạo mảng mới để trigger change detection
+    this.jobForm.get('skills')?.setValue([...this.selectedSkills]); 
     this.jobForm.get('skills')?.markAsDirty();
   }
 

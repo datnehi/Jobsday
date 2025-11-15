@@ -13,7 +13,6 @@ export class ChatService {
   private connected = false;
   messages$ = new Subject<MessageDto>();
   presence$ = new Subject<PresenceDto>();
-  // optional: conversation topic subscriptions map
   private subMap = new Map<number, any>();
 
   connect(token: string, companyId?: number) {
@@ -26,7 +25,7 @@ export class ChatService {
       connectHeaders: {
         access: token
       },
-      debug: (str) => { /* console.log('STOMP:', str); */ },
+      debug: (str) => {},
       reconnectDelay: 5000,
       heartbeatIncoming: 0,
       heartbeatOutgoing: 20000
@@ -46,21 +45,6 @@ export class ChatService {
           } catch { }
         });
       }
-
-      // this.client.subscribe('/user/topic/online-users', (msg: IMessage) => {
-      //   try {
-      //     const list = JSON.parse(msg.body);
-      //     list.forEach((id: number) => {
-      //       this.presence$.next({ userId: id, status: 'ONLINE' });
-      //     });
-      //   } catch { }
-      // });
-
-      // this.client.subscribe('/topic/presence', (msg: IMessage) => {
-      //   try {
-      //     this.presence$.next(JSON.parse(msg.body));
-      //   } catch (e) { }
-      // });
     };
 
     this.client.onStompError = (err) => {
@@ -84,12 +68,11 @@ export class ChatService {
   }
 
   sendMessage(conversationId: number, content: string) {
-    // use client.active (stompjs Client) instead of connected boolean
     if (!this.client || !this.client.active) {
       console.warn('STOMP client not active — message not sent', { conversationId, content });
       return;
     }
-    const payload = { conversationId, content, messageType: 'TEXT' };
+    const payload = { conversationId, content };
     try {
       this.client.publish({ destination: '/app/chat.send', body: JSON.stringify(payload) });
     } catch (e) {
@@ -108,7 +91,7 @@ export class ChatService {
     return this.client.subscribe(`/topic/presence.${userId}`, (msg: IMessage) => {
       try {
         const data = JSON.parse(msg.body);
-        this.presence$.next(data); // { userId, status }
+        this.presence$.next(data);
       } catch { }
     });
   }

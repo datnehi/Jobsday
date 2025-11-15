@@ -18,9 +18,9 @@ export class NotfoundComponent {
     const user = this.authService.currentUser;
     if (user) {
       if (user.role === 'ADMIN') {
-        this.router.navigate(['/user-manager']);
+        this.router.navigate(['/analytics']);
       } else if (user.role === 'HR') {
-        this.router.navigate(['/quan-ly-job']);
+        this.router.navigate(['/analytics-hr']);
       } else {
         this.router.navigate(['/jobsday']);
       }

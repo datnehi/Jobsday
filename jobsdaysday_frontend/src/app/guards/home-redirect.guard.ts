@@ -12,13 +12,12 @@ export const homeRedirectGuard: CanActivateFn = (route, state) => {
     return false;
   }
 
-  // Điều hướng theo role
   switch (user.role) {
     case 'HR':
-      router.navigate(['/quan-ly-job']);
+      router.navigate(['/analytics-hr']);
       break;
     case 'ADMIN':
-      router.navigate(['/user-manager']);
+      router.navigate(['/analytics']);
       break;
     case 'CANDIDATE':
       router.navigate(['/jobsday']);

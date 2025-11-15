@@ -91,13 +91,14 @@ export class CompanyDetailComponent {
         this.pendingSearchText = this.searchText;
       },
       error: (err) => {
-        console.error('Search jobs error', err);
+        this.showErrorDialog = true;
+        this.errorTitle = 'Lỗi tìm kiếm';
+        this.errorMessage = 'Không thể tìm kiếm việc làm. Vui lòng thử lại sau.';
       }
     });
   }
 
   changePage(page: number) {
-    // Nếu text đang nhập khác text đã search, về trang đầu với text mới
     if (this.pendingSearchText !== this.searchText) {
       this.searchJobs(0);
     } else if (page >= 0 && page < this.totalPages) {

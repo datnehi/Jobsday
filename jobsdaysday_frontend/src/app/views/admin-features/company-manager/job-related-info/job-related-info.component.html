@@ -1,5 +1,4 @@
 <div class="container mt-4">
-  <!-- Thông tin Job -->
   <div class="card mb-4">
     <div class="card-header bg-primary text-white">
       <h4 class="mb-0">{{ job.title }}</h4>
@@ -48,7 +47,6 @@
     </div>
   </div>
 
-  <!-- Danh sách ứng viên đã ứng tuyển -->
   <h5 class="mb-3 text-center">Danh sách ứng viên đã ứng tuyển</h5>
   <div class="table-responsive">
     <table class="table table-bordered table-hover align-middle">
@@ -163,7 +161,6 @@
       </div>
       <div class="modal-body" *ngIf="selectedApplication">
         <div class="row">
-          <!-- Thông tin cá nhân -->
           <div class="col-md-4 d-flex flex-column align-items-center border-end justify-content-center">
             <img [src]="selectedApplication.candidateAvatar || 'assets/user.jpg'" alt="Avatar"
               class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
@@ -173,7 +170,6 @@
             <div class="mb-2" *ngIf="selectedApplication.candidatePhone"><i class="bi bi-telephone"></i> {{
               selectedApplication.candidatePhone }}</div>
           </div>
-          <!-- Thông tin ứng tuyển -->
           <div class="col-md-8">
             <div class="mb-2"><strong>CV: </strong> <a (click)="viewCv(selectedApplication.applicationId)"
                 class="text-primary" style="cursor: pointer;">Xem CV</a></div>

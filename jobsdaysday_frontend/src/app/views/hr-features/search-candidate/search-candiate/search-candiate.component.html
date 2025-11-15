@@ -29,7 +29,6 @@
 
 <div class="container" style="max-width:1200px; margin-top: 30px;">
   <div class="row justify-content-center">
-    <!-- Sidebar lọc nâng cao -->
     <div class="col-lg-3 mb-4">
       <div class="bg-white rounded shadow-sm p-3 mb-3 d-flex flex-column sidebar-sticky" style="height: 550px;">
         <h5 class="fw-bold mb-3 text-primary flex-shrink-0">
@@ -60,7 +59,6 @@
         <button class="btn btn-outline-secondary w-100 mt-2 flex-shrink-0" (click)="clearFilters()">Xóa lọc</button>
       </div>
     </div>
-    <!-- Nội dung search -->
     <div class="col-lg-9">
       <div class="bg-white rounded shadow-sm p-3 mb-4">
         <div class="nav nav-tabs border-0">
@@ -89,7 +87,6 @@
       <div *ngIf="candidates.length <= 0">
         <p class="text-center text-muted">Không tìm thấy ứng viên phù hợp.</p>
       </div>
-      <!-- Phân trang -->
       <div *ngIf="totalPages > 1" class="d-flex justify-content-center align-items-center gap-3 my-3">
         <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage === 0"
           (click)="changePage(currentPage - 1)" style="width: 36px; height: 36px;" aria-label="Trang trước">
