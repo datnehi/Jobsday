@@ -16,6 +16,7 @@ import { NotificationDialogComponent } from "../../../common/notification-dialog
 import { ErrorDialogComponent } from "../../../common/error-dialog/error-dialog.component";
 import { LoadingComponent } from "../../../common/loading/loading.component";
 import { finalize } from 'rxjs';
+import { EmailService } from '../../../../services/email.service';
 
 @Component({
   selector: 'app-job-related-info',
@@ -59,7 +60,8 @@ export class JobRelatedInfoComponent {
     private convertEnumService: ConvertEnumService,
     private userService: UserService,
     private applicationService: ApplicationService,
-    private router: Router
+    private router: Router,
+    private emailService: EmailService
   ) { }
 
   ngOnInit() {
@@ -210,6 +212,11 @@ export class JobRelatedInfoComponent {
       .pipe(finalize(() => { this.isLoading = false; }))
       .subscribe(response => {
         if (response.status == 200) {
+          this.emailService.sendEmail({
+            to: this.company.email,
+            subject: 'Xóa job',
+            body: `Xin chào ${this.company.name},\n\nJob ${this.job.title} của bạn đã được xóa.\n\nTrân trọng,\nĐội ngũ Jobsday`
+          }).subscribe();
           this.router.navigate(['/company-related-info/', this.company.id]);
         } else {
           this.errorTitle = 'Lỗi';

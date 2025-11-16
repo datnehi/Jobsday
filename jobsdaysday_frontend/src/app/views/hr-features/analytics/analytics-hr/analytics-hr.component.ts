@@ -16,7 +16,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { AnalyticsService } from '../../../../services/analytics.service';
 import { CompanyMember } from '../../../../models/company_member';
 import { CompanyMemberService } from '../../../../services/company-member.service';
-import { HrStatsDto } from '../../../../models/analytics';
+import { HrStatsDto } from '../../../../dto/analytics';
 import { LoadingComponent } from "../../../common/loading/loading.component";
 import { finalize } from 'rxjs';
 
@@ -30,7 +30,7 @@ import { finalize } from 'rxjs';
 export class AnalyticsHrComponent implements OnInit {
   stats: HrStatsDto | null = null;
   member: CompanyMember | null = null;
-  range = 7;
+  range = 30;
   growthSeries: { name: string; data: number[] }[] = [];
   topJobsSeries: { name?: string; data: number[] }[] = [];
   topHrSeries: { name?: string; data: number[] }[] = [];
@@ -75,7 +75,7 @@ export class AnalyticsHrComponent implements OnInit {
     this.loadStats(this.range);
   }
 
-  private async loadStats(range: number = 7) {
+  private async loadStats(range: number = 30) {
     this.isLoading = true;
     this.analyticsService.getAnalyticsHr(range, this.member?.companyId || 0)
       .pipe(finalize(() => { this.isLoading = false; }))

@@ -2,7 +2,6 @@ package com.example.jobsday_backend.repository;
 
 import com.example.jobsday_backend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -12,8 +11,8 @@ import java.util.List;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     User findById(long id);
+
     User findByEmail(String email);
-    boolean existsByEmail(String email);
 
     @Query(value = """
             SELECT * FROM users

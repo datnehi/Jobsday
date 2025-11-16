@@ -13,6 +13,7 @@ import { CvsService } from '../../../../services/cvs.service';
 import { ApplicationService } from '../../../../services/application.service';
 import { NewlineToBrPipe } from "../../../../services/common/newline-to-br-pipe.service";
 import { AvatarEditorComponent } from "../../../common/avatar-editor/avatar-editor.component";
+import { NotificationService } from '../../../../services/notification.service';
 
 @Component({
   selector: 'app-candidate-related-info',
@@ -26,7 +27,7 @@ import { AvatarEditorComponent } from "../../../common/avatar-editor/avatar-edit
     NewlineToBrPipe,
     RouterModule,
     AvatarEditorComponent
-],
+  ],
   templateUrl: './candidate-related-info.component.html',
   styleUrl: './candidate-related-info.component.css'
 })
@@ -60,7 +61,8 @@ export class CandidateRelatedInfoComponent {
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private cvsService: CvsService,
-    private applicationService: ApplicationService
+    private applicationService: ApplicationService,
+    private notificationService: NotificationService
   ) {
     this.userForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -288,6 +290,12 @@ export class CandidateRelatedInfoComponent {
   deleteCv(cvId: number) {
     this.cvsService.deleteCv(cvId).subscribe(response => {
       if (response) {
+        const data = {
+          userTo: this.user.id,
+          type: "SYSTEM_ALERT",
+          message: "Jobsday đã xóa CV của bạn. Vui lòng liên hệ bộ phận hỗ trợ nếu bạn cần thêm thông tin."
+        };
+        this.notificationService.sendNotification(data).subscribe();
         this.getCvs(this.user.id);
       }
     });

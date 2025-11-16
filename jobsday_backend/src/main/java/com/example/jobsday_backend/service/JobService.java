@@ -172,13 +172,11 @@ public class JobService {
             params.put("q", q);
         }
 
-        // 1. Count query
         String countSql = "SELECT COUNT(DISTINCT j.id) " + baseSql;
         Query countQuery = em.createNativeQuery(countSql);
         params.forEach(countQuery::setParameter);
         long totalElements = ((Number) countQuery.getSingleResult()).longValue();
 
-        // 2. Data query
         String dataSql = """
         SELECT j.id, j.title, j.location, j.address, j.description, j.requirement,
                j.benefit, j.working_time, j.job_type, j.level, j.contract_type,

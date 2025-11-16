@@ -20,6 +20,8 @@ import { CompanyMember } from '../../../../models/company_member';
 import { Skills } from '../../../../models/skills';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { NewlineToBrPipe } from "../../../../services/common/newline-to-br-pipe.service";
+import { NotificationService } from '../../../../services/notification.service';
+import { EmailService } from '../../../../services/email.service';
 
 @Component({
   selector: 'app-company-related-info',
@@ -113,7 +115,8 @@ export class CompanyRelatedInfoComponent {
     private router: Router,
     private fb: FormBuilder,
     private jobSkillsService: JobSkillsService,
-    private skillsService: SkillsService
+    private skillsService: SkillsService,
+    private emailService: EmailService
   ) { }
 
   ngOnInit() {
@@ -274,7 +277,7 @@ export class CompanyRelatedInfoComponent {
     } else if (this.confirmAction === 'cancelUpdateJob') {
       this.closeUpdateJobModal();
     } else if (this.confirmAction === 'deleteJob' && this.jobSelected) {
-      this.onDeleteJob(this.jobSelected.id!);
+      this.onDeleteJob(this.jobSelected);
     } else if (this.confirmAction === 'editCompany') {
       this.saveEditCompany();
     } else if (this.confirmAction === 'cancelEditCompany') {
@@ -354,6 +357,11 @@ export class CompanyRelatedInfoComponent {
       .subscribe({
         next: (response) => {
           this.showEditDialog = false;
+          this.emailService.sendEmail({
+            to: this.editMemberData.email,
+            subject: 'Cập nhật thông tin thành viên',
+            body: `Xin chào ${this.editMemberData.name},\n\nThông tin cá nhân ở công ty của bạn đã được cập nhật thành công.\n\nTrân trọng,\nĐội ngũ Jobsday`
+          }).subscribe();
           this.fetchMembers(this.currentPageMember);
           this.editMemberData = {};
         },
@@ -386,6 +394,11 @@ export class CompanyRelatedInfoComponent {
         next: (res) => {
           if (res.status == 200) {
             this.company.logo = res.data;
+            this.emailService.sendEmail({
+              to: this.company.email,
+              subject: 'Cập nhật ảnh đại diện công ty',
+              body: `Xin chào ${this.company.name},\n\nẢnh đại diện công ty của bạn đã được cập nhật thành công.\n\nTrân trọng,\nĐội ngũ Jobsday`
+            }).subscribe();
           } else {
             this.errorTitle = 'Lỗi';
             this.errorMessage = 'Cập nhật ảnh đại diện thất bại.';
@@ -511,7 +524,7 @@ export class CompanyRelatedInfoComponent {
         this.selectedSkills.splice(idx, 1);
       }
     }
-    this.jobForm.get('skills')?.setValue([...this.selectedSkills]); 
+    this.jobForm.get('skills')?.setValue([...this.selectedSkills]);
     this.jobForm.get('skills')?.markAsDirty();
   }
 
@@ -553,6 +566,11 @@ export class CompanyRelatedInfoComponent {
             const skillsToUpdate = formValues.skills;
             this.jobSkillsService.updateSkillsForJob(updatedJob.id!, skillsToUpdate).subscribe(skillsResponse => {
               if (skillsResponse.status === 200) {
+                this.emailService.sendEmail({
+                  to: this.company.email,
+                  subject: 'Cập nhật thông tin job',
+                  body: `Xin chào ${this.company.name},\n\nThông tin job ${updatedJob.title} của bạn đã được cập nhật thành công.\n\nTrân trọng,\nĐội ngũ Jobsday`
+                }).subscribe();
                 this.fetchJobs(this.currentPageJob);
                 this.closeUpdateJobModal();
               } else {
@@ -570,12 +588,17 @@ export class CompanyRelatedInfoComponent {
     }
   }
 
-  onDeleteJob(id: number) {
+  onDeleteJob(job: Job) {
     this.isLoading = true;
-    this.jobService.deleteJob(id)
+    this.jobService.deleteJob(job.id!)
       .pipe(finalize(() => { this.isLoading = false; }))
       .subscribe(response => {
         if (response.status === 200) {
+          this.emailService.sendEmail({
+            to: this.company.email,
+            subject: 'Xóa job',
+            body: `Xin chào ${this.company.name},\n\nJob ${job.title} của bạn đã được xóa.\n\nTrân trọng,\nĐội ngũ Jobsday`
+          }).subscribe();
           this.fetchJobs(this.currentPageJob);
         }
       });
@@ -620,6 +643,11 @@ export class CompanyRelatedInfoComponent {
       .subscribe({
         next: () => {
           this.showEditCompanyModal = false;
+          this.emailService.sendEmail({
+            to: this.company.email,
+            subject: 'Cập nhật thông tin công ty',
+            body: `Xin chào ${this.company.name},\n\nThông tin công ty của bạn đã được cập nhật thành công.\n\nTrân trọng,\nĐội ngũ Jobsday`
+          }).subscribe();
           this.ngOnInit();
         },
         error: (error) => {

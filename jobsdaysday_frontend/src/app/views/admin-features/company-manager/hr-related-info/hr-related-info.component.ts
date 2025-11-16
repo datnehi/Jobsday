@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule} from '@angular/common';
 import { Component, HostListener } from '@angular/core';
 import { UserService } from '../../../../services/user.service';
 import { User } from '../../../../models/user';
@@ -20,6 +20,7 @@ import { SkillsService } from '../../../../services/skills.service';
 import { Skills } from '../../../../models/skills';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { Job } from '../../../../models/job';
+import { EmailService } from '../../../../services/email.service';
 
 @Component({
   selector: 'app-hr-related-info',
@@ -104,7 +105,8 @@ export class HrRelatedInfoComponent {
     private convertEnumService: ConvertEnumService,
     private jobService: JobService,
     private jobSkillsService: JobSkillsService,
-    private skillsService: SkillsService
+    private skillsService: SkillsService,
+    private emailService: EmailService
   ) {
     this.userForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -269,7 +271,7 @@ export class HrRelatedInfoComponent {
     } else if (this.confirmAction === 'reset') {
       this.resetPassword(this.user.id);
     } else if (this.confirmAction === 'deleteJob' && this.jobSelected) {
-
+      this.onDeleteJob(this.jobSelected);
     } else if (this.confirmAction === 'updateJob' && this.jobSelected) {
       this.submitUpdateJob();
     } else if (this.confirmAction === 'cancelUpdateJob') {
@@ -492,6 +494,11 @@ export class HrRelatedInfoComponent {
             const skillsToUpdate = formValues.skills;
             this.jobSkillsService.updateSkillsForJob(updatedJob.id!, skillsToUpdate).subscribe(skillsResponse => {
               if (skillsResponse.status === 200) {
+                this.emailService.sendEmail({
+                  to: this.company.email,
+                  subject: 'Cập nhật job',
+                  body: `Xin chào ${this.company.name},\n\nJob ${updatedJob.title} của bạn đã được cập nhật thành công.\n\nTrân trọng,\nĐội ngũ Jobsday`
+                }).subscribe();
                 this.fetchJobs(this.currentPage);
                 this.closeUpdateJobModal();
               } else {
@@ -515,6 +522,11 @@ export class HrRelatedInfoComponent {
       .pipe(finalize(() => { this.isLoading = false; }))
       .subscribe(response => {
         if (response.status === 200) {
+          this.emailService.sendEmail({
+            to: this.company.email,
+            subject: 'Xóa job',
+            body: `Xin chào ${this.company.name},\n\nJob ${this.jobSelected?.title} của bạn đã được xóa.\n\nTrân trọng,\nĐội ngũ Jobsday`
+          }).subscribe();
           this.fetchJobs(0);
         }
       });

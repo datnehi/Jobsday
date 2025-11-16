@@ -77,8 +77,8 @@ public interface JobRepository extends JpaRepository<Job, Long> {
                 j.job_type,
                 j.updated_at,
                 COALESCE(string_agg(DISTINCT sk.name, ','), '') AS skills,
-                CASE WHEN :candidateId IS NOT NULL AND a.id IS NOT NULL THEN TRUE ELSE FALSE END AS applied,
-                CASE WHEN :candidateId IS NOT NULL AND sj.id IS NOT NULL THEN TRUE ELSE FALSE END AS saved
+                (MAX((:candidateId IS NOT NULL AND a.id IS NOT NULL)::int) = 1) AS applied,
+                (MAX((:candidateId IS NOT NULL AND sj.id IS NOT NULL)::int) = 1) AS saved
             FROM jobs j
             LEFT JOIN job_skills js ON js.job_id = j.id
             LEFT JOIN skills sk ON sk.id = js.skill_id
@@ -96,7 +96,7 @@ public interface JobRepository extends JpaRepository<Job, Long> {
                     OR similarity(j.title, :q) > 0.3
                     OR similarity(j.description, :q) > 0.3
                 )
-            GROUP BY j.id, j.level, j.location, a.id, sj.id
+            GROUP BY j.id, j.title, j.location, j.salary, j.level, j.job_type, j.updated_at
             ORDER BY j.updated_at DESC
             LIMIT :limit OFFSET :offset""",
             nativeQuery = true)
@@ -123,80 +123,6 @@ public interface JobRepository extends JpaRepository<Job, Long> {
     """, nativeQuery = true)
     int countJobOfCompanyByStatus(@Param("companyId") long companyId,
                                   @Param("q") String q);
-
-    @Query(value = """
-          SELECT
-            j.id,
-            j.title,
-            j.location,
-            j.address,
-            j.description,
-            j.requirement,
-            j.benefit,
-            j.working_time,
-            j.job_type,
-            j.level,
-            j.contract_type,
-            j.salary,
-            j.experience,
-            j.quantity,
-            j.deadline,
-            j.status,
-            j.created_at,
-            j.updated_at,
-            u.full_name AS member_name,
-            c.position AS member_position,
-            COALESCE(string_agg(DISTINCT sk.name, ','), '') AS skills
-        FROM jobs j
-        JOIN company_members c ON j.member_id = c.id
-        LEFT JOIN users u ON u.id = c.user_id
-        LEFT JOIN job_skills js ON js.job_id = j.id
-        LEFT JOIN skills sk ON sk.id = js.skill_id
-        WHERE j.company_id = :companyId
-          AND (:memberId IS NULL OR j.member_id = :memberId)
-          AND (:location IS NULL OR j.location = CAST(:location AS location_enum))
-          AND (:deadline = FALSE OR j.deadline <= now())
-          AND (:status IS NULL OR j.status = CAST(:status AS job_status_enum))
-          AND (
-            :q IS NULL
-            OR j.title ILIKE CONCAT('%', :q, '%')
-          )
-        GROUP BY j.id, u.full_name, c.position
-        ORDER BY j.updated_at DESC
-        LIMIT :limit OFFSET :offset
-        """, nativeQuery = true)
-    List<Object[]> findByCompanyId(
-            @Param("companyId") Long companyId,
-            @Param("memberId") Long memberId,
-            @Param("location") Job.Location location,
-            @Param("deadline") Boolean deadline,
-            @Param("status") Job.JobStatus status,
-            @Param("q") String q,
-            @Param("limit") int limit,
-            @Param("offset") int offset
-    );
-
-    @Query(value = """
-        SELECT COUNT(DISTINCT j.id)
-        FROM jobs j
-        WHERE j.company_id = :companyId
-          AND (:memberId IS NULL OR j.member_id = :memberId)
-          AND (:location IS NULL OR j.location = :location)
-          AND (:deadline = FALSE OR j.deadline <= now())
-          AND (:status IS NULL OR j.status = :status)
-          AND (
-            :q IS NULL
-            OR j.title ILIKE CONCAT('%', :q, '%')
-          )
-        """, nativeQuery = true)
-    long countJobsByCompanyId(
-            @Param("companyId") Long companyId,
-            @Param("memberId") Long memberId,
-            @Param("location") Job.Location location,
-            @Param("deadline") Boolean deadline,
-            @Param("status") Job.JobStatus status,
-            @Param("q") String q
-    );
 
     void deleteJobById(Long id);
 

@@ -37,12 +37,14 @@ import { CompanyManagementComponent } from './views/admin-features/company-manag
 import { ChatComponent } from './views/chat/chat/chat.component';
 import { AnalyticsDashboardComponent } from './views/admin-features/analytics/analytics-dashboard/analytics-dashboard.component';
 import { AnalyticsHrComponent } from './views/hr-features/analytics/analytics-hr/analytics-hr.component';
+import { ForgotPasswordComponent } from './views/auth/forgot-password/forgot-password.component';
 
 export const routes: Routes = [
   { path: '', canActivate: [homeRedirectGuard], component: NotfoundComponent },
   { path: 'jobsday', component: DashboardComponent, canActivate: [candidateAuthGuard] },
   { path: 'login', component: LoginComponent, canActivate: [notAuthGuard] },
   { path: 'register', component: RegisterComponent, canActivate: [notAuthGuard] },
+  { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [notAuthGuard] },
   { path: 'notfound', component: NotfoundComponent },
   { path: 'job/:id', component: JobDetailComponent, canActivate: [candidateAuthGuard] },
   { path: 'company-detail/:id', component: CompanyDetailComponent, canActivate: [candidateAuthGuard] },

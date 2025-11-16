@@ -57,6 +57,10 @@ public class NotificationService {
             notification.setUrl("/chat?conversationId=" + conversationId);
             notificationRepository.save(notification);
         } else if (type.equalsIgnoreCase("SYSTEM_ALERT")) {
+            notification.setUserFrom(userFrom);
+            notification.setUserTo(userTo);
+            notification.setTitle("Thông báo từ Jobsday");
+            notification.setMessage(message);
             notificationRepository.save(notification);
         } else {
             throw new IllegalArgumentException("Invalid notification type: " + type);

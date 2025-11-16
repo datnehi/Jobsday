@@ -14,12 +14,13 @@ public class TokenService {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    // Sinh token mới
+    @Value("${jwt.refresh.secret}")
+    private String refreshSecret;
+
     public String generateToken(User user) {
         Date now = new Date();
-        long expiryInMs = 1000L * 60 * 60 * 24 * 30;
+        long expiryInMs = 1000L * 60 * 15;
         Date expiryDate = new Date(now.getTime() + expiryInMs);
-
         return Jwts.builder()
                 .claim("id", user.getId())
                 .claim("role", user.getRole().name())
@@ -29,7 +30,6 @@ public class TokenService {
                 .compact();
     }
 
-    // Kiểm tra token hợp lệ (chữ ký, hết hạn)
     public boolean validateToken(String token) {
         try {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token);
@@ -39,16 +39,6 @@ public class TokenService {
         }
     }
 
-    // Lấy role từ token
-    public String extractRole(String token) {
-        return (String) Jwts.parser()
-                .setSigningKey(jwtSecret)
-                .parseClaimsJws(token)
-                .getBody()
-                .get("role");
-    }
-
-    // Lấy id từ token
     public Long extractUserId(String token) {
         return Long.valueOf(
                 (Integer) Jwts.parser()
@@ -57,5 +47,24 @@ public class TokenService {
                         .getBody()
                         .get("id")
         );
+    }
+
+    public String generateRefreshToken(Long userId) {
+        Date now = new Date();
+        long expiryInMs = 1000L * 60 * 60 * 24 * 30;
+        Date expiryDate = new Date(now.getTime() + expiryInMs);
+        return Jwts.builder()
+                .setSubject(String.valueOf(userId))
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS256, refreshSecret)
+                .compact();
+    }
+
+    public Long validateRefreshToken(String token) {
+        return Long.valueOf(Jwts.parser()
+                .setSigningKey(refreshSecret)
+                .parseClaimsJws(token)
+                .getBody().getSubject());
     }
 }

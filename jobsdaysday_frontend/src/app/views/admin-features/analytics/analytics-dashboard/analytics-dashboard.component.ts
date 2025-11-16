@@ -5,7 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTableModule } from '@angular/material/table';
 import { finalize, forkJoin } from 'rxjs';
-import { DailyCount, TopCandidate, TopCompanyApplication, TopCompanyJob, TopJob, TopSkill } from '../../../../models/analytics';
+import { DailyCount, TopCandidate, TopCompanyApplication, TopCompanyJob, TopJob, TopSkill } from '../../../../dto/analytics';
 import { AnalyticsService } from '../../../../services/analytics.service';
 import { LoadingComponent } from "../../../common/loading/loading.component";
 

@@ -9,8 +9,8 @@
     <li *ngIf="isLogging == false || user?.role == 'CANDIDATE'"
         class="navbar-item dropdown"
         routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
-      <a routerLink="/jobsday">Việc làm <i class="bi bi-chevron-down"></i></a>
-      <ul class="dropdown-menu" style="width: max-content;">
+      <a routerLink="/jobsday">Việc làm <i *ngIf="isLogging == true || user?.role == 'CANDIDATE'" class="bi bi-chevron-down"></i></a>
+      <ul class="dropdown-menu" style="width: max-content;" *ngIf="isLogging == true || user?.role == 'CANDIDATE'">
         <li><a routerLink="/jobsday" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Tìm việc làm</a></li>
         <li><a routerLink="/saved-jobs" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Việc làm đã lưu</a></li>
         <li><a routerLink="/applied-history" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Việc làm đã ứng tuyển</a></li>

@@ -1,19 +1,14 @@
 package com.example.jobsday_backend.controller;
 
-import com.example.jobsday_backend.dto.CustomUserDetail;
 import com.example.jobsday_backend.dto.PageResultDto;
 import com.example.jobsday_backend.dto.ResponseDto;
 import com.example.jobsday_backend.entity.Company;
-import com.example.jobsday_backend.entity.User;
 import com.example.jobsday_backend.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/company")
@@ -68,6 +63,11 @@ public class CompanyController {
     @DeleteMapping("/admin/{companyId}")
     public ResponseEntity<ResponseDto> deleteCompany(
             @PathVariable Long companyId) {
+        Company company = companyService.getById(companyId);
+        if (company == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "Company not found", null));
+        }
         companyService.deleteCompany(companyId);
         return ResponseEntity.ok(
                 new ResponseDto(HttpStatus.OK.value(), "Delete company successfully", null)

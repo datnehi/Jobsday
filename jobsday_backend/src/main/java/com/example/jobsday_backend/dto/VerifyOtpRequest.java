@@ -7,8 +7,6 @@ import lombok.Data;
 public class VerifyOtpRequest {
     private String email;
     private String otp;
-
-    // cho HR nếu cần tạo công ty sau verify
     private String position;
     private String companyCode;
     private String companyName;

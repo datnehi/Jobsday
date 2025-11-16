@@ -1,6 +1,5 @@
 package com.example.jobsday_backend.repository;
 
-import com.example.jobsday_backend.entity.Job;
 import com.example.jobsday_backend.entity.SavedJob;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

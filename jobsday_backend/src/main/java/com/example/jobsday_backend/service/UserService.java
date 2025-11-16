@@ -1,8 +1,6 @@
 package com.example.jobsday_backend.service;
 
 import com.example.jobsday_backend.dto.PageResultDto;
-import com.example.jobsday_backend.dto.UserResponseDto;
-import com.example.jobsday_backend.entity.Cvs;
 import com.example.jobsday_backend.entity.User;
 import com.example.jobsday_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +38,6 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
-    }
-
     public void createUser(User user) {
         userRepository.save(user);
     }
@@ -54,7 +48,6 @@ public class UserService {
 
     public void updateAvatar(User user, MultipartFile file) {
         try {
-            // Xóa avatar cũ trên S3 nếu có
             if (user.getAvatarUrl() != null && !user.getAvatarUrl().isEmpty()) {
                 String oldKey = s3Service.extractKeyFromUrl(user.getAvatarUrl());
                 s3Service.deleteFile(oldKey);
@@ -63,10 +56,8 @@ public class UserService {
             String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
             String fileName = user.getId() + "_" + timestamp + "_" + file.getOriginalFilename();
 
-            // Upload lên S3
             String fileUrl = s3Service.uploadFileWithCustomName(file, avatars, fileName);
 
-            // Cập nhật vào DB
             user.setAvatarUrl(fileUrl);
             userRepository.save(user);
 
@@ -95,5 +86,9 @@ public class UserService {
         String hashedPassword = passwordEncoder.encode("Jobsday123@" + passwordSecret);
         user.setPasswordHash(hashedPassword);
         userRepository.save(user);
+    }
+
+    public void deleteUser(Long userId) {
+        userRepository.deleteById(userId);
     }
 }

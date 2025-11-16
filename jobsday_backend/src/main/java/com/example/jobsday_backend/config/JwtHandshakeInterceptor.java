@@ -59,7 +59,6 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                     attributes.put("companyId", companyMember.getCompanyId());
                 }
 
-                // gán principal cho session
                 Principal principal = new StompPrincipal(String.valueOf(user.getId()));
                 attributes.put("principal", principal);
                 return true;

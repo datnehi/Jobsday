@@ -95,13 +95,11 @@ public class SearchService {
             params.put("candidateId", candidateId);
         }
 
-        // 1. Count query
         String countSql = "SELECT COUNT(DISTINCT j.id) " + baseSql;
         Query countQuery = em.createNativeQuery(countSql);
         params.forEach(countQuery::setParameter);
         long totalElements = ((Number) countQuery.getSingleResult()).longValue();
 
-        // 2. Data query
         StringBuilder dataSql = new StringBuilder();
         if (candidateId != null) {
             dataSql.append("""
@@ -190,7 +188,6 @@ public class SearchService {
 
         Map<String, Object> params = new HashMap<>();
 
-        // tìm kiếm theo q
         if (q != null && !q.isBlank()) {
             baseSql.append("""
             AND (
@@ -208,13 +205,11 @@ public class SearchService {
             params.put("q", "%" + q.trim() + "%");
         }
 
-        // lọc theo location
         if (location != null) {
             baseSql.append(" AND c.location ILIKE :location ");
             params.put("location",  location.name());
         }
 
-        // ========= COUNT QUERY =========
         String countSql = "SELECT COUNT(DISTINCT c.id) " + baseSql;
         Query countQuery = em.createNativeQuery(countSql);
         params.forEach(countQuery::setParameter);
@@ -224,7 +219,6 @@ public class SearchService {
             return new PageResultDto<>(Collections.emptyList(), page, size, 0, 0, true);
         }
 
-        // ========= DATA QUERY =========
         String dataSql = """
         SELECT
             c.id,
@@ -288,7 +282,6 @@ public class SearchService {
 
         Map<String, Object> params = new HashMap<>();
 
-        // =========== SEARCH FILTERS ===========
         if (q != null && !q.isBlank()) {
             String cleanQ = q.trim();
 
@@ -318,7 +311,6 @@ public class SearchService {
             params.put("level", level.name());
         }
 
-        // =========== COUNT QUERY ===========
         String countSql = "SELECT COUNT(DISTINCT c.id) " + baseSql;
         Query countQuery = em.createNativeQuery(countSql);
         params.forEach(countQuery::setParameter);
@@ -328,7 +320,6 @@ public class SearchService {
             return new PageResultDto<>(Collections.emptyList(), page, size, 0, 0, true);
         }
 
-        // =========== DATA QUERY ===========
         StringBuilder dataSql = new StringBuilder("""
             SELECT
                 c.id,

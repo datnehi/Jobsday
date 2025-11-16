@@ -5,7 +5,11 @@ import com.example.jobsday_backend.dto.CustomUserDetail;
 import com.example.jobsday_backend.dto.PageResultDto;
 import com.example.jobsday_backend.dto.ResponseDto;
 import com.example.jobsday_backend.entity.Application;
+import com.example.jobsday_backend.entity.Job;
 import com.example.jobsday_backend.service.ApplicationService;
+import com.example.jobsday_backend.service.JobService;
+import com.example.jobsday_backend.service.NotificationService;
+import com.example.jobsday_backend.service.UserService;
 import org.springframework.core.io.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,6 +27,12 @@ public class ApplicationController {
 
     @Autowired
     private ApplicationService applicationService;
+
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private JobService jobService;
 
     @PostMapping(value = "/apply", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ResponseDto> applyJob(
@@ -128,7 +138,14 @@ public class ApplicationController {
     public ResponseEntity<ResponseDto> deleteApplicationByAdmin(
             @PathVariable("applicationId") Long applicationId
     ) {
+        Application application = applicationService.getApplicationById(applicationId);
+        if (application == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "Ứng tuyển không tồn tại", null));
+        }
+        Job job = jobService.findJobById(application.getJobId());
         applicationService.deleteApplication(applicationId);
+        notificationService.sendNotification(1L, application.getCandidateId(), "SYSTEM_ALERT", "Đơn ứng tuyển vào " + job.getTitle() + " của bạn đã bị Jobsday xoá. Vui lòng liên hệ với chúng tôi nếu bạn cần hỗ trợ. Cảm ơn!");
         return ResponseEntity.ok(
                 new ResponseDto(HttpStatus.OK.value(), "Xóa ứng tuyển thành công", null)
         );

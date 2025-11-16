@@ -38,7 +38,6 @@ public class CompanyMemberController {
         );
     }
 
-    // Lấy danh sách member trong company
     @GetMapping("/company/{companyId}")
     public ResponseEntity<ResponseDto> getMembers(@PathVariable Long companyId) {
         List<Map<String, Object>> members = companyMemberService.getMembersOfCompany(companyId);

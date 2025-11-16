@@ -130,16 +130,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     List<Object[]> topJobs(@Param("days") int days);
 
     @Query(value = """
-                SELECT j.level, COUNT(a.id)
-                FROM applications a
-                JOIN jobs j ON a.job_id = j.id
-                WHERE a.applied_at >= now() - make_interval(days => :days)
-                GROUP BY j.level
-                ORDER BY COUNT(a.id) DESC
-            """, nativeQuery = true)
-    List<Object[]> applicationsByLevel(@Param("days") int days);
-
-    @Query(value = """
             SELECT COUNT(*) FROM applications
             WHERE applied_at = now()
             """, nativeQuery = true)

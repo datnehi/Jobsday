@@ -283,4 +283,9 @@ public class ApplicationService {
     public List<Application> getApplicationsByJobId(Long jobId) {
         return applicationRepository.findByJobId(jobId);
     }
+
+    public Application getApplicationById(Long applicationId) {
+        return applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy application"));
+    }
 }

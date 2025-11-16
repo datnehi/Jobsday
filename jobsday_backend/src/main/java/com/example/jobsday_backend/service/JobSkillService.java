@@ -26,7 +26,7 @@ public class JobSkillService {
 
         return jobSkills.stream()
                 .map(js -> skillService.findSkillById(js.getId().getSkillId()))
-                .filter(Objects::nonNull)   // lọc bỏ null
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 

@@ -123,7 +123,7 @@ public class CvsService {
         if (lower.contains("1 năm")) return Cvs.Experience.MOT_NAM;
         if (lower.contains("không yêu cầu") || lower.contains("no experience")) return Cvs.Experience.KHONG_YEU_CAU;
 
-        return Cvs.Experience.DUOI_1_NAM; // fallback
+        return Cvs.Experience.DUOI_1_NAM;
     }
 
     public String extractJobTitle(String content) {

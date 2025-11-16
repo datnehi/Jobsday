@@ -35,7 +35,8 @@ public class Company {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    private CompanyStatusEnum status;
+    @Column(nullable = false)
+    private CompanyStatusEnum status = CompanyStatusEnum.PENDING;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

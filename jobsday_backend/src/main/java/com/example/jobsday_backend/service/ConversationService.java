@@ -88,10 +88,6 @@ public class ConversationService {
         return conversationRepository.save(conversation);
     }
 
-    public Conversation findByCompanyIdAndCandidateId(Long companyId, Long candidateId) {
-        return conversationRepository.findByCompanyIdAndCandidateId(companyId, candidateId);
-    }
-
     public int markRead(Long conversationId, Long candidateId) {
         User user = userService.findById(candidateId);
         int updated = 0;

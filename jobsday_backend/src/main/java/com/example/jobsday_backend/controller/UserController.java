@@ -5,6 +5,8 @@ import com.example.jobsday_backend.dto.PageResultDto;
 import com.example.jobsday_backend.dto.ResponseDto;
 import com.example.jobsday_backend.dto.UserResponseDto;
 import com.example.jobsday_backend.entity.User;
+import com.example.jobsday_backend.service.EmailService;
+import com.example.jobsday_backend.service.NotificationService;
 import com.example.jobsday_backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +29,20 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private NotificationService notificationService;
+
     @Value("${password.secret}")
     private String passwordSecret;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseDto> getUserById(@PathVariable long id){
+    public ResponseEntity<ResponseDto> getUserById(@PathVariable long id) {
         User user = userService.findById(id);
 
-        if(user == null){
+        if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "User not found", null));
         }
@@ -157,6 +165,13 @@ public class UserController {
                     .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "User not found", null));
         }
         userService.resetPassword(user);
+        emailService.sendEmail(
+                user.getEmail(),
+                "Thay đổi mật khẩu",
+                "Xin chào " + user.getFullName() +
+                        ",\n\nMật khẩu tài khoản của bạn đã được đổi thành: Jobsday123@" +
+                        "\nVui lòng cập nhật.\n\nCảm ơn!"
+        );
         return ResponseEntity.ok(
                 new ResponseDto(HttpStatus.OK.value(), "Reset password successfully", null)
         );
@@ -172,6 +187,7 @@ public class UserController {
                     .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "User not found", null));
         }
         userService.updateAvatar(user, file);
+        notificationService.sendNotification(1L, userId, "SYSTEM_ALERT", "Ảnh đại diện của bạn đã được Jobsday thay đổi. Vui lòng cập nhật. Cảm ơn!");
         return ResponseEntity.ok(
                 new ResponseDto(HttpStatus.OK.value(), "Update avatar successfully", null)
         );
@@ -186,6 +202,7 @@ public class UserController {
                     .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "User not found", null));
         }
         userService.updateUser(user);
+        notificationService.sendNotification(1L, userInfo.getId(), "SYSTEM_ALERT", "Thông tin cá nhân của bạn đã được Jobsday thay đổi. Vui lòng cập nhật. Cảm ơn!");
         return ResponseEntity.ok(
                 new ResponseDto(HttpStatus.OK.value(), "Update user info successfully", user)
         );

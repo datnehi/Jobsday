@@ -37,7 +37,7 @@ public class CustomUserDetail implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getEmail(); // hoặc username tùy bạn
+        return user.getEmail();
     }
 
     @Override

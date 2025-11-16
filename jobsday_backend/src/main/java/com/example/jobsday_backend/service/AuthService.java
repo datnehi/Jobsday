@@ -44,10 +44,7 @@ public class AuthService {
             userCheck.setPhone(body.getPhone());
             userCheck.setAvatarUrl(body.getAvatarUrl());
             userCheck.setRole(body.getRole());
-            if ("HR".equalsIgnoreCase(String.valueOf(body.getRole()))) {
-                userCheck.setStatus(User.Status.INACTIVE);
-            }
-            String otp = String.valueOf((int)((Math.random() * 900000) + 100000));
+            String otp = String.valueOf((int) ((Math.random() * 900000) + 100000));
             userCheck.setVerificationCode(otp);
             userCheck.setVerificationExpiry(LocalDateTime.now().plusMinutes(10));
             userCheck.setEmailVerified(false);
@@ -71,10 +68,7 @@ public class AuthService {
             user.setPhone(body.getPhone());
             user.setAvatarUrl(body.getAvatarUrl());
             user.setRole(body.getRole());
-            if ("HR".equalsIgnoreCase(String.valueOf(body.getRole()))) {
-                user.setStatus(User.Status.INACTIVE);
-            }
-            String otp = String.valueOf((int)((Math.random() * 900000) + 100000));
+            String otp = String.valueOf((int) ((Math.random() * 900000) + 100000));
             user.setVerificationCode(otp);
             user.setVerificationExpiry(LocalDateTime.now().plusMinutes(10));
             user.setEmailVerified(false);
@@ -114,7 +108,6 @@ public class AuthService {
                 company.setWebsite(request.getCompanyWebsite());
                 company.setTaxCode(request.getCompanyTaxCode());
                 company.setDescription(request.getCompanyDetail());
-                company.setStatus(Company.CompanyStatusEnum.PENDING);
                 companyService.create(company);
 
                 CompanyMember cm = new CompanyMember();
@@ -126,10 +119,25 @@ public class AuthService {
             }
         }
 
-        // ✅ Xác minh thành công
+        user.setStatus(User.Status.ACTIVE);
         user.setEmailVerified(true);
         user.setVerificationCode(null);
         user.setVerificationExpiry(null);
         userService.updateUser(user);
     }
+
+    public void forgotPassword(User user) {
+        String otp = String.valueOf((int) ((Math.random() * 900000) + 100000));
+        user.setVerificationCode(otp);
+        user.setVerificationExpiry(LocalDateTime.now().plusMinutes(10));
+        userService.updateUser(user);
+        emailService.sendEmail(
+                user.getEmail(),
+                "Mã xác minh tài khoản",
+                "Xin chào " + user.getFullName() +
+                        ",\n\nMã OTP xác minh tài khoản của bạn là: " + otp +
+                        "\nMã có hiệu lực trong 10 phút.\n\nCảm ơn!"
+        );
+    }
+
 }

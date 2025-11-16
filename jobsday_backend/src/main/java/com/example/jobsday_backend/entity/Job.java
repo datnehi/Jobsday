@@ -79,7 +79,6 @@ public class Job {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    // ================== ENUMS ==================
     public enum JobStatus { ACTIVE, HIDDEN, CLOSED }
 
     public enum Location {
@@ -130,7 +129,6 @@ public class Job {
         TREN_5_NAM
     }
 
-    // ================== HOOKS ==================
     @PrePersist
     public void prePersist() {
         LocalDateTime now = LocalDateTime.now();

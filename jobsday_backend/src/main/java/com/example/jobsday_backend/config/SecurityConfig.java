@@ -30,11 +30,18 @@ public class SecurityConfig {
                 .cors(cors -> {})
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/api/company/**", "/api/search/**", "/api/job/**",
-                                "/api/jobskill/**", "/api/applications/**", "/uploads/**", "/api/user/me", "/api/company-members/**", "/api/ws/**").permitAll()
-                        .requestMatchers("/api/user/admin/**", "/api/company/admin/**").hasRole("ADMIN")
-                        //.requestMatchers("/api/company-members/**").hasRole("HR")
-//                        .requestMatchers("/applications/**").hasRole("CANDIDATE")
+                        .requestMatchers("/api/auth/**",
+                                "/api/company/*",
+                                "/api/job/company/*",
+                                "/api/search/**",
+                                "/api/job/*",
+                                "/api/jobskill/*",
+                                "/api/job/*/similar",
+                                "/api/user/me",
+                                "api/applications/check/*",
+                                "api/saved-jobs/check/*"
+                        ).permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

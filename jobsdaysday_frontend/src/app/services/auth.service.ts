@@ -40,9 +40,9 @@ export class AuthService {
   login(payload: LoginRequest): Observable<ResponseDto> {
     return this.http.post<ResponseDto>(this.api + '/login', payload).pipe(
       map(response => {
-        if (response.data?.token) {
+        if (response.data) {
           this.clearUser();
-          this.setUser(response.data.token);
+          this.setUser(response.data);
         }
         return response;
       })
@@ -59,14 +59,15 @@ export class AuthService {
     );
   }
 
-  setUser(token: string) {
-    if (!token) {
+  setUser(data: any) {
+    if (!data) {
       this.clearUser();
       return;
     }
 
-    localStorage.setItem('token', token);
-    this.userToken.next(token);
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('refresh_token', data.refreshToken);
+    this.userToken.next(data.token);
 
     this.userService.getCurrentUser().subscribe(res => {
       if (res.data) {
@@ -79,6 +80,7 @@ export class AuthService {
 
   clearUser() {
     localStorage.removeItem('token');
+    localStorage.removeItem('refresh_token');
     this.userToken.next(null);
     this.currentUserSubject.next(null);
   }
@@ -101,5 +103,13 @@ export class AuthService {
 
   get userId(): number | null {
     return this.currentUserSubject.value?.id ?? null;
+  }
+
+  forgotPassword(data: { email: string }): Observable<ResponseDto> {
+    return this.http.post<ResponseDto>(`${this.api}/forgot-password`, data);
+  }
+
+  verifyForgotPasswordOtp(request: { email: string; otp: string; newPassword: string }): Observable<ResponseDto> {
+    return this.http.post<ResponseDto>(`${this.api}/verify-forgot-password-otp`, request);
   }
 }

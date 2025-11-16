@@ -26,9 +26,6 @@ public class AnalyticsService {
     @Autowired
     private JobRepository jobRepo;
 
-    @Autowired
-    private SavedJobRepository savedRepo;
-
     public OverviewDto getOverview(int days) {
         long newCompanies = companyRepo.newCompaniesToday();
         long newCandidates = userRepo.newCandidatesToday();
@@ -94,14 +91,6 @@ public class AnalyticsService {
                 topCandidates,
                 topSkills
         );
-    }
-
-    public List<ApplicationsByLevelDto> getApplicationsByLevel(int days) {
-        return applicationRepo.applicationsByLevel(days).stream()
-                .map(r -> new ApplicationsByLevelDto(
-                        (String) r[0],
-                        ((Number) r[1]).longValue()
-                )).toList();
     }
 
     @Async

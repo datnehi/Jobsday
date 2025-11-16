@@ -1,6 +1,5 @@
 package com.example.jobsday_backend.controller;
 
-import com.example.jobsday_backend.dto.HrStatsDto;
 import com.example.jobsday_backend.dto.ResponseDto;
 import com.example.jobsday_backend.service.AnalyticsService;
 import lombok.RequiredArgsConstructor;

@@ -31,15 +31,10 @@ public class CompanyService {
     @Autowired
     private ApplicationService applicationService;
 
+    @Autowired
+    private EmailService emailService;
+
     private final String avatars = "companyLogos";
-
-    public CompanyService(CompanyRepository companyRepository) {
-        this.companyRepository = companyRepository;
-    }
-
-    public List<Company> getAll() {
-        return companyRepository.findAll();
-    }
 
     public Company getById(Long id) {
         return companyRepository.findCompanyById(id);
@@ -63,10 +58,8 @@ public class CompanyService {
             String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
             String fileName = companyId + "_" + timestamp + "_" + file.getOriginalFilename();
 
-            // Upload lên S3
             String fileUrl = s3Service.uploadFileWithCustomName(file, avatars, fileName);
 
-            // Cập nhật vào DB
             company.setLogo(fileUrl);
             companyRepository.save(company);
             return fileUrl;
@@ -82,22 +75,12 @@ public class CompanyService {
             throw new RuntimeException("Company not found");
         }
 
-        // Xóa logo khỏi S3 nếu có
         if (company.getLogo() != null && !company.getLogo().isEmpty()) {
             String oldKey = s3Service.extractKeyFromUrl(company.getLogo());
             s3Service.deleteFile(oldKey);
         }
 
         List<CompanyMember> members = companyMemberService.getMenbersByCompanyId(company.getId());
-        if (members != null) {
-            for (CompanyMember member : members) {
-                User user = userService.findById(member.getUserId());
-                if (user != null) {
-                    String oldKey = s3Service.extractKeyFromUrl(user.getAvatarUrl());
-                    s3Service.deleteFile(oldKey);
-                }
-            }
-        }
 
         List<Job> jobs = jobService.getJobsByCompanyId(company.getId());
         if (jobs != null) {
@@ -113,8 +96,34 @@ public class CompanyService {
                 }
             }
         }
-        // Xóa công ty khỏi DB
+
         companyRepository.delete(company);
+
+        if (members != null) {
+            for (CompanyMember member : members) {
+                User user = userService.findById(member.getUserId());
+                if (user != null) {
+                    String oldKey = s3Service.extractKeyFromUrl(user.getAvatarUrl());
+                    s3Service.deleteFile(oldKey);
+                    userService.deleteUser(user.getId());
+                    emailService.sendEmail(
+                            user.getEmail(),
+                            "Xóa tài khoản công ty",
+                            "Xin chào " + user.getFullName() +
+                                    ",\n\nChúng tôi xin thông báo rằng tài khoản công ty của bạn đã bị xóa nên tài khoản của bạn cũng bị xóa theo." +
+                                    "\nVui lòng liên hệ với chúng tôi nếu bạn cần hỗ trợ.\n\nCảm ơn!"
+                    );
+                }
+            }
+        }
+
+        emailService.sendEmail(
+                company.getEmail(),
+                "Xóa tài khoản công ty",
+                "Xin chào " + company.getName() +
+                        ",\n\nChúng tôi xin thông báo rằng tài khoản công ty của bạn đã bị xóa." +
+                        "\nVui lòng liên hệ với chúng tôi nếu bạn cần hỗ trợ.\n\nCảm ơn!"
+        );
     }
 
     public PageResultDto<Company> getAllFiltered(String text, String location, int page, int size) {
