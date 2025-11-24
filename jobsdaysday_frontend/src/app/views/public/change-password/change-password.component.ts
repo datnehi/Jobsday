@@ -75,9 +75,21 @@ export class ChangePasswordComponent {
   }
 
   passwordMatchValidator(form: FormGroup) {
-   const newPassword = form.get('newPassword')?.value;
-   const confirmPassword = form.get('confirmPassword')?.value;
-   return newPassword === confirmPassword ? null : { passwordMismatch: true };
+   const currentPassword = String(form.get('currentPassword')?.value || '');
+   const newPassword = String(form.get('newPassword')?.value || '');
+   const confirmPassword = String(form.get('confirmPassword')?.value || '');
+
+   const errors: { [key: string]: boolean } = {};
+
+   if (newPassword !== confirmPassword) {
+     errors['passwordMismatch'] = true;
+   }
+
+   if (newPassword && currentPassword && newPassword === currentPassword) {
+     errors['sameAsCurrent'] = true;
+   }
+
+   return Object.keys(errors).length ? errors : null;
   }
 }
 

@@ -59,17 +59,17 @@
     </li>
 
     <li *ngIf="user?.role == 'ADMIN'" class="navbar-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-      <a routerLink="/user-manager">Quản lý Account</a>
+      <a routerLink="/user-manager">Quản lý tài khoản</a>
     </li>
 
     <li *ngIf="user?.role == 'ADMIN'" class="navbar-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-      <a routerLink="/company-management">Quản lý Company</a>
+      <a routerLink="/company-management">Quản lý Công ty</a>
     </li>
   </ul>
 
   <ul class="navbar-right">
     <ng-container *ngIf="isLogging; else loggedOut">
-      <li class="icon-item dropdown">
+      <li class="icon-item dropdown" *ngIf="user?.role != 'ADMIN'">
         <button class="icon-content position-relative" (click)="toggleNotificationDropdown()">
           <div class="icon-container">
             <i class="bi bi-bell"></i>
@@ -100,7 +100,7 @@
           </div>
         </div>
       </li>
-      <li class="icon-item">
+      <li class="icon-item" *ngIf="user?.role != 'ADMIN'">
         <button class="icon-content position-relative" (click)="openChatModal()">
           <div class="icon-container">
             <i class="bi bi-chat-dots"></i>
@@ -131,8 +131,8 @@
             </div>
           </li>
           <li class="py-1"></li>
-          <li><a routerLink="/personal-info" class="fw-bold">Thông tin cá nhân</a></li>
-          <li><a routerLink="/change-password" class="fw-bold">Đổi mật khẩu</a></li>
+          <li><a routerLink="/personal-info" class="fw-bold" *ngIf="user?.role != 'ADMIN'">Thông tin cá nhân</a></li>
+          <li><a routerLink="/change-password" class="fw-bold" *ngIf="user?.role != 'ADMIN'">Đổi mật khẩu</a></li>
           <li class="px-3 py-3">
             <button (click)="logout()"
               class="btn btn-light w-100 py-2 fw-bold d-flex align-items-center justify-content-center gap-2 rounded-pill">

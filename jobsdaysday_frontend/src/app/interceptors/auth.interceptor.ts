@@ -103,12 +103,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         );
       }
 
-      if (err instanceof HttpErrorResponse && err.status === 403) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('refresh_token');
-        router.navigate(['/login']);
-      }
-
       return throwError(() => err);
     })
   );

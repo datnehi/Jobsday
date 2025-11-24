@@ -74,6 +74,55 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   parseMs = (iso?: string) => iso ? new Date(iso).getTime() : 0;
 
+  readonly MAX_MESSAGE_LENGTH = 1000;
+  private bannedWords = ['spamword1', 'chó', 'lợn'];
+  private bannedPatterns: RegExp[] = [
+    /\<script[\s\S]*?\>[\s\S]*?\<\/script\>/i,
+    /(?:viagra|casino|porn)/i,
+  ];
+
+  private normalizeText(s: string) {
+    if (!s) return '';
+    return s.toLowerCase().replace(/\s+/g, ' ').trim();
+  }
+
+  private checkContentCompliance(content: string): string | null {
+    const norm = this.normalizeText(content);
+
+    for (const w of this.bannedWords) {
+      const normW = this.normalizeText(w);
+      if (!normW) continue;
+
+      try {
+        const re = new RegExp('(^|[^\\p{L}\\p{N}])' + this.escapeRegExp(normW) + '($|[^\\p{L}\\p{N}])', 'iu');
+        if (re.test(norm)) {
+          return 'Nội dung chứa từ/đoạn không được phép: "' + w + '". Vui lòng chỉnh sửa.';
+        }
+      } catch {
+        const simpleRe = new RegExp('(^|\\s)' + this.escapeRegExp(normW) + '(\\s|$)', 'i');
+        if (simpleRe.test(norm)) {
+          return 'Nội dung chứa từ/đoạn không được phép: "' + w + '". Vui lòng chỉnh sửa.';
+        }
+      }
+    }
+
+    for (const pat of this.bannedPatterns) {
+      if (pat.test(content) || pat.test(norm)) {
+        return 'Nội dung vi phạm quy định hệ thống. Vui lòng chỉnh sửa.';
+      }
+    }
+
+    if (/^(.)\1{200,}$/.test(norm)) {
+      return 'Nội dung có vẻ không hợp lệ (lặp lại). Vui lòng chỉnh sửa.';
+    }
+
+    return null;
+  }
+
+  private escapeRegExp(s: string) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
   constructor(
     private chatService: ChatService,
     private messageService: MessageService,
@@ -333,19 +382,34 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   send() {
     if (!this.selectedConversation || !this.newMessage.trim()) return;
+
     const content = this.newMessage.trim();
+
+    if (content.length > this.MAX_MESSAGE_LENGTH) {
+      this.showValidationError('Nội dung quá dài. Vui lòng gõ tối đa ' + this.MAX_MESSAGE_LENGTH + ' ký tự.');
+      return;
+    }
+
+    const violation = this.checkContentCompliance(content);
+    if (violation) {
+      this.showValidationError(violation);
+      return;
+    }
+
     const receiverId = this.isHr() ? this.selectedConversation.candidateId : this.selectedConversation.companyId;
     const convId = this.selectedConversation.conversationId ?? this.selectedConversation.id;
     const now = new Date().toISOString();
+    const tempId = 't_' + Math.random().toString(36).slice(2, 9);
 
     const temp: MessageDto & { _tempId?: string } = {
       conversationId: convId,
       senderId: this.currentUserId ?? 0,
       receiverId,
       content,
-      createdAt: now
+      createdAt: now,
+      _tempId: tempId
     };
-    temp._tempId = 't_' + Math.random().toString(36).slice(2, 9);
+
     this.messages.push(temp);
     this.updateVisibleMessages();
 
@@ -355,9 +419,27 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       conv.lastMessageAt = now;
     }
 
-    this.chatService.sendMessage(convId, content);
     this.newMessage = '';
+
+    this.chatService.sendMessage(Number(convId), content, tempId)
+      .then(() => {
+      })
+      .catch((err: any) => {
+        this.messages = this.messages.filter(m => (m as any)._tempId !== tempId);
+        this.updateVisibleMessages();
+        this.cd.detectChanges();
+        this.showErrorDialog = true;
+        this.errorTitle = 'Gửi tin nhắn thất bại';
+        this.errorMessage = err?.message || 'Không thể gửi tin nhắn. Vui lòng kiểm tra kết nối và thử lại.';
+      });
+
     if (this.userAtBottom) this.scrollToBottom();
+  }
+
+  private showValidationError(msg: string) {
+    this.showErrorDialog = true;
+    this.errorTitle = 'Nội dung không hợp lệ';
+    this.errorMessage = msg;
   }
 
   onIncomingMessage(msg: MessageDto) {

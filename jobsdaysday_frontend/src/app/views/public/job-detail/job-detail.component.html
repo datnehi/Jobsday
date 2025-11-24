@@ -292,8 +292,13 @@
         </div>
         <div class="mb-3">
           <label class="fw-bold mb-2"><i class="bi bi-pencil"></i> Thư giới thiệu:</label>
-          <textarea class="form-control" rows="4" placeholder="Viết thư giới thiệu ngắn gọn..."
+          <textarea class="form-control" rows="4" [attr.maxlength]="MAX_COVER_LETTER_LENGTH" placeholder="Viết thư giới thiệu ngắn gọn..."
             [(ngModel)]="coverLetter"></textarea>
+            <div class="form-text text-end">
+              <small [class.text-danger]="coverLetterTooLong()">
+                {{ coverLetterRemaining() }} ký tự còn lại
+              </small>
+            </div>
         </div>
         <div class="alert alert-warning">
           <b>Lưu ý: </b> Jobsday khuyên tất cả các bạn hãy luôn cẩn trọng trong quá trình tìm việc và chủ động nghiên
@@ -304,8 +309,12 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
-        <button type="button" class="btn btn-primary" style="width: 89%;" (click)="onSubmitApplication()">Nộp hồ sơ ứng
-          tuyển</button>
+        <button type="button" class="btn btn-primary"
+                style="width: 89%;"
+                (click)="onSubmitApplication()"
+                [disabled]="coverLetterTooLong()">
+          Nộp hồ sơ ứng tuyển
+        </button>
       </div>
     </div>
   </div>

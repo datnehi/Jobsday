@@ -61,14 +61,16 @@ export class PersonalInfoComponent {
     this.authService.currentUser$.subscribe(user => {
       if (user) {
         this.user = user;
-        this.companyMemberService.getMe().subscribe(response => {
-          if (response && response.data) {
-            this.member = response.data as CompanyMember;
-            this.infoForm.patchValue({
-              position: this.member.position || ''
-            });
-          }
-        });
+        if (user.role === 'HR') {
+          this.companyMemberService.getMe().subscribe(response => {
+            if (response && response.data) {
+              this.member = response.data as CompanyMember;
+              this.infoForm.patchValue({
+                position: this.member.position || ''
+              });
+            }
+          });
+        }
         this.allowNTDSearch = user.ntdSearch;
         this.infoForm.patchValue({
           fullName: user.fullName,
@@ -123,18 +125,18 @@ export class PersonalInfoComponent {
     if (!file) return;
     this.isLoading = true;
     this.userService.changeAvatar(file)
-    .pipe(finalize(() => this.isLoading = false))
-    .subscribe(res => {
-      if (res.status === 200) {
-        this.authService.setUser(this.authService.token || '');
-        this.showAvatarEditor = false;
-        this.ngOnInit();
-      } else {
-        this.errorTitle = 'Lỗi';
-        this.errorMessage = 'Cập nhật ảnh đại diện thất bại.';
-        this.showErrorDialog = true;
-      }
-    });
+      .pipe(finalize(() => this.isLoading = false))
+      .subscribe(res => {
+        if (res.status === 200) {
+          this.authService.setUser(this.authService.token || '');
+          this.showAvatarEditor = false;
+          this.ngOnInit();
+        } else {
+          this.errorTitle = 'Lỗi';
+          this.errorMessage = 'Cập nhật ảnh đại diện thất bại.';
+          this.showErrorDialog = true;
+        }
+      });
   }
 
   onAvatarDialogClosed() {

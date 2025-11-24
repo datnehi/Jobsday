@@ -13,7 +13,7 @@ export class JobSkillsService {
   constructor(private http: HttpClient) { }
 
   getSkillsByJobId(jobId: number): Observable<ResponseDto> {
-    return this.http.get<ResponseDto>(`${this.apiUrl}/${jobId}`);
+    return this.http.get<ResponseDto>(`${this.apiUrl}/public/${jobId}`);
   }
 
   updateSkillsForJob(jobId: number, newSkillIds: number[]): Observable<ResponseDto> {

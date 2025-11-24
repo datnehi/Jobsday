@@ -17,6 +17,11 @@ import { ErrorDialogComponent } from "../../../common/error-dialog/error-dialog.
 import { LoadingComponent } from "../../../common/loading/loading.component";
 import { finalize } from 'rxjs';
 import { EmailService } from '../../../../services/email.service';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { Skills } from '../../../../models/skills';
+import { JobSkillsService } from '../../../../services/job-skills.service';
+import { SkillsService } from '../../../../services/skills.service';
 
 @Component({
   selector: 'app-job-related-info',
@@ -26,7 +31,10 @@ import { EmailService } from '../../../../services/email.service';
     NotificationDialogComponent,
     ErrorDialogComponent,
     LoadingComponent,
-    RouterModule
+    RouterModule,
+    NgSelectModule,
+    FormsModule,
+    ReactiveFormsModule
   ],
   templateUrl: './job-related-info.component.html',
   styleUrl: './job-related-info.component.css'
@@ -50,7 +58,12 @@ export class JobRelatedInfoComponent {
   showConfirmDialog = false;
   confirmTitle = '';
   confirmMessage = '';
-  confirmAction: 'deleteApplication' | 'deleteJob' | null = null;
+  confirmAction: 'deleteApplication' | 'deleteJob' | 'updateJob' | 'cancelUpdateJob' | null = null;
+  showUpdateJobModal = false;
+  jobForm!: FormGroup;
+  selectedSkills: number[] = [];
+  members: any[] = [];
+  skillsList: Skills[] = [];
 
   constructor(
     private jobService: JobService,
@@ -61,7 +74,10 @@ export class JobRelatedInfoComponent {
     private userService: UserService,
     private applicationService: ApplicationService,
     private router: Router,
-    private emailService: EmailService
+    private emailService: EmailService,
+    private fb: FormBuilder,
+    private jobSkillsService: JobSkillsService,
+    private skillsService: SkillsService
   ) { }
 
   ngOnInit() {
@@ -86,6 +102,25 @@ export class JobRelatedInfoComponent {
         });
       });
       this.loadApplications(jobId, 0);
+    });
+    this.jobForm = this.fb.group({
+      title: ['', Validators.required],
+      memberName: ['', Validators.required],
+      location: ['', Validators.required],
+      address: ['', Validators.required],
+      quantity: [1, [Validators.required, Validators.min(1)]],
+      deadline: ['', Validators.required],
+      salary: ['', Validators.required],
+      experience: ['', Validators.required],
+      level: ['', Validators.required],
+      jobType: ['', Validators.required],
+      contractType: ['', Validators.required],
+      workingTime: ['', Validators.required],
+      skills: [[]],
+      description: ['', Validators.required],
+      requirement: ['', Validators.required],
+      benefit: ['', Validators.required],
+      status: ['', Validators.required]
     });
   }
 
@@ -179,7 +214,7 @@ export class JobRelatedInfoComponent {
     this.showErrorDialog = false;
   }
 
-  openConfirm(action: 'deleteApplication' | 'deleteJob',application?: any) {
+  openConfirm(action: 'deleteApplication' | 'deleteJob' | 'updateJob' | 'cancelUpdateJob', application?: any) {
     this.confirmAction = action;
     if (action === 'deleteApplication') {
       this.selectedApplication = application;
@@ -188,6 +223,12 @@ export class JobRelatedInfoComponent {
     } else if (action === 'deleteJob') {
       this.confirmTitle = 'Xác nhận';
       this.confirmMessage = 'Bạn có chắc chắn muốn xóa job này? Tất cả các ứng tuyển liên quan sẽ bị xóa.';
+    } else if (action === 'updateJob') {
+      this.confirmTitle = 'Xác nhận';
+      this.confirmMessage = 'Bạn có chắc chắn muốn cập nhật thông tin job này?';
+    } else if (action === 'cancelUpdateJob') {
+      this.confirmTitle = 'Xác nhận';
+      this.confirmMessage = 'Bạn có chắc chắn muốn hủy cập nhật thông tin job này? Mọi thay đổi sẽ không được lưu.';
     }
     this.showConfirmDialog = true;
   }
@@ -197,6 +238,10 @@ export class JobRelatedInfoComponent {
       this.deleteApplication(this.selectedApplication.applicationId);
     } else if (this.confirmAction === 'deleteJob') {
       this.deleteJob();
+    } else if (this.confirmAction === 'updateJob') {
+      this.submitUpdateJob();
+    } else if (this.confirmAction === 'cancelUpdateJob') {
+      this.closeUpdateJobModal();
     }
     this.showConfirmDialog = false;
     this.selectedApplication = null;
@@ -224,5 +269,127 @@ export class JobRelatedInfoComponent {
           this.showErrorDialog = true;
         }
       });
+  }
+
+  closeUpdateJobModal() {
+    this.jobForm.reset();
+    this.selectedSkills = [];
+    this.showUpdateJobModal = false;
+  }
+
+  openUpdateJob() {
+    this.populateForm(this.job);
+    this.jobSkillsService.getSkillsByJobId(this.job.id!).subscribe(res => {
+      if (res.data) {
+        this.selectedSkills = res.data.map((skill: any) => skill.id);
+        this.jobForm.patchValue({ skills: this.selectedSkills });
+      }
+    });
+    this.companyMemberService.getMemberOfCompany(this.job.companyId).subscribe(membersResponse => {
+      if (membersResponse.data) {
+        this.members = membersResponse.data;
+        const jobMember = this.members.find((m: any) => m.id === this.job?.memberId);
+        if (jobMember) {
+          this.jobForm.patchValue({ memberName: jobMember.id });
+        }
+      }
+    });
+    this.skillsService.getAllSkills().subscribe(response => {
+      if (response.data) {
+        this.skillsList = response.data;
+      }
+    });
+    this.showUpdateJobModal = true;
+  }
+
+  onSkillChange(skillId: number, event: any) {
+    if (event.target.checked) {
+      if (!this.selectedSkills.includes(skillId)) {
+        this.selectedSkills.push(skillId);
+      }
+    } else {
+      const idx = this.selectedSkills.indexOf(skillId);
+      if (idx > -1) {
+        this.selectedSkills.splice(idx, 1);
+      }
+    }
+    this.jobForm.get('skills')?.setValue([...this.selectedSkills]);
+    this.jobForm.get('skills')?.markAsDirty();
+  }
+
+  private populateForm(job: any): void {
+    if (job) {
+      this.jobForm.patchValue({
+        title: job.title,
+        location: this.convertEnumService.mapLocationToEnum(job.location),
+        address: job.address,
+        quantity: job.quantity,
+        deadline: job.deadline,
+        salary: this.convertEnumService.mapSalaryToEnum(job.salary),
+        experience: this.convertEnumService.mapExperienceToEnum(job.experience),
+        level: this.convertEnumService.mapLevelToEnum(job.level),
+        jobType: this.convertEnumService.mapWorkTypeToEnum(job.jobType),
+        contractType: this.convertEnumService.mapContractTypeToEnum(job.contractType),
+        workingTime: job.workingTime,
+        skills: job.skills,
+        description: job.description,
+        requirement: job.requirement,
+        benefit: job.benefit,
+        status: job.status
+      });
+    };
+  }
+
+  submitUpdateJob() {
+    if (this.jobForm.valid) {
+      const formValues = this.jobForm.getRawValue();
+      const updatedJob: Job = {
+        id: this.job.id,
+        companyId: this.company.id,
+        memberId: formValues.memberName,
+        title: formValues.title,
+        location: formValues.location,
+        address: formValues.address,
+        quantity: formValues.quantity,
+        deadline: formValues.deadline,
+        salary: formValues.salary,
+        experience: formValues.experience,
+        level: formValues.level,
+        jobType: formValues.jobType,
+        contractType: formValues.contractType,
+        workingTime: formValues.workingTime,
+        description: formValues.description,
+        requirement: formValues.requirement,
+        benefit: formValues.benefit,
+        status: formValues.status,
+      };
+      this.isLoading = true;
+      this.jobService.updateJob(updatedJob.id!, updatedJob)
+        .pipe(finalize(() => { this.isLoading = false; }))
+        .subscribe(response => {
+          if (response.data) {
+            const skillsToUpdate = formValues.skills;
+            this.jobSkillsService.updateSkillsForJob(updatedJob.id!, skillsToUpdate).subscribe(skillsResponse => {
+              if (skillsResponse.status === 200) {
+                this.emailService.sendEmail({
+                  to: this.company.email,
+                  subject: 'Cập nhật thông tin job',
+                  body: `Xin chào ${this.company.name},\n\nThông tin job ${updatedJob.title} của bạn đã được cập nhật thành công.\n\nTrân trọng,\nĐội ngũ Jobsday`
+                }).subscribe();
+                this.closeUpdateJobModal();
+                this.ngOnInit();
+              } else {
+                this.showErrorDialog = true;
+                this.errorTitle = 'Cập nhật job thất bại!';
+                this.errorMessage = 'Đã xảy ra lỗi khi cập nhật job. Vui lòng thử lại sau.';
+              }
+            });
+          } else {
+            this.showErrorDialog = true;
+            this.errorTitle = 'Cập nhật job thất bại!';
+            this.errorMessage = 'Đã xảy ra lỗi khi cập nhật job. Vui lòng thử lại sau.';
+          }
+        });
+    }
   }
 }

@@ -54,6 +54,26 @@ export class ChatService {
     this.client.activate();
   }
 
+  isConnected(): boolean {
+    return !!this.client && !!this.client.active;
+  }
+
+  sendMessage(conversationId: number, content: string, correlationId?: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      if (!this.client || !this.client.active) {
+        return reject(new Error('not_connected'));
+      }
+      const payload: any = { conversationId, content };
+      if (correlationId) payload.correlationId = correlationId;
+      try {
+        this.client.publish({ destination: '/app/chat.send', body: JSON.stringify(payload) });
+        resolve({ ok: true });
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
   subscribeConversation(conversationId: number) {
     if (!this.connected || this.subMap.has(conversationId)) return;
     const sub = this.client.subscribe(`/topic/conversation.${conversationId}`, (msg: IMessage) => {
@@ -65,19 +85,6 @@ export class ChatService {
   unsubscribeConversation(conversationId: number) {
     const sub = this.subMap.get(conversationId);
     if (sub) { sub.unsubscribe(); this.subMap.delete(conversationId); }
-  }
-
-  sendMessage(conversationId: number, content: string) {
-    if (!this.client || !this.client.active) {
-      console.warn('STOMP client not active — message not sent', { conversationId, content });
-      return;
-    }
-    const payload = { conversationId, content };
-    try {
-      this.client.publish({ destination: '/app/chat.send', body: JSON.stringify(payload) });
-    } catch (e) {
-      console.error('Failed to publish message', e);
-    }
   }
 
   disconnect() {

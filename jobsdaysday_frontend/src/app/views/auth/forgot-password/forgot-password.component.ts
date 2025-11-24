@@ -15,7 +15,6 @@ import { Subscription, interval } from 'rxjs';
 export class ForgotPasswordComponent {
   step: 'email' | 'verifyReset' = 'email';
   loading = false;
-  message = '';
   error = '';
   formEmail!: FormGroup;
   formVerifyReset!: FormGroup;
@@ -52,7 +51,6 @@ export class ForgotPasswordComponent {
     if (this.formEmail.invalid) return;
     this.loading = true;
     this.error = '';
-    this.message = '';
     const email = String(this.formEmail.get('email')?.value || '');
     this.authService.forgotPassword({ email }).subscribe({
       next: (res) => {
@@ -60,7 +58,6 @@ export class ForgotPasswordComponent {
         this.emailSentTo = email;
         this.step = 'verifyReset';
         this.startResendTimer(60);
-        this.message = res?.message || 'Mã OTP đã được gửi tới email.';
       },
       error: (err) => {
         this.loading = false;
@@ -81,7 +78,6 @@ export class ForgotPasswordComponent {
     this.authService.verifyForgotPasswordOtp(payload).subscribe({
       next: (res) => {
         this.loading = false;
-        this.message = res?.message || 'Đổi mật khẩu thành công.';
         setTimeout(() => this.router.navigate(['/login']), 1000);
       },
       error: (err) => {
@@ -98,7 +94,6 @@ export class ForgotPasswordComponent {
     this.authService.resendOtp({ email: this.emailSentTo }).subscribe({
       next: (res) => {
         this.loading = false;
-        this.message = res?.message || 'Đã gửi lại mã OTP.';
         this.startResendTimer(60);
       },
       error: (err) => {

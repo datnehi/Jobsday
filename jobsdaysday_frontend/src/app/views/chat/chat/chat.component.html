@@ -40,6 +40,9 @@
             {{ (conv.unread || 0) > 99 ? '+99' : conv.unread }}
           </div>
         </a>
+        <div *ngIf="conversations.length === 0" class="text-center text-muted p-3">
+          Không có cuộc trò chuyện nào
+        </div>
       </div>
     </div>
     <div class="col-6 d-flex flex-column p-0 bg-light middle-col">

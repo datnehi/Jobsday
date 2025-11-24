@@ -18,7 +18,7 @@ public class JobSkillController {
     @Autowired
     private JobSkillService jobSkillService;
 
-    @GetMapping("/{jobId}")
+    @GetMapping("/public/{jobId}")
     public ResponseEntity<ResponseDto> getSkillsByJobId(@PathVariable Long jobId) {
         List<Skills> skills =  jobSkillService.getSkillsByJobId(jobId);
         if (skills == null || skills.isEmpty()) {

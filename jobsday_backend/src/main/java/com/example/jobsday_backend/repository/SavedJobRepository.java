@@ -36,6 +36,7 @@ public interface SavedJobRepository extends JpaRepository<SavedJob, Long> {
                 ON a.job_id = j.id
                AND  a.candidate_id = :candidateId
         WHERE sj.candidate_id = :candidateId
+            AND j.status = 'ACTIVE' AND j.deadline >= NOW()
         GROUP BY j.id, c.name, j.level, j.location, j.title, j.salary, j.job_type, j.updated_at, sj.saved_at, applied
         ORDER BY sj.saved_at DESC
         LIMIT :limit OFFSET :offset

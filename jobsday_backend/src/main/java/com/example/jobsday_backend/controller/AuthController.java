@@ -182,6 +182,19 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new ResponseDto(HttpStatus.FORBIDDEN.value(), "Your account is inactive. Please contact support.", null));
         }
+        if (user.getRole() == User.Role.HR) {
+            CompanyMember member = companyMemberService.getMemberByUserId(user.getId());
+            if (member == null || member.getStatus() != CompanyMember.MemberStatusEnum.APPROVED) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(new ResponseDto(HttpStatus.FORBIDDEN.value(), "Your company member account is inactive. Please wait for admin approval.", null));
+            }
+
+            Company company = companyService.getById(member.getCompanyId());
+            if (company == null || company.getStatus() != Company.CompanyStatusEnum.APPROVED) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(new ResponseDto(HttpStatus.FORBIDDEN.value(), "Your company account is inactive. Please contact support.", null));
+            }
+        }
         authService.forgotPassword(user);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ResponseDto(HttpStatus.OK.value(), "Password reset OTP sent to your email", null));

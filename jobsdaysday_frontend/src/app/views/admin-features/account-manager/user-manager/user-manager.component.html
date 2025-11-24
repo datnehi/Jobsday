@@ -65,8 +65,8 @@
           </td>
           <td>{{ user.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
           <td>
-            <button class="btn btn-sm btn-outline-primary mb-1" (click)="editUser(user)">Sửa</button>
-            <button class="btn btn-sm btn-outline-secondary" (click)="openConfirm('reset', user)">Reset mật
+            <button class="btn btn-sm btn-outline-primary mb-1" (click)="editUser(user); $event.stopPropagation()">Sửa</button>
+            <button class="btn btn-sm btn-outline-secondary" (click)="openConfirm('reset', user); $event.stopPropagation()">Reset mật
               khẩu</button>
           </td>
         </tr>

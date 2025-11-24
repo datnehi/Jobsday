@@ -6,7 +6,6 @@ import { User } from '../../../../models/user';
 import { AuthService } from '../../../../services/auth.service';
 import { RouterModule } from '@angular/router';
 import { UserService } from '../../../../services/user.service';
-import { ToastrService } from 'ngx-toastr';
 import { ErrorDialogComponent } from "../../../common/error-dialog/error-dialog.component";
 import { LoadingComponent } from "../../../common/loading/loading.component";
 

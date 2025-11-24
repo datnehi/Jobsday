@@ -112,8 +112,6 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
             @Param("text") String text
     );
 
-    Conversation findByCompanyIdAndCandidateId(Long companyId, Long candidateId);
-
     @Modifying
     @Transactional
     @Query(value = """
@@ -229,7 +227,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
                     AND (c.company_last_read_at IS NULL OR m.created_at > c.company_last_read_at))
              OR
                 (:isCompany = FALSE AND c.candidate_id = :id 
-                    AND m.sender_id = c.company_id 
+                    AND m.sender_id != c.candidate_id 
                     AND (c.candidate_last_read_at IS NULL OR m.created_at > c.candidate_last_read_at))
           )
     )

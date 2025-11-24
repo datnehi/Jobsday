@@ -121,7 +121,7 @@
           style="position: relative; cursor: pointer;">
           <div class="card-body d-flex gap-4">
             <img [src]="job.companyLogo || 'assets/logo1.png'" alt="Logo" width="120" height="120"
-                class="rounded bg-white border" (error)="onLogoError($event)"/>
+              class="rounded bg-white border" (error)="onLogoError($event)" />
             <div class="flex-grow-1">
               <h3 class="h6 fw-bold text-primary mb-1">
                 {{ job.title }}
@@ -178,12 +178,17 @@
             </button>
           </div>
         </div>
+        <div *ngIf="jobs.length === 0" class="text-center text-muted my-5">
+          <i class="bi bi-inbox" style="font-size: 4rem;"></i>
+          <h5 class="mt-3">Không tìm thấy việc làm phù hợp.</h5>
+          <p>Hãy thử điều chỉnh từ khóa hoặc bộ lọc tìm kiếm của bạn.</p>
+        </div>
       </div>
       <div *ngIf="selectedTab === 'companies'">
         <div *ngFor="let company of companies" class="card company-card mb-3" (click)="openCompanyDetail(company.id)">
           <div class="card-body d-flex gap-4 align-items-center">
             <img [src]="company.logo || 'assets/logo1.png'" alt="Logo" width="100" height="100"
-                class="rounded bg-white border" (error)="onLogoError($event)"/>
+              class="rounded bg-white border" (error)="onLogoError($event)" />
             <div class="flex-grow-1">
               <h3 class="h6 fw-bold text-primary mb-1">{{ company.name }}</h3>
               <div class="text-muted mb-2">{{ company.location }}</div>
@@ -192,6 +197,11 @@
               </div>
             </div>
           </div>
+        </div>
+        <div *ngIf="companies.length === 0" class="text-center text-muted my-5">
+          <i class="bi bi-inbox" style="font-size: 4rem;"></i>
+          <h5 class="mt-3">Không tìm thấy công ty phù hợp.</h5>
+          <p>Hãy thử điều chỉnh từ khóa hoặc bộ lọc tìm kiếm của bạn.</p>
         </div>
       </div>
       <div *ngIf="selectedTab === 'jobs' && totalPages > 1"
@@ -232,11 +242,7 @@
 
 <app-login-dialog [show]="showLoginDialog" (close)="showLoginDialog = false"></app-login-dialog>
 
-<app-error-dialog
-  *ngIf="showErrorDialog"
-  [title]="errorTitle"
-  [message]="errorMessage"
-  (cancel)="handleCancel()">
+<app-error-dialog *ngIf="showErrorDialog" [title]="errorTitle" [message]="errorMessage" (cancel)="handleCancel()">
 </app-error-dialog>
 
 <app-loading *ngIf="isLoading"></app-loading>

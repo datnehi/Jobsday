@@ -54,6 +54,7 @@ export class JobDetailComponent {
   errorTitle = '';
   errorMessage = '';
   isLoading: boolean = false;
+  readonly MAX_COVER_LETTER_LENGTH = 1000;
 
   constructor(
     private jobService: JobService,
@@ -259,11 +260,26 @@ export class JobDetailComponent {
     window.open(`/job/${jobId}`, '_blank');
   }
 
+  coverLetterTooLong(): boolean {
+    return !!this.coverLetter && this.coverLetter.length > this.MAX_COVER_LETTER_LENGTH;
+  }
+
+  coverLetterRemaining(): number {
+    return Math.max(0, this.MAX_COVER_LETTER_LENGTH - (this.coverLetter?.length || 0));
+  }
+
   onSubmitApplication() {
     if (!this.job?.id) {
       this.showErrorDialog = true;
       this.errorTitle = 'Chưa chọn công việc';
       this.errorMessage = 'Vui lòng chọn công việc để ứng tuyển!';
+      return;
+    }
+
+    if (this.coverLetter && this.coverLetter.length > this.MAX_COVER_LETTER_LENGTH) {
+      this.showErrorDialog = true;
+      this.errorTitle = 'Cover letter quá dài';
+      this.errorMessage = `Cover letter chỉ được tối đa ${this.MAX_COVER_LETTER_LENGTH} ký tự. Vui lòng rút gọn.`;
       return;
     }
 

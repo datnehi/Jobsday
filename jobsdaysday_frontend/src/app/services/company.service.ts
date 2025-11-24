@@ -14,7 +14,7 @@ export class CompanyService {
   constructor(private http: HttpClient) { }
 
   getById(id: number): Observable<ResponseDto> {
-    return this.http.get<ResponseDto>(`${this.apiUrl}/${id}`);
+    return this.http.get<ResponseDto>(`${this.apiUrl}/public/${id}`);
   }
 
   update(company: Company): Observable<any> {

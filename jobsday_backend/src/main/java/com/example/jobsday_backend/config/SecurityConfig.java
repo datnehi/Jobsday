@@ -31,15 +31,16 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**",
-                                "/api/company/*",
+                                "/api/company/public/*",
                                 "/api/job/company/*",
                                 "/api/search/**",
                                 "/api/job/*",
-                                "/api/jobskill/*",
+                                "/api/jobskill/public/*",
                                 "/api/job/*/similar",
                                 "/api/user/me",
                                 "api/applications/check/*",
-                                "api/saved-jobs/check/*"
+                                "api/saved-jobs/check/*",
+                                "api/ws/**"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()

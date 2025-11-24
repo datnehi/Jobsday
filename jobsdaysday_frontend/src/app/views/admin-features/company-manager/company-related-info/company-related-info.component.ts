@@ -529,10 +529,10 @@ export class CompanyRelatedInfoComponent {
   }
 
   closeUpdateJobModal() {
-    this.showUpdateJobModal = false;
     this.jobSelected = null;
     this.jobForm.reset();
     this.selectedSkills = [];
+    this.showUpdateJobModal = false;
   }
 
   submitUpdateJob() {

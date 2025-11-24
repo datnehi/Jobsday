@@ -74,7 +74,7 @@ export const routes: Routes = [
   { path: 'company-management', component: CompanyManagementComponent, canMatch: [roleGuard(['ADMIN'])] },
   { path: 'analytics', component: AnalyticsDashboardComponent, canMatch: [roleGuard(['ADMIN'])] },
 
-  { path: 'chat', component: ChatComponent, data: { layout: 'blank' }, canActivate: [authGuard] },
+  { path: 'chat', component: ChatComponent, data: { layout: 'blank' }, canMatch: [roleGuard(['HR', 'CANDIDATE'])] },
 
 ];
 
