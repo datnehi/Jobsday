@@ -4,7 +4,6 @@ export interface MessageDto {
   senderId: number;
   receiverId: number;
   content: string;
-  messageType?: string;
   createdAt: string;
-  isRead?: string;
+  seenAt?: string;
 }

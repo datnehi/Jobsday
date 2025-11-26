@@ -29,6 +29,9 @@ public class Message {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "seen_at")
+    private LocalDateTime seenAt;
+
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();

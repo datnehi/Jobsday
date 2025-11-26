@@ -81,11 +81,11 @@
           </div>
         </div>
         <div class="flex-grow-1 overflow-auto p-3 chat-messages" (scroll)="onScrollMessages($event)" #chatScroll>
-          <div *ngFor="let group of groupedMessages; let gi = index" class="mb-3 msg-group" [attr.data-idx]="gi">
+          <div *ngFor="let group of groupedMessages, let gi = index" class="mb-3 msg-group" [attr.data-idx]="gi">
             <div class="text-center mb-2">
               <small class="text-muted group-time">{{ formatGroupTime(group.time) }}</small>
             </div>
-            <div *ngFor="let msg of group.msgs; let mi = index; trackBy: trackByMessage"
+            <div *ngFor="let msg of group.msgs, let mi = index; trackBy: trackByMessage"
               class="mb-1 d-flex align-items-start">
               <ng-container *ngIf="isIncomingMessage(msg); else outgoingMsg">
                 <div class="avatar-slot me-2">
@@ -100,10 +100,24 @@
                 </div>
               </ng-container>
               <ng-template #outgoingMsg>
-                <div class="flex-grow-1"></div>
-                <div class="bubble me-bubble bg-primary text-white p-2 rounded shadow-sm text-end ms-2 rounded-4">
-                  <div>{{ msg.content }}</div>
-                  <div class="bubble-time small text-light">{{ formatTime(msg.createdAt) }}</div>
+                <div class="d-flex flex-grow-1 justify-content-end">
+                  <div class="me-bubble-wrapper position-relative d-inline-block">
+                    <div class="bubble me-bubble bg-primary text-white p-2 rounded shadow-sm text-end ms-2 rounded-4">
+                      <div class="msg-content">{{ msg.content }}</div>
+                      <div class="bubble-time small text-light">
+                        <ng-container *ngIf="msg.seenAt; else createdTimeOutgoing">
+                          Đã xem · {{ formatTime(msg.seenAt) }}
+                        </ng-container>
+                        <ng-template #createdTimeOutgoing>
+                          {{ formatTime(msg.createdAt) }}
+                        </ng-template>
+                      </div>
+                    </div>
+                    <img *ngIf="msg.seenAt && isLastOutgoingMessage(msg)"
+                         [src]="selectedConversation?.avatarUrl || (currentUserRole=='HR' ? 'assets/user.jpg' : 'assets/logo1.png')"
+                         class="seen-avatar rounded-circle"
+                         width="20" height="20" alt="seen" />
+                  </div>
                 </div>
               </ng-template>
             </div>

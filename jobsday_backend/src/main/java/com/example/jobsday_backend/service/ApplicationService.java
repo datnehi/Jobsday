@@ -22,6 +22,7 @@ import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -50,6 +51,10 @@ public class ApplicationService {
     public void applyJob(Long candidateId, Long jobId, String coverLetter, MultipartFile cvFile) {
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy job"));
+
+        if((job.getDeadline() != null && job.getDeadline().isBefore(LocalDate.now()) || job.getStatus() != Job.JobStatus.ACTIVE)) {
+            throw new RuntimeException("Hạn nộp hồ sơ đã kết thúc");
+        }
 
         User candidate = userRepository.findById(candidateId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
@@ -82,6 +87,10 @@ public class ApplicationService {
     public void applyJobWithExistingCv(Long candidateId, Long jobId, Long cvId, String coverLetter) {
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy job"));
+
+        if((job.getDeadline() != null && job.getDeadline().isBefore(LocalDate.now()) || job.getStatus() != Job.JobStatus.ACTIVE)) {
+            throw new RuntimeException("Hạn nộp hồ sơ đã kết thúc");
+        }
 
         User candidate = userRepository.findById(candidateId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));

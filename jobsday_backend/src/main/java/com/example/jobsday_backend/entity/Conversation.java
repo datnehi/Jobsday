@@ -39,6 +39,12 @@ public class Conversation {
     @Column(name = "last_message_at")
     private LocalDateTime lastMessageAt;
 
+    @Column(name = "company_last_read_at")
+    private LocalDateTime companyLastReadAt;
+
+    @Column(name = "candidate_last_read_at")
+    private LocalDateTime candidateLastReadAt;
+
     @PrePersist
     public void prePersist() {
         LocalDateTime now = LocalDateTime.now();

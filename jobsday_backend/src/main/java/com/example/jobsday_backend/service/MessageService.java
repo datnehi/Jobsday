@@ -4,6 +4,9 @@ import com.example.jobsday_backend.dto.PageResultDto;
 import com.example.jobsday_backend.entity.Message;
 import com.example.jobsday_backend.repository.ConversationRepository;
 import com.example.jobsday_backend.repository.MessageRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +22,9 @@ public class MessageService {
 
     @Autowired
     private ConversationRepository conversationRepository;
+
+    @PersistenceContext
+    private EntityManager em;
 
     @Transactional
     public Message saveMessage(Long conversationId, Long senderId, String content) {
@@ -53,4 +59,34 @@ public class MessageService {
                 page >= totalPages - 1
         );
     }
+
+    @Transactional
+    public List<Long> markAsSeenAndReturnIds(Long conversationId,
+                                             LocalDateTime lastRead,
+                                             boolean isCandidate,
+                                             Long candidateId) {
+
+        String sql = """
+            UPDATE messages
+            SET seen_at = :lastRead
+            WHERE conversation_id = :conversationId
+              AND created_at <= :lastRead
+              AND ((:isCandidate = true AND sender_id != :candidateId)
+                   OR (:isCandidate = false AND sender_id = :candidateId))
+              AND seen_at IS NULL
+            RETURNING id
+            """;
+
+        Query query = em.createNativeQuery(sql);
+        query.setParameter("conversationId", conversationId);
+        query.setParameter("lastRead", lastRead);
+        query.setParameter("isCandidate", isCandidate);
+        query.setParameter("candidateId", candidateId);
+
+        List<?> result = query.getResultList();
+        return result.stream()
+                .map(r -> ((Number) r).longValue())
+                .toList();
+    }
+
 }

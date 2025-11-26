@@ -5,7 +5,6 @@ import com.example.jobsday_backend.dto.PageResultDto;
 import com.example.jobsday_backend.dto.ResponseDto;
 import com.example.jobsday_backend.entity.Conversation;
 import com.example.jobsday_backend.entity.Message;
-import com.example.jobsday_backend.repository.MessageRepository;
 import com.example.jobsday_backend.service.ConversationService;
 import com.example.jobsday_backend.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/chat")
 public class ChatController {
-    @Autowired
-    private MessageRepository messageRepo;
 
     @Autowired
     private MessageService messageService;
@@ -44,12 +41,7 @@ public class ChatController {
 
     @PutMapping("/conversations/{conversationId}/read")
     public ResponseEntity<ResponseDto> markAsRead(@PathVariable Long conversationId, @AuthenticationPrincipal CustomUserDetail userDetail) {
-        int updated = conversationService.markRead(conversationId, userDetail.getId());
-        if (updated == 0) {
-            return ResponseEntity.status(404).body(
-                    new ResponseDto(404, "Conversation not found or no messages to mark as read", null)
-            );
-        }
+        conversationService.markRead(conversationId, userDetail.getId());
         return ResponseEntity.ok(
                 new ResponseDto(HttpStatus.OK.value(), "Messages marked as read successfully", null)
         );

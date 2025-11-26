@@ -71,14 +71,28 @@
 
 .msg-group .bubble,
 .msg-group .me-bubble {
-  max-width: 65%;
-  word-break: break-word;
   position: relative;
+  overflow: visible;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+  display: inline-block;
+  box-sizing: border-box;
 }
 
-.me-bubble {
-  margin-left: auto;
+.me-bubble-wrapper { position: relative; display: inline-block; }
+
+.seen-avatar {
+  position: absolute;
+  bottom: -8px;
+  right: -8px;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.04);
+  object-fit: cover;
+  background: #fff;
 }
+
+.me-bubble { padding-bottom: 1.2rem; }
 
 .msg-group .bubble .bubble-time,
 .msg-group .me-bubble .bubble-time {
@@ -99,6 +113,7 @@
 .msg-group .bubble:hover .bubble-time {
   display: block;
   left: 0;
+  right: auto;
 }
 
 .msg-group .me-bubble:hover .bubble-time {
@@ -107,24 +122,28 @@
   left: auto;
 }
 
-.chat-messages::-webkit-scrollbar {
-  width: 6px;
-}
-
-.chat-messages::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.12);
-  border-radius: 3px;
-}
-
-.left-header {
-  z-index: 2;
-}
-
-.list-group-item {
+.avatar-placeholder {
+  width: 30px;
+  height: 30px;
   position: relative;
 }
 
-.list-group-item .badge {
+.avatar-placeholder::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 30px;
+  height: 30px;
+  border: 2px solid #f0f0f0;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.avatar-placeholder::before {
+  content: " ";
+  display: block;
   position: absolute;
   right: 12px;
   top: 18px;

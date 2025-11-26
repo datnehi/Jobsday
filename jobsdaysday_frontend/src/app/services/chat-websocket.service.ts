@@ -12,6 +12,8 @@ export class ChatService {
   private client!: Client;
   private connected = false;
   messages$ = new Subject<MessageDto>();
+  seen$ = new Subject<any>(); // <-- thêm
+  errors$ = new Subject<{ code?: number; message?: string;[k: string]: any }>();
   presence$ = new Subject<PresenceDto>();
   private subMap = new Map<number, any>();
 
@@ -21,28 +23,36 @@ export class ChatService {
     const sockUrl = `${environment.apiUrl}ws?access=${encodeURIComponent(token)}`;
 
     this.client = new Client({
-      webSocketFactory: () => new SockJS(sockUrl),
+      webSocketFactory: () => new SockJS(sockUrl, undefined, { transports: ['websocket', 'xhr-streaming', 'xhr-polling'] }),
       connectHeaders: {
         access: token
       },
-      debug: (str) => {},
+      debug: (str) => { },
       reconnectDelay: 5000,
       heartbeatIncoming: 0,
       heartbeatOutgoing: 20000
     });
     this.client.onConnect = (frame) => {
       this.connected = true;
-      this.client.subscribe('/user/queue/messages', (msg: IMessage) => {
-        try {
-          this.messages$.next(JSON.parse(msg.body));
-        } catch (e) { }
-      });
+
+      try {
+        this.client.subscribe('/user/queue/messages', (msg: IMessage) => {
+          try { this.messages$.next(JSON.parse(msg.body)); } catch (e) { }
+        });
+      } catch (e) { }
+
+      try {
+        this.client.subscribe('/user/queue/errors', (msg: IMessage) => {
+          try {
+            const payload = JSON.parse(msg.body);
+            this.errors$.next(payload);
+          } catch (e) { }
+        });
+      } catch (e) { }
 
       if (companyId) {
         this.client.subscribe(`/topic/company.${companyId}.messages`, (msg: IMessage) => {
-          try {
-            this.messages$.next(JSON.parse(msg.body));
-          } catch { }
+          try { this.messages$.next(JSON.parse(msg.body)); } catch { }
         });
       }
     };
@@ -77,7 +87,22 @@ export class ChatService {
   subscribeConversation(conversationId: number) {
     if (!this.connected || this.subMap.has(conversationId)) return;
     const sub = this.client.subscribe(`/topic/conversation.${conversationId}`, (msg: IMessage) => {
-      try { this.messages$.next(JSON.parse(msg.body)); } catch (e) { }
+      try {
+        const raw = JSON.parse(msg.body);
+        if (raw && raw.type === 'MESSAGES_MARKED_AS_SEEN') {
+          const payload: any = {
+            conversationId: raw.conversationId ?? raw.conversation?.id,
+            messageIds: Array.isArray(raw.messageIds)
+              ? raw.messageIds.map((id: any): number => Number(id)).filter((n: number) => !isNaN(n))
+              : [],
+            seenAt: raw.seenAt ?? raw.seenAtAt ?? raw.seenDate ?? null,
+            raw
+          };
+          this.seen$.next(payload);
+        } else {
+          this.messages$.next(raw);
+        }
+      } catch (e) { /* ignore parse errors */ }
     });
     this.subMap.set(conversationId, sub);
   }

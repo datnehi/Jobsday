@@ -9,7 +9,6 @@ import com.example.jobsday_backend.entity.Job;
 import com.example.jobsday_backend.service.ApplicationService;
 import com.example.jobsday_backend.service.JobService;
 import com.example.jobsday_backend.service.NotificationService;
-import com.example.jobsday_backend.service.UserService;
 import org.springframework.core.io.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

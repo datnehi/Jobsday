@@ -3,23 +3,17 @@ package com.example.jobsday_backend.config;
 import com.example.jobsday_backend.entity.User;
 import com.example.jobsday_backend.service.ChatService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
-import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
 @Component
 @RequiredArgsConstructor
 public class WebSocketPresenceHandler {
 
     private final ChatService chatService;
-
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
 
     @EventListener
     public void handleConnect(SessionConnectEvent event) {

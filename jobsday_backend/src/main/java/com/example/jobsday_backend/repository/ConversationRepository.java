@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -116,19 +117,19 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
     @Transactional
     @Query(value = """
             UPDATE conversations
-            SET company_last_read_at = NOW()
+            SET company_last_read_at = :lastRead
             WHERE id = :convId
             """, nativeQuery = true)
-    int markHrRead(@Param("convId") Long convId);
+    void markHrRead(@Param("convId") Long convId, @Param("lastRead") LocalDateTime lastRead);
 
     @Modifying
     @Transactional
     @Query(value = """
             UPDATE conversations
-            SET candidate_last_read_at = NOW()
+            SET candidate_last_read_at = :lastRead
             WHERE id = :convId
             """, nativeQuery = true)
-    int markCandidateRead(@Param("convId") Long convId);
+    void markCandidateRead(@Param("convId") Long convId, @Param("lastRead") LocalDateTime lastRead);
 
     @Query(value = """
     SELECT
@@ -216,21 +217,12 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
 
     @Query(value = """
     SELECT COUNT(*)
-    FROM conversations c
-    WHERE EXISTS (
-        SELECT 1
-        FROM messages m
-        WHERE m.conversation_id = c.id
-          AND (
-                (:isCompany = TRUE AND c.company_id = :id 
-                    AND m.sender_id = c.candidate_id 
-                    AND (c.company_last_read_at IS NULL OR m.created_at > c.company_last_read_at))
-             OR
-                (:isCompany = FALSE AND c.candidate_id = :id 
-                    AND m.sender_id != c.candidate_id 
-                    AND (c.candidate_last_read_at IS NULL OR m.created_at > c.candidate_last_read_at))
-          )
-    )
+    FROM conversations
+    WHERE (:isCompany = TRUE AND company_id = :id 
+                AND (last_message_at IS NOT NULL AND (company_last_read_at IS NULL OR last_message_at > company_last_read_at)))
+        OR
+            (:isCompany = FALSE AND candidate_id = :id 
+                AND (last_message_at IS NOT NULL AND (candidate_last_read_at IS NULL OR last_message_at > candidate_last_read_at)))
     """, nativeQuery = true)
     long countUnreadConversations(@Param("id") Long id, @Param("isCompany") boolean isCompany);
 }

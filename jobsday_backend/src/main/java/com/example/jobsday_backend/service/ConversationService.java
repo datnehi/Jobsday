@@ -6,8 +6,10 @@ import com.example.jobsday_backend.entity.Conversation;
 import com.example.jobsday_backend.entity.User;
 import com.example.jobsday_backend.repository.ConversationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,11 +26,17 @@ public class ConversationService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private MessageService messageService;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
     public PageResultDto<Map<String, Object>> getConversations(Long id, String text, int page, int size, String role) {
         int offset = page * size;
         List<Object[]> results = null;
         long totalElements = 0;
-        if("HR".equals(role)) {
+        if ("HR".equals(role)) {
             CompanyMember member = companyMemberService.getMemberByUserId(id);
             if (member != null) {
                 long companyId = member.getCompanyId();
@@ -39,7 +47,7 @@ public class ConversationService {
             results = conversationRepository.findByCandidateId(id, text, size, offset);
             totalElements = conversationRepository.countFindByCandidateId(id, text);
         }
-        List<Map<String,Object>> conversations = new ArrayList<>();
+        List<Map<String, Object>> conversations = new ArrayList<>();
         for (Object[] row : results) {
             long conversationId = ((Number) row[0]).longValue();
             long companyId = ((Number) row[1]).longValue();
@@ -75,28 +83,39 @@ public class ConversationService {
                 page >= totalPages - 1
         );
     }
-    
+
     public Conversation getConversationById(Long conversationId) {
         return conversationRepository.findById(conversationId).orElse(null);
     }
 
-    public Conversation createConversation(long companyId, long candidateId) {
+    public void createConversation(long companyId, long candidateId) {
         Conversation conversation = Conversation.builder()
                 .companyId(companyId)
                 .candidateId(candidateId)
                 .build();
-        return conversationRepository.save(conversation);
+        conversationRepository.save(conversation);
     }
 
-    public int markRead(Long conversationId, Long candidateId) {
-        User user = userService.findById(candidateId);
-        int updated = 0;
-        if (user.getRole() == User.Role.HR){
-            updated = conversationRepository.markHrRead(conversationId);
-        } else if (user.getRole() == User.Role.CANDIDATE){
-            updated = conversationRepository.markCandidateRead(conversationId);
+    public void markRead(Long conversationId, Long userId) {
+        User user = userService.findById(userId);
+        LocalDateTime now = LocalDateTime.now();
+        List<Long> messageIds = new ArrayList<>();
+        Conversation conversation = getConversationById(conversationId);
+        if (user.getRole() == User.Role.HR) {
+            messageIds = messageService.markAsSeenAndReturnIds(conversationId, now, false, conversation.getCandidateId());
+            conversationRepository.markHrRead(conversationId, now);
+        } else if (user.getRole() == User.Role.CANDIDATE) {
+            messageIds = messageService.markAsSeenAndReturnIds(conversationId, now, true, user.getId());
+            conversationRepository.markCandidateRead(conversationId, now);
         }
-        return updated;
+        if (messageIds != null && !messageIds.isEmpty()) {
+            messagingTemplate.convertAndSend("/topic/conversation." + conversationId, Map.of(
+                    "type", "MESSAGES_MARKED_AS_SEEN",
+                    "conversationId", conversationId,
+                    "messageIds", messageIds,
+                    "seenAt", now.toString()
+            ));
+        }
     }
 
     public Map<String, String> getConversationPresenceById(Long conversationId, User.Role role) {
@@ -106,27 +125,27 @@ public class ConversationService {
         }
         Object[] row = (Object[]) result;
         String conversationIdStr = String.valueOf(row[0]);
-        String companyIdStr      = String.valueOf(row[1]);
-        String candidateIdStr    = String.valueOf(row[2]);
-        String createdAtStr      = row[3] != null ? row[3].toString() : "";
-        String updatedAtStr      = row[4] != null ? row[4].toString() : "";
-        String lastMessageStr    = row[5] != null ? row[5].toString() : "";
-        String lastMessageAtStr  = row[6] != null ? row[6].toString() : "";
-        String nameStr           = row[7] != null ? row[7].toString() : "";
-        String avatarUrlStr      = row[8] != null ? row[8].toString() : "";
-        String unreadStr         = String.valueOf(row[9]);
+        String companyIdStr = String.valueOf(row[1]);
+        String candidateIdStr = String.valueOf(row[2]);
+        String createdAtStr = row[3] != null ? row[3].toString() : "";
+        String updatedAtStr = row[4] != null ? row[4].toString() : "";
+        String lastMessageStr = row[5] != null ? row[5].toString() : "";
+        String lastMessageAtStr = row[6] != null ? row[6].toString() : "";
+        String nameStr = row[7] != null ? row[7].toString() : "";
+        String avatarUrlStr = row[8] != null ? row[8].toString() : "";
+        String unreadStr = String.valueOf(row[9]);
 
         return Map.of(
                 "conversationId", conversationIdStr,
-                "companyId",      companyIdStr,
-                "candidateId",    candidateIdStr,
-                "createdAt",      createdAtStr,
-                "updatedAt",      updatedAtStr,
-                "lastMessage",    lastMessageStr,
-                "lastMessageAt",  lastMessageAtStr,
-                "name",           nameStr,
-                "avatarUrl",      avatarUrlStr,
-                "unread",         unreadStr
+                "companyId", companyIdStr,
+                "candidateId", candidateIdStr,
+                "createdAt", createdAtStr,
+                "updatedAt", updatedAtStr,
+                "lastMessage", lastMessageStr,
+                "lastMessageAt", lastMessageAtStr,
+                "name", nameStr,
+                "avatarUrl", avatarUrlStr,
+                "unread", unreadStr
         );
     }
 
@@ -137,27 +156,27 @@ public class ConversationService {
         }
         Object[] row = (Object[]) result;
         String conversationIdStr = String.valueOf(row[0]);
-        String companyIdStr      = String.valueOf(row[1]);
-        String candidateIdStr    = String.valueOf(row[2]);
-        String createdAtStr      = row[3] != null ? row[3].toString() : "";
-        String updatedAtStr      = row[4] != null ? row[4].toString() : "";
-        String lastMessageStr    = row[5] != null ? row[5].toString() : "";
-        String lastMessageAtStr  = row[6] != null ? row[6].toString() : "";
-        String nameStr           = row[7] != null ? row[7].toString() : "";
-        String avatarUrlStr      = row[8] != null ? row[8].toString() : "";
-        String unreadStr         = String.valueOf(row[9]);
+        String companyIdStr = String.valueOf(row[1]);
+        String candidateIdStr = String.valueOf(row[2]);
+        String createdAtStr = row[3] != null ? row[3].toString() : "";
+        String updatedAtStr = row[4] != null ? row[4].toString() : "";
+        String lastMessageStr = row[5] != null ? row[5].toString() : "";
+        String lastMessageAtStr = row[6] != null ? row[6].toString() : "";
+        String nameStr = row[7] != null ? row[7].toString() : "";
+        String avatarUrlStr = row[8] != null ? row[8].toString() : "";
+        String unreadStr = String.valueOf(row[9]);
 
         return Map.of(
                 "conversationId", conversationIdStr,
-                "companyId",      companyIdStr,
-                "candidateId",    candidateIdStr,
-                "createdAt",      createdAtStr,
-                "updatedAt",      updatedAtStr,
-                "lastMessage",    lastMessageStr,
-                "lastMessageAt",  lastMessageAtStr,
-                "name",           nameStr,
-                "avatarUrl",      avatarUrlStr,
-                "unread",         unreadStr
+                "companyId", companyIdStr,
+                "candidateId", candidateIdStr,
+                "createdAt", createdAtStr,
+                "updatedAt", updatedAtStr,
+                "lastMessage", lastMessageStr,
+                "lastMessageAt", lastMessageAtStr,
+                "name", nameStr,
+                "avatarUrl", avatarUrlStr,
+                "unread", unreadStr
         );
     }
 

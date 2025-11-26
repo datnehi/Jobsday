@@ -37,11 +37,9 @@ public class ChatService {
 
     public void notifyConversation(Long conversationId, Message message) {
         messagingTemplate.convertAndSend("/topic/conversation." + conversationId, toDto(message));
-        System.out.println("Notifying conversation " + conversationId + " about new message " + message.getId());
         convRepo.findById(conversationId).ifPresent(conv -> {
             messagingTemplate.convertAndSendToUser(String.valueOf(conv.getCandidateId()), "/queue/messages", toDto(message));
             messagingTemplate.convertAndSend("/topic/company." + conv.getCompanyId() + ".messages", toDto(message));
-            System.out.println("Notifying candidate " + conv.getCandidateId() + " and company " + conv.getCompanyId() + " about new message " + message.getId());
         });
     }
 
