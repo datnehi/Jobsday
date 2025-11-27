@@ -2,7 +2,7 @@ package com.example.jobsday_backend.controller;
 
 import com.example.jobsday_backend.dto.ResponseDto;
 import com.example.jobsday_backend.entity.Skills;
-import com.example.jobsday_backend.service.JobSkillService;
+import com.example.jobsday_backend.service.CompanySkillsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,32 +12,33 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/jobskill")
+@RequestMapping("/api/companyskill")
 @RequiredArgsConstructor
-public class JobSkillController {
+public class CompanySkillController {
     @Autowired
-    private JobSkillService jobSkillService;
+    private CompanySkillsService companySkillsService;
 
-    @GetMapping("/public/{jobId}")
-    public ResponseEntity<ResponseDto> getSkillsByJobId(@PathVariable Long jobId) {
-        List<Skills> skills =  jobSkillService.getSkillsByJobId(jobId);
+    @GetMapping("/{companyId}")
+    public ResponseEntity<ResponseDto> getSkillsByCompanyId(@PathVariable Long companyId) {
+        List<Skills> skills =  companySkillsService.getSkillsByCompanyId(companyId);
         if (skills == null || skills.isEmpty()) {
             return ResponseEntity.ok(
                     new ResponseDto(HttpStatus.OK.value(), "Skills is empty", null)
             );
         };
         return ResponseEntity.ok(
-                new ResponseDto(HttpStatus.OK.value(), "Find job successfully", skills)
+                new ResponseDto(HttpStatus.OK.value(), "Find company successfully", skills)
         );
     }
 
-    @PutMapping("/update/{jobId}")
+    @PutMapping("/update/{companyId}")
     public ResponseEntity<ResponseDto> updateJobSkills(
-            @PathVariable Long jobId,
+            @PathVariable Long companyId,
             @RequestBody List<Long> newSkillIds) {
-        jobSkillService.updateJobSkills(jobId, newSkillIds);
+        companySkillsService.updateCompanySkills(companyId, newSkillIds);
         return ResponseEntity.ok(
-                new ResponseDto(HttpStatus.OK.value(), "Update Job Skills successfully", null)
+                new ResponseDto(HttpStatus.OK.value(), "Update Company Skills successfully", null)
         );
     }
 }
+

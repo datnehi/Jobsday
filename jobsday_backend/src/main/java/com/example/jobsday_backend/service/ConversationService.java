@@ -88,12 +88,12 @@ public class ConversationService {
         return conversationRepository.findById(conversationId).orElse(null);
     }
 
-    public void createConversation(long companyId, long candidateId) {
+    public Conversation createConversation(long companyId, long candidateId) {
         Conversation conversation = Conversation.builder()
                 .companyId(companyId)
                 .candidateId(candidateId)
                 .build();
-        conversationRepository.save(conversation);
+        return conversationRepository.save(conversation);
     }
 
     public void markRead(Long conversationId, Long userId) {

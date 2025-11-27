@@ -77,9 +77,8 @@ public class ConversationController {
         }
         Map<String, String> conversation = conversationService.getByCandidateIdAndCompanyId(companyId, candidateId);
         if (conversation == null) {
-            conversationService.createConversation(companyId, candidateId);
-            conversation = conversationService.getByCandidateIdAndCompanyId(companyId, candidateId);
-            if (conversation == null) {
+            Conversation conversationNew = conversationService.createConversation(companyId, candidateId);
+            if (conversationNew == null) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                         new ResponseDto(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Tạo cuộc trò chuyện thất bại", null)
                 );

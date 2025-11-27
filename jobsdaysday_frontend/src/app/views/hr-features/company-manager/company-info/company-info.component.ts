@@ -1,7 +1,8 @@
+import { CompanySkillsService } from './../../../../services/company-skills.service';
 import { Component } from '@angular/core';
 import { Company } from '../../../../models/company';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ErrorDialogComponent } from "../../../common/error-dialog/error-dialog.component";
 import { CompanyService } from '../../../../services/company.service';
 import { CompanyMemberService } from '../../../../services/company-member.service';
@@ -11,6 +12,9 @@ import { NotificationDialogComponent } from "../../../common/notification-dialog
 import { LoadingComponent } from "../../../common/loading/loading.component";
 import { AvatarEditorComponent } from "../../../common/avatar-editor/avatar-editor.component";
 import { finalize } from 'rxjs';
+import { Skills } from '../../../../models/skills';
+import { SkillsService } from '../../../../services/skills.service';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-company-info',
@@ -20,7 +24,9 @@ import { finalize } from 'rxjs';
     ErrorDialogComponent,
     NotificationDialogComponent,
     LoadingComponent,
-    AvatarEditorComponent
+    AvatarEditorComponent,
+    FormsModule,
+    NgSelectModule
   ],
   templateUrl: './company-info.component.html',
   styleUrl: './company-info.component.css'
@@ -38,12 +44,16 @@ export class CompanyInfoComponent {
   confirmMessage = '';
   isLoading = false;
   showAvatarEditor = false;
+  skillsList: Skills[] = [];
+  selectedSkills: number[] = [];
 
   constructor(
     private fb: FormBuilder,
     private companyService: CompanyService,
     private companymemberService: CompanyMemberService,
-    private convertEnumService: ConvertEnumService
+    private convertEnumService: ConvertEnumService,
+    private skillsService: SkillsService,
+    private companySkillsService: CompanySkillsService
   ) {
     this.companyForm = this.fb.group({
       name: ['', Validators.required],
@@ -52,11 +62,16 @@ export class CompanyInfoComponent {
       website: [''],
       taxCode: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      description: ['']
+      description: [''],
+      skills: [[]]
     });
   }
 
   ngOnInit() {
+    this.companyForm.get('skills')?.valueChanges.subscribe((vals: number[] | null) => {
+      this.selectedSkills = vals || [];
+    });
+
     this.companymemberService.getMe().subscribe(response => {
       if (response && response.data) {
         this.member = response.data as CompanyMember;
@@ -73,6 +88,17 @@ export class CompanyInfoComponent {
               email: this.company.email,
               description: this.company.description
             });
+            this.companySkillsService.getSkillsByCompanyId(this.company!.id).subscribe(res => {
+              if (res && res.data) {
+                this.selectedSkills = res.data.map((skill: Skills) => skill.id);
+                this.companyForm.get('skills')?.setValue([...this.selectedSkills]);
+              }
+            });
+          }
+        });
+        this.skillsService.getAllSkills().subscribe(response => {
+          if (response.data) {
+            this.skillsList = response.data;
           }
         });
       }
@@ -93,19 +119,28 @@ export class CompanyInfoComponent {
       location: this.convertEnumService.mapLocationToEnum(this.companyForm.get('location')?.value)
     };
 
-    this.companyService.update(updatedCompany).subscribe({
-      next: () => {
-        this.isLoading = false;
-        this.ngOnInit();
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this.errorTitle = 'Lỗi';
-        this.errorMessage = 'Đã xảy ra lỗi khi cập nhật thông tin công ty.';
-        this.showErrorDialog = true;
-      }
-    });
-    this.isLoading = false;
+    this.companyService.update(updatedCompany)
+      .pipe(finalize(() => { this.isLoading = false; }))
+      .subscribe({
+        next: () => {
+          this.companySkillsService.updateSkillsForCompany(this.company!.id, this.selectedSkills).subscribe(
+            (res) => {
+              if (res.status == 200) {
+                this.ngOnInit();
+              } else {
+                this.errorTitle = 'Lỗi';
+                this.errorMessage = 'Đã xảy ra lỗi khi cập nhật kỹ năng công ty.';
+                this.showErrorDialog = true;
+              }
+            }
+          );
+        },
+        error: (error) => {
+          this.errorTitle = 'Lỗi';
+          this.errorMessage = 'Đã xảy ra lỗi khi cập nhật thông tin công ty.';
+          this.showErrorDialog = true;
+        }
+      });
   }
 
   openAvatarDialog() {
@@ -116,17 +151,17 @@ export class CompanyInfoComponent {
     if (!file) return;
     this.isLoading = true;
     this.companyService.updateLogo(this.company!.id, file)
-    .pipe(finalize(() => { this.isLoading = false; }))
-    .subscribe(res => {
-      if (res.status === 200) {
-        this.showAvatarEditor = false;
-        this.ngOnInit();
-      } else {
-        this.errorTitle = 'Lỗi';
-        this.errorMessage = 'Cập nhật logo thất bại.';
-        this.showErrorDialog = true;
-      }
-    });
+      .pipe(finalize(() => { this.isLoading = false; }))
+      .subscribe(res => {
+        if (res.status === 200) {
+          this.showAvatarEditor = false;
+          this.ngOnInit();
+        } else {
+          this.errorTitle = 'Lỗi';
+          this.errorMessage = 'Cập nhật logo thất bại.';
+          this.showErrorDialog = true;
+        }
+      });
   }
 
   onAvatarDialogClosed() {
@@ -150,5 +185,20 @@ export class CompanyInfoComponent {
     this.confirmTitle = 'Xác nhận';
     this.confirmMessage = 'Bạn có chắc chắn muốn lưu thay đổi?';
     this.showConfirmDialog = true;
+  }
+
+  onSkillChange(skillId: number, checked: boolean) {
+    if (checked) {
+      if (!this.selectedSkills.includes(skillId)) {
+        this.selectedSkills.push(skillId);
+      }
+    } else {
+      const idx = this.selectedSkills.indexOf(skillId);
+      if (idx > -1) {
+        this.selectedSkills.splice(idx, 1);
+      }
+    }
+    this.companyForm.get('skills')?.setValue([...this.selectedSkills], { emitEvent: false });
+    this.companyForm.get('skills')?.markAsDirty();
   }
 }

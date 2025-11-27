@@ -31,7 +31,8 @@
             <div class="mb-3">
               <label class="form-label fw-bold">Địa chỉ <span class="text-danger">*</span></label>
               <input type="text" class="form-control" formControlName="address" required>
-              <div *ngIf="companyForm.get('address')?.invalid && companyForm.get('address')?.touched" class="text-danger">
+              <div *ngIf="companyForm.get('address')?.invalid && companyForm.get('address')?.touched"
+                class="text-danger">
                 Địa chỉ không được để trống
               </div>
             </div>
@@ -42,7 +43,8 @@
             <div class="mb-3">
               <label class="form-label fw-bold">Mã số thuế <span class="text-danger">*</span></label>
               <input type="text" class="form-control" formControlName="taxCode" required>
-              <div *ngIf="companyForm.get('taxCode')?.invalid && companyForm.get('taxCode')?.touched" class="text-danger">
+              <div *ngIf="companyForm.get('taxCode')?.invalid && companyForm.get('taxCode')?.touched"
+                class="text-danger">
                 Mã số thuế không được để trống
               </div>
             </div>
@@ -52,6 +54,23 @@
               <div *ngIf="companyForm.get('email')?.invalid && companyForm.get('email')?.touched" class="text-danger">
                 Email không hợp lệ
               </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Kỹ năng của công ty</label>
+              <ng-select [items]="skillsList" bindLabel="name" bindValue="id" [multiple]="true" [searchable]="true"
+                formControlName="skills" class="form-control" [closeOnSelect]="false">
+
+                <ng-template ng-option-tmp let-item="item">
+                  <div class="skill-option">
+                    <input type="checkbox"
+                      [checked]="selectedSkills.includes(item.id)"
+                      (click)="$event.stopPropagation()"
+                      (change)="onSkillChange(item.id, $any($event.target).checked)"
+                      style="margin-right:8px;">
+                    {{ item.name }}
+                  </div>
+                </ng-template>
+              </ng-select>
             </div>
             <div class="mb-3">
               <label class="form-label fw-bold">Mô tả</label>
@@ -67,8 +86,8 @@
         <div class="card-body">
           <div class="mb-3 d-flex gap-2 flex-row">
             <div class="position-relative d-inline-block" style="width: 120px; height: 120px;">
-              <img [src]="company?.logo || 'assets/logo1.png'" alt="Logo"
-                width="120" height="120" class="rounded border bg-white" />
+              <img [src]="company?.logo || 'assets/logo1.png'" alt="Logo" width="120" height="120"
+                class="rounded border bg-white" />
               <button type="button" class="btn btn-light p-1 position-absolute bottom-0 end-0 border-0 shadow"
                 style="border-radius: 50%; background: #0d6efd;" (click)="openAvatarDialog()">
                 <i class="bi bi-camera-fill text-white"></i>
@@ -85,18 +104,11 @@
   </div>
 </div>
 
-<app-avatar-editor
-  [data]="company"
-  [visible]="showAvatarEditor"
-  (saved)="onAvatarSaved($event)"
+<app-avatar-editor [data]="company" [visible]="showAvatarEditor" (saved)="onAvatarSaved($event)"
   (closed)="onAvatarDialogClosed()">
 </app-avatar-editor>
 
-<app-error-dialog
-  *ngIf="showErrorDialog"
-  [title]="errorTitle"
-  [message]="errorMessage"
-  (cancel)="handleCancelError()">
+<app-error-dialog *ngIf="showErrorDialog" [title]="errorTitle" [message]="errorMessage" (cancel)="handleCancelError()">
 </app-error-dialog>
 
 <app-notification-dialog *ngIf="showConfirmDialog" [title]="confirmTitle" [message]="confirmMessage"
