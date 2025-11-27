@@ -97,6 +97,7 @@ public class Job {
         FRESHER,
         INTERN,
         JUNIOR,
+        MIDDLE,
         SENIOR
     }
 

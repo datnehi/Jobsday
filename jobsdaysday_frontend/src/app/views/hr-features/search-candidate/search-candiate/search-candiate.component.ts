@@ -24,7 +24,7 @@ import { ConversationService } from '../../../../services/conversation.service';
 })
 export class SearchCandiateComponent {
   experiences = ['Tất cả', 'Không yêu cầu', 'Dưới 1 năm', '2 năm', '3 năm', '4 năm', '5 năm', 'Trên 5 năm'];
-  levels = ['Tất cả', 'Fresher', 'Intern', 'Junior', 'Senior'];
+  levels = ['Tất cả', 'Fresher', 'Intern', 'Junior', 'Middle', 'Senior'];
 
   searchText: string = '';
   pendingSearchText: string = '';

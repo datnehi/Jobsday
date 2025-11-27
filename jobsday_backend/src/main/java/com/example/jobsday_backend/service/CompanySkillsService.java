@@ -31,7 +31,6 @@ public class CompanySkillsService {
 
     @Transactional
     public void updateCompanySkills(Long companyId, List<Long> newSkillIds) {
-        System.out.println("Updating skills for companyId: " + companyId + " with skills: " + newSkillIds);
         companySkillsRepository.deleteById_CompanyId(companyId);
         List<CompanySkills> entities = newSkillIds.stream()
                 .map(skillId -> new CompanySkills(new CompanySkillKey(companyId, skillId)))

@@ -19,6 +19,7 @@ export class ConvertEnumService {
       case 'Fresher': return 'FRESHER';
       case 'Intern': return 'INTERN';
       case 'Junior': return 'JUNIOR';
+      case 'Middle': return 'MIDDLE';
       case 'Senior': return 'SENIOR';
       default: return undefined;
     }
@@ -84,6 +85,7 @@ export class ConvertEnumService {
       case 'FRESHER': return 'Fresher';
       case 'INTERN': return 'Intern';
       case 'JUNIOR': return 'Junior';
+      case 'MIDDLE': return 'Middle';
       case 'SENIOR': return 'Senior';
       default: return level;
     }

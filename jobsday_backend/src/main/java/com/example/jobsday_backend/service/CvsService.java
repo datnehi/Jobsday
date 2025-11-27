@@ -1,5 +1,6 @@
 package com.example.jobsday_backend.service;
 
+import com.example.jobsday_backend.dto.CvResult;
 import com.example.jobsday_backend.entity.Cvs;
 import com.example.jobsday_backend.repository.CvsRepository;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -21,8 +22,6 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,6 +34,9 @@ public class CvsService {
 
     @Autowired
     private CvSkillsService cvSkillsService;
+
+    @Autowired
+    private GeminiService geminiService;
 
     private final String cvUploads = "cvUploads";
 
@@ -65,15 +67,18 @@ public class CvsService {
     }
 
     public Cvs saveCV(Long userId, String title, MultipartFile file) throws Exception {
+
         int totalCvs = cvsRepository.countCvOfCandidate(userId);
         if (totalCvs >= 6) {
             throw new RuntimeException("Bạn đã đạt giới hạn 6 CV. Vui lòng xóa bớt CV cũ để tải lên CV mới.");
         }
 
         String content = extractText(file);
-        String jobTitle = extractJobTitle(content);
-        Cvs.Level level = extractLevel(content);
-        Cvs.Experience experience = extractExperience(content);
+        CvResult result = geminiService.analyzeCV(content);
+
+        Cvs.Level level = convertLevel(result.getLevel());
+        Cvs.Experience experience = convertExperience(result.getExperience());
+        String jobTitle = result.getJobTitle();
 
         String originalFileName = file.getOriginalFilename();
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
@@ -85,77 +90,60 @@ public class CvsService {
 
         Cvs cv = Cvs.builder()
                 .userId(userId)
-                .title(title)
+                .title(geminiService.cleanText(title))
                 .fileUrl(fileUrl)
-                .jobTitle(jobTitle)
-                .content(content)
+                .jobTitle(geminiService.cleanText(jobTitle))
+                .content(geminiService.cleanText(content))
                 .level(level)
                 .experience(experience)
                 .isPublic(isPublic)
                 .build();
 
-        Cvs cvs = cvsRepository.save(cv);
-        cvSkillsService.saveCvSkills(cv.getId(), content);
-        return cvs;
+
+        Cvs saved = cvsRepository.save(cv);
+
+        cvSkillsService.saveCvSkills(saved.getId(), result.getSkills());
+
+        return saved;
     }
 
-    public Cvs.Level extractLevel(String content) {
-        if (content == null) return null;
-        String lower = content.toLowerCase();
+    private Cvs.Level convertLevel(String level) {
+        if (level == null) return null;
+        String l = level.toLowerCase();
 
-        if (lower.contains("intern") || lower.contains("thực tập")) return Cvs.Level.INTERN;
-        if (lower.contains("fresher")) return Cvs.Level.FRESHER;
-        if (lower.contains("junior")) return Cvs.Level.JUNIOR;
-        if (lower.contains("senior") || lower.contains("cao cấp")) return Cvs.Level.SENIOR;
+        if (l.contains("intern")) return Cvs.Level.INTERN;
+        if (l.contains("fresher")) return Cvs.Level.FRESHER;
+        if (l.contains("junior")) return Cvs.Level.JUNIOR;
+        if (l.contains("middle")) return Cvs.Level.MIDDLE;
 
-        return null;
+        return Cvs.Level.SENIOR;
     }
 
-    public Cvs.Experience extractExperience(String content) {
-        if (content == null) return null;
-        String lower = content.toLowerCase();
+    private Cvs.Experience convertExperience(String exp) {
+        if (exp == null) return null;
 
-        if (lower.contains("trên 5 năm") || lower.contains("over 5 years")) return Cvs.Experience.TREN_5_NAM;
-        if (lower.contains("5 năm") || lower.contains("5 years")) return Cvs.Experience.NAM_NAM;
-        if (lower.contains("4 năm")) return Cvs.Experience.BON_NAM;
-        if (lower.contains("3 năm")) return Cvs.Experience.BA_NAM;
-        if (lower.contains("2 năm")) return Cvs.Experience.HAI_NAM;
-        if (lower.contains("1 năm")) return Cvs.Experience.MOT_NAM;
-        if (lower.contains("không yêu cầu") || lower.contains("no experience")) return Cvs.Experience.KHONG_YEU_CAU;
+        String e = exp.trim().toLowerCase();
 
-        return Cvs.Experience.DUOI_1_NAM;
-    }
-
-    public String extractJobTitle(String content) {
-        if (content == null || content.isBlank()) return null;
-
-        String[] lines = content.split("\\r?\\n");
-
-        Pattern pattern = Pattern.compile("(Vị trí|Job Title|Chức danh|Ứng tuyển)[:：]\\s*(.+)", Pattern.CASE_INSENSITIVE);
-        for (String line : lines) {
-            Matcher matcher = pattern.matcher(line);
-            if (matcher.find()) {
-                return matcher.group(2).trim();
-            }
+        switch (e) {
+            case "0":
+                return Cvs.Experience.KHONG_YEU_CAU;
+            case "1":
+                return Cvs.Experience.MOT_NAM;
+            case "2":
+                return Cvs.Experience.HAI_NAM;
+            case "3":
+                return Cvs.Experience.BA_NAM;
+            case "4":
+                return Cvs.Experience.BON_NAM;
+            case "5":
+                return Cvs.Experience.NAM_NAM;
+            case "tren5":
+                return Cvs.Experience.TREN_5_NAM;
+            case "duoi1":
+                return Cvs.Experience.DUOI_1_NAM;
+            default:
+                return null;
         }
-
-        String lower = content.toLowerCase();
-        if (lower.contains("thực tập sinh") || lower.contains("intern")) return "Thực tập sinh";
-        if (lower.contains("trưởng nhóm") || lower.contains("leader")) return "Trưởng nhóm";
-        if (lower.contains("developer") || lower.contains("lập trình viên")) return "Developer";
-        if (lower.contains("engineer")) return "Engineer";
-        if (lower.contains("tester")) return "Tester";
-        if (lower.contains("analyst")) return "Analyst";
-        if (lower.contains("manager")) return "Manager";
-
-        for (int i = 0; i < lines.length - 1; i++) {
-            String l = lines[i].toLowerCase();
-            if (l.contains("kinh nghiệm") || l.contains("experience") || l.contains("thực tập")) {
-                return lines[i + 1].trim();
-            }
-        }
-
-        return null;
     }
 
     public List<Cvs> getCvByUserId(Long userId) {

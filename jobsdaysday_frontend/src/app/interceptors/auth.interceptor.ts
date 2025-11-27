@@ -38,7 +38,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           ];
           const currentUrl = (router && (router as any).url) || (typeof window !== 'undefined' ? window.location.pathname : '');
           const isOnNoRedirect = noRedirectPaths.some(regex => regex.test(currentUrl));
-          console.log('Current URL:', currentUrl, 'isOnNoRedirect:', isOnNoRedirect);
 
           if (!isOnNoRedirect) {
             localStorage.removeItem('token');

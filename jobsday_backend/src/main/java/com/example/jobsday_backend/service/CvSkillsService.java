@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class CvSkillsService {
@@ -20,27 +23,26 @@ public class CvSkillsService {
     private SkillsRepository skillRepository;
 
     @Transactional
-    public void saveCvSkills(Long cvId, String content) {
-        if (content == null || content.isBlank()) return;
+    public void saveCvSkills(Long cvId, List<String> skills) {
+        if (skills == null || skills.isEmpty()) return;
 
         List<Skills> allSkills = skillRepository.findAll();
 
-        for (Skills skill : allSkills) {
-            String skillName = skill.getName();
-            if (containsIgnoreCase(content, skillName)) {
-                boolean exists = cvSkillsRepository.existsById_CvIdAndId_SkillId(cvId, skill.getId());
-                if (!exists) {
-                    CvSkills cvSkill = new CvSkills();
-                    CvSkillKey cvSkillKey = new CvSkillKey(cvId, skill.getId());
-                    cvSkill.setId(cvSkillKey);
-                    cvSkillsRepository.save(cvSkill);
-                }
+        Map<String, Skills> skillMap = allSkills.stream()
+                .collect(Collectors.toMap(s -> s.getName().toLowerCase(), Function.identity()));
+
+        for (String skillName : skills) {
+            if (skillName == null || skillName.isBlank()) continue;
+
+            Skills skillEntity = skillMap.get(skillName.toLowerCase());
+            if (skillEntity == null) continue;
+            boolean exists = cvSkillsRepository.existsById_CvIdAndId_SkillId(cvId, skillEntity.getId());
+            if (!exists) {
+                CvSkills cvSkill = new CvSkills();
+                CvSkillKey cvSkillKey = new CvSkillKey(cvId, skillEntity.getId());
+                cvSkill.setId(cvSkillKey);
+                cvSkillsRepository.save(cvSkill);
             }
         }
     }
-
-    private boolean containsIgnoreCase(String text, String sub) {
-        return text.toLowerCase().contains(sub.toLowerCase());
-    }
-
 }

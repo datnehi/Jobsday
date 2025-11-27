@@ -1,7 +1,7 @@
 export type JobStatus = 'ACTIVE' | 'HIDDEN' | 'CLOSED';
 export type Location = 'HANOI' | 'DANANG' | 'HOCHIMINH';
 export type JobType = 'IN_OFFICE' | 'HYBRID' | 'REMOTE';
-export type Level = 'FRESHER' | 'INTERN' | 'JUNIOR' | 'SENIOR';
+export type Level = 'FRESHER' | 'INTERN' | 'JUNIOR' | 'MIDDLE' | 'SENIOR';
 export type ContractType = 'FULL_TIME' | 'PART_TIME' | 'FREELANCE';
 export type Salary =
   | 'DUOI_10_TRIEU'

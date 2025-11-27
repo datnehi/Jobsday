@@ -62,6 +62,7 @@ public class Cvs {
         FRESHER,
         INTERN,
         JUNIOR,
+        MIDDLE,
         SENIOR
     }
 }
