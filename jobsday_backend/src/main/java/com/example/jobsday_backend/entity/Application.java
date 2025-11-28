@@ -30,7 +30,7 @@ public class Application {
     private String coverLetter;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "application_status_enum")
     private ApplicationStatus status = ApplicationStatus.APPLIED;
 
     @Column(name = "applied_at", nullable = false)

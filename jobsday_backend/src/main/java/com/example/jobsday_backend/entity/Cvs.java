@@ -18,9 +18,13 @@ public class Cvs {
     private String title;
     private String fileUrl;
     private String jobTitle;
+
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "level_enum")
     private Level level;
+
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "experience_enum")
     private Experience experience;
 
     @Column(columnDefinition = "TEXT")

@@ -37,30 +37,30 @@ public class Job {
     private String workingTime;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "location_enum")
     private Location location;
 
     @Column(nullable = false)
     private String address;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "job_type", nullable = false)
+    @Column(name = "job_type", nullable = false, columnDefinition = "job_type_enum")
     private JobType jobType;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "level_enum")
     private Level level;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "contract_type", nullable = false)
+    @Column(name = "contract_type", nullable = false, columnDefinition = "contract_type_enum")
     private ContractType contractType;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "salary_enum")
     private Salary salary;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "experience_enum")
     private Experience experience;
 
     @Column(nullable = false)
@@ -70,7 +70,7 @@ public class Job {
     private LocalDate deadline;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "job_status_enum")
     private JobStatus status = JobStatus.ACTIVE;
 
     @Column(name = "created_at", nullable = false, updatable = false)
