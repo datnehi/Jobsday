@@ -32,7 +32,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/api/ws")
-                .setAllowedOriginPatterns("http://localhost:4200")
+                .setAllowedOriginPatterns("https://jobsday.netlify.app")
                 .addInterceptors(jwtHandshakeInterceptor)
                 .setHandshakeHandler(new CustomHandshakeHandler())
                 .withSockJS();
