@@ -72,9 +72,9 @@ public class AuthController {
                     .body(new ResponseDto(HttpStatus.BAD_REQUEST.value(), "User not found", null));
         }
 
-        if (user.getStatus() == User.Status.INACTIVE) {
+        if (user.getStatus() == User.Status.ACTIVE) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new ResponseDto(HttpStatus.FORBIDDEN.value(), "Your account is inactive. Please contact support.", null));
+                    .body(new ResponseDto(HttpStatus.FORBIDDEN.value(), "Your account is active. Please login.", null));
         }
 
         if (Boolean.TRUE.equals(user.getEmailVerified())) {
@@ -103,9 +103,9 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ResponseDto(HttpStatus.BAD_REQUEST.value(), "User not found", null));
         }
-        if (user.getStatus() == User.Status.INACTIVE) {
+        if (user.getStatus() == User.Status.ACTIVE) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new ResponseDto(HttpStatus.FORBIDDEN.value(), "Your account is inactive. Please contact support.", null));
+                    .body(new ResponseDto(HttpStatus.FORBIDDEN.value(), "Your account is active. Please login.", null));
         }
 
         String otp = String.valueOf((int) ((Math.random() * 900000) + 100000));

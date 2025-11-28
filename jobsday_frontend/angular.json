@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "jobsdaysday_frontend": {
+    "jobsday_frontend": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/jobsdaysday_frontend",
+            "outputPath": "dist/jobsday_frontend",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": [
@@ -67,10 +67,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "jobsdaysday_frontend:build:production"
+              "buildTarget": "jobsday_frontend:build:production"
             },
             "development": {
-              "buildTarget": "jobsdaysday_frontend:build:development"
+              "buildTarget": "jobsday_frontend:build:development"
             }
           },
           "defaultConfiguration": "development"
