@@ -18,7 +18,6 @@ public class Company {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "location_enum")
     private Location location;
 
     private String logo;
@@ -36,7 +35,7 @@ public class Company {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, columnDefinition = "company_status_enum")
+    @Column(nullable = false)
     private CompanyStatusEnum status = CompanyStatusEnum.PENDING;
 
     @Column(name = "created_at", nullable = false)

@@ -33,7 +33,7 @@ public class Conversation {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "last_message", columnDefinition = "text")
+    @Column(name = "last_message")
     private String lastMessage;
 
     @Column(name = "last_message_at")

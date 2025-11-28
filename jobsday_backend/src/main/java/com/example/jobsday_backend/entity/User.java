@@ -38,11 +38,11 @@ public class User {
     private String avatarUrl;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", columnDefinition = "user_role_enum", nullable = false)
+    @Column(name = "role", nullable = false)
     private Role role = Role.CANDIDATE;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", columnDefinition = "user_status_enum", nullable = false)
+    @Column(name = "status", nullable = false)
     private Status status = Status.INACTIVE;
 
     @Column(name = "created_at", nullable = false, updatable = false)

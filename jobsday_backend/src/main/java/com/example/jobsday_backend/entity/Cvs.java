@@ -20,14 +20,11 @@ public class Cvs {
     private String jobTitle;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "level_enum")
     private Level level;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "experience_enum")
     private Experience experience;
 
-    @Column(columnDefinition = "TEXT")
     private String content;
 
     private Boolean isPublic = false;

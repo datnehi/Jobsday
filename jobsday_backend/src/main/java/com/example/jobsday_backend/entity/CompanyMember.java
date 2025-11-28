@@ -28,7 +28,7 @@ public class CompanyMember {
     private Boolean isAdmin = false;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, columnDefinition = "member_status_enum")
+    @Column(nullable = false)
     private MemberStatusEnum status = MemberStatusEnum.PENDING;
 
     @Column(name = "created_at", nullable = false, updatable = false)
