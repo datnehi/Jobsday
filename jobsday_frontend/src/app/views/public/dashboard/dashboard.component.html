@@ -1,6 +1,6 @@
 <div class="search-bar-sticky py-5" style="
     background: url('assets/baner4.jpg') center center/cover no-repeat;
-    width: 99.5vw;
+    width: 100vw;
     margin-left: calc(-50vw + 50%);
     margin-right: calc(-50vw + 50%);
     border-radius: 0;
@@ -8,18 +8,18 @@
   <div class="container" style="max-width:1200px;">
     <div class="d-flex align-items-center justify-content-center gap-3">
       <div class="flex-grow-1">
-        <div class="d-flex align-items-center rounded-pill shadow-sm" style="background: #f8f9fa; height: 48px;">
+        <div class="d-flex align-items-center rounded-pill shadow-sm" style="background: #f8f9fa; min-height: 44px;">
           <i class="bi bi-search text-secondary ms-4 me-2"></i>
           <input type="text" class="form-control border-0 bg-transparent"
             placeholder="Tìm kiếm kỹ năng, vị trí, công ty..." [(ngModel)]="searchText"
-            style="box-shadow:none; min-width: 180px; background:transparent;">
+            style="box-shadow:none; min-width: 140px; background:transparent;">
           <button *ngIf="searchText" class="btn btn-link text-secondary px-2" style="width: 40px;"
             (click)="searchText=''">
             <i class="bi bi-x-lg me-3"></i>
           </button>
         </div>
       </div>
-      <button class="btn btn-primary rounded-pill px-4 ms-2" (click)="search()" style="font-weight:bold; height:48px;">
+      <button class="btn btn-primary rounded-pill px-4 ms-2" (click)="search()" style="font-weight:bold; min-height:44px;">
         Tìm kiếm
       </button>
     </div>
@@ -29,11 +29,11 @@
 <div class="container" style="max-width:1200px; margin-top: 30px;">
   <div class="row justify-content-center">
     <div class="col-lg-3 mb-4">
-      <div class="bg-white rounded shadow-sm p-3 mb-3 d-flex flex-column sidebar-sticky" style="height: 700px;">
+      <div class="bg-white rounded shadow-sm p-3 mb-3 d-flex flex-column sidebar-sticky" style="min-height: 300px; height: auto;">
         <h5 class="fw-bold mb-3 text-primary flex-shrink-0">
           <i class="bi bi-funnel"></i> Lọc nâng cao
         </h5>
-        <div style="overflow-y: auto; flex-grow: 1;">
+        <div style="overflow-y: auto; max-height: 60vh;">
           <div class="mb-3 ms-1">
             <label class="fw-bold mb-2">Địa điểm</label>
             <div *ngFor="let location of locations">
@@ -136,7 +136,7 @@
                 <span *ngIf="job.jobType">({{ job.jobType }})</span>
               </div>
               <hr class="w-100 my-2">
-              <div class="d-flex justify-content-between align-items-center" style="height: 34px; position: relative;">
+              <div class="d-flex justify-content-between align-items-center" style="min-height: 34px; position: relative;">
                 <div>
                   <span class="badge bg-primary me-1" *ngFor="let skill of job.skills.slice(0, 3)">{{ skill }}</span>
                   <span *ngIf="job.skills.length > 3" class="badge bg-primary me-1"
@@ -145,7 +145,7 @@
                   </span>
                 </div>
                 <div *ngIf="job.applied || (!job.applied && hoveredJobIndex === i)"
-                  style="position: absolute; right: 0; bottom: -5px; display: flex; align-items: center;">
+                  style="position: absolute; right: 0; bottom: -5px; display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
                   <span class="text-muted small" style="margin-right: 8px;">
                     {{ getPostedLabel(job.postedAt) }}
                   </span>
@@ -167,12 +167,12 @@
               </div>
             </div>
             <button *ngIf="!job.saved" class="btn btn-outline-primary" aria-label="Lưu tin"
-              style="position: absolute; top: 16px; right: 16px; z-index: 2;"
+              style="position: absolute; top: 12px; right: 12px; z-index: 2;"
               (click)="onSaveClick(job); $event.stopPropagation()">
               <i class="bi bi-heart"></i>
             </button>
             <button *ngIf="job.saved" class="btn btn-outline-primary" aria-label="Bỏ lưu"
-              style="position: absolute; top: 16px; right: 16px; z-index: 2;"
+              style="position: absolute; top: 12px; right: 12px; z-index: 2;"
               (click)="onUnsaveClick(job); $event.stopPropagation()">
               <i class="bi bi-heart-fill"></i>
             </button>

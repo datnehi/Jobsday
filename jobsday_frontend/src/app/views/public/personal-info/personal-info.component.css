@@ -1,3 +1,33 @@
-input[type="date"] {
-  cursor: pointer;
+input[type="date"] { cursor: pointer; }
+
+.personal-info-wrapper { max-width:1200px; margin:0 auto; }
+.personal-info-form-card h4 { font-size:1.25rem; }
+
+@media (max-width: 1024px) {
+  .personal-info-avatar-block h4 { font-size:1.1rem; }
+  .personal-info-avatar-block img { width:84px !important; height:84px !important; }
+  .personal-info-avatar-block .btn { padding:4px 8px; }
+}
+
+@media (max-width: 768px) {
+  .personal-info-grid { display:flex; flex-direction:column; }
+  .personal-info-form-card { order:2; }
+  .personal-info-side-card { order:1; }
+  .personal-info-form-card .btn { width:100%; }
+  .personal-info-avatar-block { gap:12px !important; }
+  .personal-info-avatar-block img { width:72px !important; height:72px !important; }
+}
+
+@media (max-width: 600px) {
+  .container.py-4 { padding-top:12px !important; }
+  .personal-info-form-card h4 { font-size:1.05rem; }
+  .personal-info-avatar-block h4 { font-size:1rem; line-height:1.25; }
+  .personal-info-form-card .form-label { font-size:.82rem; }
+  .personal-info-form-card input.form-control { font-size:.82rem; padding:6px 10px; }
+  .personal-info-form-card button.btn-primary { padding:10px 14px; font-size:.8rem; }
+  .personal-info-avatar-block img { width:64px !important; height:64px !important; }
+  .personal-info-avatar-block .position-relative { width:64px !important; height:64px !important; }
+  .personal-info-avatar-block button { width:28px; height:28px; }
+  .personal-info-side-card ul { font-size:.7rem; }
+  .personal-info-side-card .form-check-label { font-size:.78rem; }
 }

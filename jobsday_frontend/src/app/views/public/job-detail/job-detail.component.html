@@ -3,9 +3,9 @@
     <div class="col-lg-8 mb-4">
       <div class="card shadow-sm mb-3">
         <div class="card-body d-flex align-items-center">
-          <div>
+          <div style="width: 100%;">
             <h2 class="fw-bold text-primary mb-2">{{ job?.title }}</h2>
-            <div class="d-flex align-items-center mb-3 gap-5">
+            <div class="d-flex align-items-center mb-3 gap-5 job-meta">
               <div class="d-flex align-items-center gap-2">
                 <span class="rounded-circle d-flex align-items-center justify-content-center"
                   style="background:#007bff; width:40px; height:40px;">
@@ -44,7 +44,7 @@
                 Hạn nộp hồ sơ: {{ job?.deadline | date:'dd/MM/yyyy' }}
               </span>
             </div>
-            <div class="d-flex align-items-center gap-3 flex-nowrap mt-2" style="width: 740px;">
+            <div class="d-flex align-items-center gap-3 action-row mt-2">
               <ng-container *ngIf="!isExpired; else expiredBlock">
                 <button class="btn btn-primary flex-grow-1 fw-bold" style="font-size: 18px;" (click)="onApplyClick()">
                   <i [ngClass]="application ? 'bi bi-arrow-clockwise' : 'bi bi-send'"></i>
@@ -117,22 +117,17 @@
           </div>
         </div>
       </div>
-
+      <!-- Related jobs moved under detail (desktop structure) -->
       <div class="card mb-3">
         <div class="card-body">
           <h5 class="fw-bold mb-3 text-primary">Việc làm liên quan</h5>
-          <div *ngFor="let job of relatedJobs; let i = index" class="card job-card mb-3"
-            style="position: relative; cursor: pointer;" (click)="openJobDetail(job.id)">
+          <div *ngFor="let job of relatedJobs; let i = index" class="card job-card mb-3" style="position: relative; cursor: pointer;" (click)="openJobDetail(job.id)">
             <div class="card-body d-flex gap-4">
-              <div
-                style="width: 120px; height: 120px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border:1px solid #eee;">
-                <img [src]="job.companyLogo || 'assets/logo1.png'" alt="{{ job.companyName }}" width="100%"
-                  height="100%" class="img-fluid rounded bg-white p-2">
+              <div style="width: 120px; height: 120px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border:1px solid #eee;">
+                <img [src]="job.companyLogo || 'assets/logo1.png'" alt="{{ job.companyName }}" width="100%" height="100%" class="img-fluid rounded bg-white p-2">
               </div>
               <div class="flex-grow-1">
-                <h3 class="h6 fw-bold text-primary mb-1">
-                  {{ job.title }}
-                </h3>
+                <h3 class="h6 fw-bold text-primary mb-1">{{ job.title }}</h3>
                 <div class="text-muted mb-2">{{ job.companyName }}</div>
                 <div class="d-flex gap-4 mb-2">
                   <div class="text-muted">{{ job.location }}</div>
@@ -142,26 +137,11 @@
                 <div class="d-flex justify-content-between align-items-center" style="height: 34px;">
                   <div>
                     <span class="badge bg-primary me-1" *ngFor="let skill of job.skills.slice(0, 3)">{{ skill }}</span>
-                    <span *ngIf="job.skills.length > 3" class="badge bg-primary me-1"
-                      [title]="job.skills.slice(3).join(', ')" style="cursor: pointer;">
-                      +{{ job.skills.length - 3 }}
-                    </span>
+                    <span *ngIf="job.skills.length > 3" class="badge bg-primary me-1" [title]="job.skills.slice(3).join(', ')" style="cursor: pointer;">+{{ job.skills.length - 3 }}</span>
                   </div>
-                  <button class="btn"
-                    style="position: absolute; bottom: 10px; right: 70px; background: #007bff; color: #fff; font-weight: bold; border-radius: 20px; min-width: 90px;"
-                    (click)="openJobDetail(job.id)">
-                    Ứng tuyển
-                  </button>
-                  <button *ngIf="!job.saved" class="btn btn-outline-primary" aria-label="Lưu tin"
-                    style="position: absolute; bottom: 10px; right: 16px;"
-                    (click)="onSaveClick(job); $event.stopPropagation()">
-                    <i class="bi bi-heart"></i>
-                  </button>
-                  <button *ngIf="job.saved" class="btn btn-outline-primary" aria-label="Bỏ lưu"
-                    style="position: absolute; bottom: 10px; right: 16px;"
-                    (click)="onUnsaveClick(job); $event.stopPropagation()">
-                    <i class="bi bi-heart-fill"></i>
-                  </button>
+                  <button class="btn" style="position: absolute; bottom: 10px; right: 70px; background: #007bff; color: #fff; font-weight: bold; border-radius: 20px; min-width: 90px;" (click)="openJobDetail(job.id)">Ứng tuyển</button>
+                  <button *ngIf="!job.saved" class="btn btn-outline-primary" aria-label="Lưu tin" style="position: absolute; bottom: 10px; right: 16px;" (click)="onSaveClick(job); $event.stopPropagation()"><i class="bi bi-heart"></i></button>
+                  <button *ngIf="job.saved" class="btn btn-outline-primary" aria-label="Bỏ lưu" style="position: absolute; bottom: 10px; right: 16px;" (click)="onUnsaveClick(job); $event.stopPropagation()"><i class="bi bi-heart-fill"></i></button>
                 </div>
               </div>
             </div>
@@ -219,9 +199,8 @@
     </div>
   </div>
 </div>
-
 <div class="modal fade" id="applyModal" tabindex="-1" aria-labelledby="applyModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg" style="width: 35%;">
+  <div class="modal-dialog modal-lg apply-modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title fw-bold" id="applyModalLabel">

@@ -1,0 +1,53 @@
+.approve-member-wrapper { max-width: 1200px; }
+.approve-member-title { line-height: 1.3; }
+
+.approve-table-wrapper { border-radius: 8px; }
+.approve-table { background: #fff; }
+.approve-table-head-row th { white-space: nowrap; }
+.approve-th-actions { width: 160px; }
+.approve-td { vertical-align: middle; }
+.approve-actions { text-align: center; }
+.approve-action-buttons { display: flex; justify-content: center; gap: .5rem; }
+.approve-btn { min-width: 70px; }
+.approve-empty-cell { padding: 2.5rem 1rem; font-size: .95rem; }
+
+.approve-pagination { margin-top: 1.25rem; }
+.approve-page-btn { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; }
+.approve-page-info { font-size: 1.05rem; }
+
+@media (max-width: 1024px) {
+	.approve-page-info { font-size: .95rem; }
+}
+
+@media (max-width: 768px) {
+	.approve-table { font-size: .85rem; }
+	.approve-th-actions { width: 140px; }
+	.approve-btn { padding: .35rem .6rem; font-size: .7rem; }
+	.approve-page-btn { width: 40px; height: 40px; }
+}
+
+@media (max-width: 600px) {
+	.approve-table thead { display: none; }
+	.approve-table, .approve-table tbody, .approve-table tr, .approve-table td { display: block; width: 100%; }
+	.approve-row { background: #fff; border: 1px solid #e9ecef; border-radius: 10px; padding: .75rem .9rem; margin-bottom: .75rem; }
+	.approve-td { position: relative; padding: .25rem 0 !important; text-align: left; font-size: .85rem; border: 0 !important; }
+	.approve-td[data-label]::before { content: attr(data-label) ': '; font-weight: 600; color: #495057; }
+	.approve-actions { padding-top: .5rem !important; }
+	.approve-action-buttons { justify-content: flex-start; flex-wrap: wrap; }
+	.approve-btn { flex: 1 1 calc(50% - .5rem); min-width: 0; font-size: .75rem; }
+	.approve-empty-cell { display: block; border: 1px dashed #ced4da; border-radius: 10px; }
+	.approve-pagination { gap: .75rem !important; }
+	.approve-page-info { font-size: .85rem; }
+}
+
+@media (max-width: 420px) {
+	.approve-row { padding: .65rem .7rem; }
+	.approve-btn { flex: 1 1 100%; margin-bottom: .4rem; }
+	.approve-btn:last-child { margin-bottom: 0; }
+	.approve-page-btn { width: 38px; height: 38px; }
+	.approve-page-info { font-size: .8rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.approve-btn { transition: none; }
+}

@@ -1,40 +1,37 @@
 <div class="modal-backdrop fade show" *ngIf="visible"></div>
 
-<div class="modal fade" tabindex="-1"
+<div class="modal fade avatar-editor-modal" tabindex="-1"
      [class.show]="visible"
      [style.display]="visible ? 'block' : 'none'"
      (click)="closeAvatarDialog()">
-  <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
-    <div class="modal-content" style="width: 670px;">
-      <div class="modal-header bg-primary text-white">
+  <div class="modal-dialog modal-lg avatar-editor-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-content avatar-editor-content">
+      <div class="modal-header bg-primary text-white avatar-editor-header">
         <h5 class="modal-title w-100 text-center">CHỈNH SỬA ẢNH ĐẠI DIỆN</h5>
       </div>
-      <div class="modal-body d-flex flex-wrap gap-4 justify-content-center align-items-start">
-        <div style="width: 65%;">
-          <div class="border border-primary border-dashed rounded mb-2 d-flex align-items-center justify-content-center"
-               style="width: 350px; height: 180px; cursor: pointer;" (click)="triggerFileDialog()">
+      <div class="modal-body avatar-editor-body">
+        <div class="avatar-editor-left">
+          <div class="upload-zone" (click)="triggerFileDialog()">
             <span *ngIf="!selectedFile">Click chọn ảnh để tải lên!</span>
-            <img *ngIf="selectedFileUrl" [src]="selectedFileUrl" alt="Ảnh gốc"
-                 style="max-width: 100%; max-height: 100%;">
+            <img *ngIf="selectedFileUrl" [src]="selectedFileUrl" alt="Ảnh gốc" class="upload-preview">
             <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" hidden>
           </div>
-          <div class="text-danger small">
+          <div class="text-danger small helper-text">
             Nếu ảnh của bạn có dung lượng trên 5MB, vui lòng <a href="https://compressor.io/compress" target="_blank">
               bấm vào đây</a> để giảm dung lượng ảnh.
           </div>
         </div>
-        <div class="text-center">
+        <div class="avatar-editor-right text-center">
           <div class="mb-2">Ảnh hiển thị trên CV</div>
-          <img [src]="previewUrl || data?.avatarUrl || data?.logo || 'assets/user.jpg'" alt="Preview" width="120" height="120"
-            class="rounded-circle border">
-          <div class="mt-2 d-flex justify-content-center gap-2">
+          <img [src]="previewUrl || data?.avatarUrl || data?.logo || 'assets/user.jpg'" alt="Preview"
+               class="rounded-circle border preview-avatar">
+          <div class="mt-2 d-flex justify-content-center gap-2 action-row">
             <button class="btn btn-primary btn-sm" (click)="fileInput.click()">Đổi ảnh</button>
             <button class="btn btn-danger btn-sm" (click)="removeImage()" [disabled]="!selectedFile">Xóa ảnh</button>
           </div>
-          <button class="btn btn-success btn-block mt-2" (click)="saveAvatar()" [disabled]="!selectedFile">Xong</button>
-          <div>
-            <a href="#" class="text-danger small" (click)="closeAvatarDialog(); $event.preventDefault()">Đóng lại (Không
-              lưu)</a>
+          <button class="btn btn-success mt-2 w-100 save-btn" (click)="saveAvatar()" [disabled]="!selectedFile">Xong</button>
+          <div class="mt-2">
+            <a href="#" class="text-danger small" (click)="closeAvatarDialog(); $event.preventDefault()">Đóng lại (Không lưu)</a>
           </div>
         </div>
       </div>

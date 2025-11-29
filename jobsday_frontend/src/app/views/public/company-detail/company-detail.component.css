@@ -1,9 +1,42 @@
-.job-card, .company-card {
-  transition: background 0.2s, border 0.2s;
+.job-card, .company-card { transition: background 0.2s, border 0.2s; }
+.job-card:hover, .company-card:hover { background: #eaf6ff; border: 1.5px solid #0d6efd; cursor: pointer; }
+
+.company-header-band { transition: padding .3s ease, min-height .3s ease; }
+
+@media (max-width: 1024px) {
+  .company-header-band { padding: 16px 24px 16px 150px !important; gap: 18px; }
+  .company-logo { width: 96px !important; height: 96px !important; top: -55px !important; left: 28px !important; }
+  .jobs-search-row { flex-wrap: wrap; }
 }
 
-.job-card:hover, .company-card:hover {
-  background: #eaf6ff;
-  border: 1.5px solid #0d6efd;
-  cursor: pointer;
+@media (max-width: 768px) {
+  .company-header-band { flex-direction: column; align-items: flex-start !important; padding: 20px 22px 20px 140px !important; min-height: 140px !important; }
+  .company-logo { width: 88px !important; height: 88px !important; top: -45px !important; left: 26px !important; }
+  .company-header-band h1 { font-size: 1.22rem; }
+  .jobs-search-row input[type="text"] { max-width: 100% !important; }
+  .jobs-search-row button { width: 100%; }
+  .company-share-row { flex-direction: row; flex-wrap: wrap; }
+  .company-share-row input[type="text"] { flex: 1 1 100%; }
+}
+
+@media (max-width: 600px) {
+  .company-header-wrapper { min-height: 220px !important; }
+  .company-header-band { padding: 24px 18px 24px 120px !important; min-height: 150px !important; }
+  .company-logo { width: 78px !important; height: 78px !important; top: -40px !important; left: 22px !important; border-width: 5px !important; }
+  .company-header-band h1 { font-size: 1.1rem; }
+  .company-header-band p.lead { font-size: .85rem; margin-bottom: .5rem; }
+  .jobs-search-row { gap: 10px; flex-direction: column; align-items: stretch !important; }
+  .jobs-search-row input { max-width: 100% !important; }
+  .jobs-search-row button { width: 100%; padding-top: 10px; padding-bottom: 10px; }
+  .job-card .card-body { gap: 12px !important; }
+  .job-card [style*="width: 120px"] { width:72px !important; height:72px !important; }
+  .job-card .badge { font-size: 0.65rem; }
+  .job-card button.btn { min-width: 40px !important;
+        font-size: 0.75rem !important;
+        top: 10px !important;
+        right: 12px !important; }
+  .job-card [style*="height: 34px"] { min-height: 34px; }
+  .company-share-row { flex-direction: column; align-items: stretch !important; }
+  .company-share-row input { width: 100%; margin-right: 0 !important; }
+  .company-share-row button { width: 100%; }
 }

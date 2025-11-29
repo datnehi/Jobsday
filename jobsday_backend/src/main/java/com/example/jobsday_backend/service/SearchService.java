@@ -47,7 +47,7 @@ public class SearchService {
             """);
         }
 
-        baseSql.append(" WHERE j.status = 'ACTIVE' AND j.deadline >= NOW() ");
+        baseSql.append(" WHERE j.status = 'ACTIVE' AND j.deadline >= NOW() AND c.status = 'APPROVED' ");
 
         Map<String, Object> params = new HashMap<>();
 

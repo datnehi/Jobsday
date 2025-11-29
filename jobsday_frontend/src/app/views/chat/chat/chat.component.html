@@ -1,6 +1,6 @@
 <div class="container-fluid vh-100">
   <div class="row h-100">
-    <div class="col-3 border-end p-0 bg-light d-flex flex-column">
+    <div class="col-3 border-end p-0 bg-light d-flex flex-column chat-sidebar" [class.sidebar-hidden]="sidebarHidden">
       <div class="p-3 border-bottom bg-white sticky-top left-header">
         <div class="d-flex align-items-center justify-content-between">
           <img src="assets/baner.png" alt="logo" class="left-logo" style="height: 72px; object-fit: contain;" />
@@ -45,9 +45,12 @@
         </div>
       </div>
     </div>
-    <div class="col-6 d-flex flex-column p-0 bg-light middle-col">
+    <div class="col-6 d-flex flex-column p-0 bg-light middle-col position-relative">
       <ng-container *ngIf="selectedConversation; else noConversation">
-        <div class="p-3 border-bottom bg-white d-flex align-items-center chat-header">
+        <div class="p-3 border-bottom bg-white d-flex align-items-center chat-header position-relative">
+          <button type="button" class="btn btn-sm btn-outline-secondary d-lg-none mobile-toggle" (click)="sidebarHidden = !sidebarHidden" title="Danh sách hội thoại">
+            <i class="bi" [ngClass]="sidebarHidden ? 'bi-list' : 'bi-x-lg'"></i>
+          </button>
           <img *ngIf="currentUserRole == 'HR'" [src]="selectedConversation?.avatarUrl || 'assets/user.jpg'" alt="avatar"
             class="rounded-circle me-3" width="40" height="40" style="object-fit: cover;" />
           <img *ngIf="currentUserRole == 'CANDIDATE'" [src]="selectedConversation?.avatarUrl || 'assets/logo1.png'"
@@ -79,6 +82,9 @@
               </small>
             </ng-container>
           </div>
+          <button type="button" class="btn btn-sm btn-outline-primary ms-auto d-lg-none mobile-toggle-right" (click)="rightHidden = !rightHidden" title="Thông tin chi tiết">
+            <i class="bi" [ngClass]="rightHidden ? 'bi-person-vcard' : 'bi-x-lg'"></i>
+          </button>
         </div>
         <div class="flex-grow-1 overflow-auto p-3 chat-messages" (scroll)="onScrollMessages($event)" #chatScroll>
           <div *ngFor="let group of groupedMessages, let gi = index" class="mb-3 msg-group" [attr.data-idx]="gi">
@@ -88,16 +94,23 @@
             <div *ngFor="let msg of group.msgs, let mi = index; trackBy: trackByMessage"
               class="mb-1 d-flex align-items-start">
               <ng-container *ngIf="isIncomingMessage(msg); else outgoingMsg">
-                <div class="avatar-slot me-2">
-                  <img *ngIf="showAvatarForMessage(group, mi)"
-                    [src]="selectedConversation?.avatarUrl || (currentUserRole=='HR' ? 'assets/user.jpg':'assets/logo1.png')"
-                    class="rounded-circle" width="30" height="30" style="object-fit: cover;" />
-                  <div *ngIf="!showAvatarForMessage(group, mi)" class="avatar-placeholder"></div>
-                </div>
-                <div class="bubble bg-white p-2 rounded shadow-sm rounded-4">
-                  <div>{{ msg.content }}</div>
-                  <div class="bubble-time small text-muted">{{ formatTime(msg.createdAt) }}</div>
-                </div>
+                <ng-container *ngIf="showAvatarForMessage(group, mi); else inlineNoAvatar">
+                  <div class="avatar-slot me-2">
+                    <img
+                      [src]="selectedConversation?.avatarUrl || (currentUserRole=='HR' ? 'assets/user.jpg':'assets/logo1.png')"
+                      class="rounded-circle" width="30" height="30" style="object-fit: cover;" />
+                  </div>
+                  <div class="bubble bg-white p-2 rounded shadow-sm rounded-4">
+                    <div>{{ msg.content }}</div>
+                    <div class="bubble-time small text-muted">{{ formatTime(msg.createdAt) }}</div>
+                  </div>
+                </ng-container>
+                <ng-template #inlineNoAvatar>
+                  <div class="bubble bg-white p-2 rounded shadow-sm rounded-4 no-avatar-inline">
+                    <div>{{ msg.content }}</div>
+                    <div class="bubble-time small text-muted">{{ formatTime(msg.createdAt) }}</div>
+                  </div>
+                </ng-template>
               </ng-container>
               <ng-template #outgoingMsg>
                 <div class="d-flex flex-grow-1 justify-content-end">
@@ -134,13 +147,16 @@
         </div>
       </ng-container>
       <ng-template #noConversation>
+        <button type="button" class="btn btn-sm btn-outline-secondary d-lg-none mobile-toggle-start" (click)="sidebarHidden = !sidebarHidden" title="Danh sách hội thoại">
+          <i class="bi" [ngClass]="sidebarHidden ? 'bi-list' : 'bi-x-lg'"></i>
+        </button>
         <div class="d-flex flex-column justify-content-center align-items-center flex-grow-1 text-muted">
           <i class="bi bi-chat-dots display-4 mb-3"></i>
           <p>Chọn một cuộc trò chuyện để bắt đầu</p>
         </div>
       </ng-template>
     </div>
-    <div class="col-3 border-start p-3 bg-white">
+    <div class="col-3 border-start p-3 bg-white chat-right" [class.right-hidden]="rightHidden">
       <div *ngIf="isHr() && selectedConversation?.candidateId" class="candidate-profile-block">
         <h4 class="fw-bold mb-3">Hồ sơ ứng viên</h4>
         <div class="d-flex align-items-start">

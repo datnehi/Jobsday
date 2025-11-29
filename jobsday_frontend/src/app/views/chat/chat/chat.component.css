@@ -128,30 +128,62 @@
   position: relative;
 }
 
-.avatar-placeholder::after {
-  content: " ";
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 30px;
-  height: 30px;
-  border: 2px solid #f0f0f0;
-  border-radius: 50%;
-  background: #fff;
-}
+.avatar-placeholder { display: none; }
 
-.avatar-placeholder::before {
-  content: " ";
-  display: block;
-  position: absolute;
-  right: 12px;
-  top: 18px;
-  transform: translateY(-8px);
-  margin: 0;
-}
+.no-avatar-inline { margin-left: 38px; }
 
 .list-group-item .d-flex > small.text-muted {
   flex: 0 0 auto;
+}
+
+@media (max-width: 991.98px) {
+  .container-fluid.vh-100, .row.h-100 { position: relative; overflow: hidden; }
+  .chat-sidebar,
+  .chat-right {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    height: 100%;
+    overflow-y: auto;
+    background: #fff;
+    z-index: 30;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    transition: transform .28s ease, opacity .28s ease;
+  }
+  .chat-sidebar { left: 0; width: 75%; max-width: 320px; transform: translateX(0); }
+  .chat-sidebar.sidebar-hidden { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+  .chat-right { right: 0; width: 70%; max-width: 300px; transform: translateX(0); }
+  .chat-right.right-hidden { transform: translateX(100%); opacity: 0; pointer-events: none; }
+  .col-6.middle-col { flex: 1 1 auto !important; width: 100% !important; max-width: 100% !important; }
+  .col-3.chat-sidebar, .col-3.chat-right { width: auto !important; max-width: none !important; }
+  .chat-header { padding-left: 48px; padding-right: 48px; }
+  .mobile-toggle {
+    position: absolute;
+    top: 20px;
+    right: 10px;
+    transform: translateY(-50%);
+    z-index: 40;
+  }
+  .mobile-toggle-right {
+    position: absolute;
+    top: 55px;
+    right: 10px;
+    transform: translateY(-50%);
+    z-index: 40;
+  }
+  .mobile-toggle-start {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 40;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .chat-sidebar { width: 85%; max-width: 340px; }
+  .chat-right { width: 80%; max-width: 320px; }
+  .chat-messages { padding: .75rem .75rem 1rem; }
+  .msg-group .bubble,
+  .msg-group .me-bubble { font-size: 14px; }
 }
 

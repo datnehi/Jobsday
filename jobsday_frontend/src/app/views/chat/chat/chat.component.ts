@@ -40,6 +40,15 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   candidateSelected: User | null = null;
   member: CompanyMember | null = null;
 
+  sidebarHidden = false;
+  rightHidden = false;
+  private resizeHandler = () => {
+    if (window.innerWidth >= 992) {
+      this.sidebarHidden = false;
+      this.rightHidden = false;
+    }
+  };
+
   messagePage = 0;
   totalPageMessages = 0;
   convPage = 0;
@@ -102,6 +111,13 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   ) { }
 
   ngOnInit() {
+    if (typeof window !== 'undefined' && window.innerWidth < 992) {
+      this.sidebarHidden = true;
+      this.rightHidden = true;
+    }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', this.resizeHandler);
+    }
     this.authService.currentUser$.pipe(
       switchMap(u => {
         this.currentUserRole = u?.role || u?.role?.[0] || null;
@@ -143,6 +159,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     try { (this.chatService as any).disconnect?.(); } catch { }
     this.destroy$.next();
     this.destroy$.complete();
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('resize', this.resizeHandler);
+    }
   }
 
   private initSocket() {
@@ -172,6 +191,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           this.convPage = res.data.page;
           this.totalPageConversations = res.data.totalPages;
           this.pendingSearchText = this.searchText;
+          if (typeof window !== 'undefined' && window.innerWidth < 992 && !this.selectedConversation) {
+            this.sidebarHidden = false;
+          }
         } else {
           this.conversations = [...this.conversations, ...res.data.content];
         }
@@ -237,6 +259,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     this.loadMessages();
+    if (typeof window !== 'undefined' && window.innerWidth < 992) {
+      this.sidebarHidden = true;
+    }
   }
 
   loadMessages(page = 0) {
@@ -466,7 +491,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.moveConversationToTop(convNum);
       }
       this.cd.detectChanges();
-
       if (this.isIncomingMessage(msg)) {
         this.messageService.markRead(convNum).subscribe(() => {
           if (this.selectedConversation) this.selectedConversation.unread = 0;
@@ -703,8 +727,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   isIncomingMessage(msg: MessageDto): boolean {
     if (!this.selectedConversation) return false;
-    return (this.isHr() && msg.senderId === this.selectedConversation.candidateId)
-      || (this.isCandidate() && msg.senderId !== this.currentUserId);
+    return (this.isHr() && msg.senderId == this.selectedConversation.candidateId)
+      || (this.isCandidate() && msg.senderId != this.currentUserId);
   }
 
   showAvatarForMessage(group: { msgs: MessageDto[] }, mi: number): boolean {

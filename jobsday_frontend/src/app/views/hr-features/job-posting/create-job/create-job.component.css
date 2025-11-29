@@ -1,3 +1,69 @@
+.create-job-wrapper { max-width: 900px; }
+.create-job-header { padding: .9rem 1.1rem !important; }
+.create-job-title { font-size: 1.25rem; }
+.create-job-body { padding: 1.2rem 1.2rem; }
+
+.create-job-label { font-size: .8rem; text-transform: none; }
+.create-job-input, .create-job-select, .create-job-textarea, .create-job-skills-select { font-size: .85rem; }
+.create-job-actions { margin-top: .25rem; }
+.create-job-save-btn, .create-job-cancel-btn { min-width: 140px; }
+
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items.scroll-host > div:nth-child(2) {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px 12px;
+  padding: 12px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+::ng-deep .ng-dropdown-panel .ng-option {
+  flex: 0 0 calc(33.33% - 12px);
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  cursor: pointer;
+  width: auto !important;
+  white-space: nowrap;
+}
+::ng-deep .ng-dropdown-panel .ng-option:hover { background-color: #f5f5f5; }
+::ng-deep .skill-option { display: flex; align-items: center; font-size: 0.95rem; }
+::ng-deep .ng-select .ng-dropdown-panel { background: #fff !important; border-radius: 8px !important; box-shadow: 0 4px 24px rgba(0,0,0,0.10) !important; z-index: 1050 !important; border: 1px solid #e0e3e8 !important; }
+::ng-deep .ng-select .ng-dropdown-panel-items { background: transparent !important; }
+
+@media (max-width: 1024px) {
+  .create-job-wrapper { max-width: 100%; }
+}
+
+@media (max-width: 768px) {
+  .create-job-body { padding: 1rem .9rem; }
+  .create-job-title { font-size: 1.15rem; }
+  .create-job-input, .create-job-select, .create-job-textarea { font-size: .8rem; }
+  .create-job-label { font-size: .75rem; }
+  .create-job-actions { flex-direction: column; }
+  .create-job-save-btn, .create-job-cancel-btn { width: 100%; }
+}
+
+@media (max-width: 600px) {
+  .create-job-wrapper { padding-left: .9rem !important; padding-right: .9rem !important; }
+  .create-job-title { font-size: 1.05rem; }
+  .create-job-input, .create-job-select, .create-job-textarea { font-size: .78rem; }
+  .create-job-label { font-size: .72rem; }
+  .create-job-save-btn, .create-job-cancel-btn { min-width: 0; }
+}
+
+@media (max-width: 420px) {
+  .create-job-title { font-size: .95rem; }
+  .create-job-input, .create-job-select, .create-job-textarea { font-size: .72rem; }
+  .create-job-label { font-size: .68rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .create-job-save-btn, .create-job-cancel-btn { transition: none; }
+}
 ::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items.scroll-host > div:nth-child(2) {
   display: flex !important;
   flex-wrap: wrap !important;

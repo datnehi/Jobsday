@@ -86,8 +86,9 @@ export class PersonalInfoComponent {
   toggleSearchChange() {
     this.userService.updateNtdSearch(this.allowNTDSearch).subscribe(response => {
       if (response) {
-        this.authService.setUser(this.authService.token || '');
-        this.ngOnInit();
+        this.authService.loadUserBeforeApp().then(() => {
+          this.ngOnInit();
+        });
       }
     });
   }
@@ -110,8 +111,9 @@ export class PersonalInfoComponent {
           if (this.user?.role == 'HR') {
             this.companyMemberService.updateMember(updateMember).subscribe();
           }
-          this.authService.setUser(this.authService.token || '');
-          this.ngOnInit();
+          this.authService.loadUserBeforeApp().then(() => {
+            this.ngOnInit();
+          });
         }
       });
     }

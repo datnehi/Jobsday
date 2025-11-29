@@ -14,3 +14,21 @@
   align-items: center;
   justify-content: center;
 }
+
+.register-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
+.register-card .card-body { padding: 20px; }
+.register-tabs .nav-tabs { flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #eee; }
+.register-tabs .nav-link { border: none; padding: 8px 12px; }
+.register-tabs .nav-link.active { background: #e9f3ff; color: #0b5fff !important; }
+
+@media (max-width: 1024px) {
+  .register-card .card-body { padding: 16px; }
+}
+
+@media (max-width: 600px) {
+  .register-wrapper { min-height: 100dvh; padding: 16px 12px; align-items: center; justify-content: center; }
+  .register-card .card-body { padding: 14px; }
+  .row > [class*="col-md-"] { width: 100%; }
+  .input-group { flex-wrap: wrap; gap: 8px; }
+  .input-group .btn { width: 100%; }
+}

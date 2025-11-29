@@ -40,3 +40,53 @@
   .metric-card .card-body { padding: 0.8rem; }
   .metric-value.h4 { font-size: 1.1rem; }
 }
+
+.analytics-hr-wrapper { max-width: 1200px; }
+.analytics-controls { gap: .75rem; }
+
+.analytics-metric-card { position: relative; }
+.analytics-metric-body { display: flex; flex-direction: column; justify-content: center; min-height: 96px; }
+
+.analytics-growth-card, .analytics-topjobs-card, .analytics-tophr-card { border: 1px solid #e9ecef; }
+.analytics-growth-body, .analytics-topjobs-body, .analytics-tophr-body { padding: 1rem 1.1rem; }
+.analytics-chart-title { font-weight: 600; margin-bottom: .75rem; }
+.analytics-chart-box { position: relative; }
+.analytics-chart-box--growth { height: 320px; }
+.analytics-chart-box--bar { height: 360px; }
+
+.mat-button-toggle-group { flex-wrap: nowrap; }
+.mat-button-toggle-group::-webkit-scrollbar { display: none; }
+
+@media (max-width: 1024px) {
+  .analytics-chart-box--growth { height: 300px; }
+  .analytics-chart-box--bar { height: 340px; }
+}
+
+@media (max-width: 768px) {
+  .analytics-growth-body, .analytics-topjobs-body, .analytics-tophr-body { padding: .9rem .85rem; }
+  .analytics-chart-title { font-size: .95rem; }
+  .mat-button-toggle-group { overflow-x: auto; }
+  .metrics-row .col-6.col-md-3 { flex: 0 0 50%; max-width: 50%; }
+  .analytics-chart-box--growth { height: 260px; }
+  .analytics-chart-box--bar { height: 300px; }
+}
+
+@media (max-width: 600px) {
+  .metrics-row .col-6.col-md-3 { flex: 0 0 100%; max-width: 50%; }
+  .analytics-chart-title { font-size: .9rem; }
+  .metric-label { font-size: .75rem; }
+  .metric-value.h4 { font-size: 1.15rem; }
+  .analytics-chart-box--growth { height: 240px; }
+  .analytics-chart-box--bar { height: 280px; }
+}
+
+@media (max-width: 420px) {
+  .analytics-chart-title { font-size: .85rem; }
+  .metric-value.h4 { font-size: 1.05rem; }
+  .analytics-chart-box--growth { height: 220px; }
+  .analytics-chart-box--bar { height: 260px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .analytics-metric-card { transition: none; }
+}

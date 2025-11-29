@@ -24,9 +24,15 @@ export class AuthService {
   ) { }
 
   async loadUserBeforeApp(): Promise<any> {
+    const token = localStorage.getItem('token');
+    if (!token || token == undefined) {
+      this.clearUser();
+      return;
+    }
+
     try {
       const res = await this.userService.getCurrentUser().toPromise();
-      if (res) {
+      if (res && res.status === 200 && res.data) {
         this.currentUserSubject.next(res.data);
       } else {
         this.clearUser();
@@ -35,7 +41,6 @@ export class AuthService {
       this.clearUser();
     }
   }
-
 
   login(payload: LoginRequest): Observable<ResponseDto> {
     return this.http.post<ResponseDto>(this.api + '/login', payload).pipe(
@@ -111,5 +116,9 @@ export class AuthService {
 
   verifyForgotPasswordOtp(request: { email: string; otp: string; newPassword: string }): Observable<ResponseDto> {
     return this.http.post<ResponseDto>(`${this.api}/verify-forgot-password-otp`, request);
+  }
+
+  refreshToken(refreshToken: string): Observable<ResponseDto> {
+    return this.http.post<ResponseDto>(`${this.api}/refresh-token`, { refreshToken });
   }
 }

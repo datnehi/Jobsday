@@ -1,23 +1,23 @@
-<div class="container py-4" style="max-width:1200px;">
-  <div class="row">
-    <div class="col-lg-8 mb-4">
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <h4 class="fw-bold mb-3">Cài đặt thông tin công ty</h4>
-          <div class="mb-2 text-danger small">
+<div class="container py-4 company-info-wrapper">
+  <div class="row company-info-row">
+    <div class="col-lg-8 mb-4 company-info-main">
+      <div class="card shadow-sm mb-4 company-form-card">
+        <div class="card-body company-form-body">
+          <h4 class="fw-bold mb-3 company-form-title">Cài đặt thông tin công ty</h4>
+          <div class="mb-2 text-danger small company-form-required">
             <span class="fw-bold">*</span> Các thông tin bắt buộc
           </div>
-          <form [formGroup]="companyForm" (ngSubmit)="openConfirm()">
+          <form [formGroup]="companyForm" (ngSubmit)="openConfirm()" class="company-form" novalidate>
             <div class="mb-3">
-              <label class="form-label fw-bold">Tên công ty <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" formControlName="name" required>
+              <label class="form-label fw-bold company-label">Tên công ty <span class="text-danger">*</span></label>
+              <input type="text" class="form-control company-input" formControlName="name" required>
               <div *ngIf="companyForm.get('name')?.invalid && companyForm.get('name')?.touched" class="text-danger">
                 Tên công ty không được để trống
               </div>
             </div>
             <div class="mb-3">
-              <label for="companyLocation" class="form-label">Khu vực <span class="text-danger">*</span></label>
-              <select id="companyLocation" class="form-select" formControlName="location" required>
+              <label for="companyLocation" class="form-label company-label">Khu vực <span class="text-danger">*</span></label>
+              <select id="companyLocation" class="form-select company-select" formControlName="location" required>
                 <option value="">-- Chọn khu vực --</option>
                 <option value="Hà Nội">Hà Nội</option>
                 <option value="Đà Nẵng">Đà Nẵng</option>
@@ -29,36 +29,36 @@
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label fw-bold">Địa chỉ <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" formControlName="address" required>
+              <label class="form-label fw-bold company-label">Địa chỉ <span class="text-danger">*</span></label>
+              <input type="text" class="form-control company-input" formControlName="address" required>
               <div *ngIf="companyForm.get('address')?.invalid && companyForm.get('address')?.touched"
                 class="text-danger">
                 Địa chỉ không được để trống
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label fw-bold">Website</label>
-              <input type="text" class="form-control" formControlName="website">
+              <label class="form-label fw-bold company-label">Website</label>
+              <input type="text" class="form-control company-input" formControlName="website">
             </div>
             <div class="mb-3">
-              <label class="form-label fw-bold">Mã số thuế <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" formControlName="taxCode" required>
+              <label class="form-label fw-bold company-label">Mã số thuế <span class="text-danger">*</span></label>
+              <input type="text" class="form-control company-input" formControlName="taxCode" required>
               <div *ngIf="companyForm.get('taxCode')?.invalid && companyForm.get('taxCode')?.touched"
                 class="text-danger">
                 Mã số thuế không được để trống
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label fw-bold">Email <span class="text-danger">*</span></label>
-              <input type="email" class="form-control" formControlName="email">
+              <label class="form-label fw-bold company-label">Email <span class="text-danger">*</span></label>
+              <input type="email" class="form-control company-input" formControlName="email">
               <div *ngIf="companyForm.get('email')?.invalid && companyForm.get('email')?.touched" class="text-danger">
                 Email không hợp lệ
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label fw-bold">Kỹ năng của công ty</label>
+              <label class="form-label fw-bold company-label">Kỹ năng của công ty</label>
               <ng-select [items]="skillsList" bindLabel="name" bindValue="id" [multiple]="true" [searchable]="true"
-                formControlName="skills" class="form-control" [closeOnSelect]="false">
+                formControlName="skills" class="form-control company-skills-select" [closeOnSelect]="false">
 
                 <ng-template ng-option-tmp let-item="item">
                   <div class="skill-option">
@@ -73,29 +73,30 @@
               </ng-select>
             </div>
             <div class="mb-3">
-              <label class="form-label fw-bold">Mô tả</label>
-              <textarea class="form-control" formControlName="description" rows="4"></textarea>
+              <label class="form-label fw-bold company-label">Mô tả</label>
+              <textarea class="form-control company-textarea" formControlName="description" rows="4"></textarea>
             </div>
-            <button type="submit" class="btn btn-primary px-4 fw-bold" [disabled]="companyForm.invalid">Lưu</button>
+            <div class="company-form-actions">
+              <button type="submit" class="btn btn-primary px-4 fw-bold company-submit-btn" [disabled]="companyForm.invalid">Lưu</button>
+            </div>
           </form>
         </div>
       </div>
     </div>
-    <div class="col-lg-4 mb-4">
-      <div class="card shadow-sm mb-3">
-        <div class="card-body">
-          <div class="mb-3 d-flex gap-2 flex-row">
-            <div class="position-relative d-inline-block" style="width: 120px; height: 120px;">
-              <img [src]="company?.logo || 'assets/logo1.png'" alt="Logo" width="120" height="120"
-                class="rounded border bg-white" />
-              <button type="button" class="btn btn-light p-1 position-absolute bottom-0 end-0 border-0 shadow"
-                style="border-radius: 50%; background: #0d6efd;" (click)="openAvatarDialog()">
-                <i class="bi bi-camera-fill text-white"></i>
+    <div class="col-lg-4 mb-4 company-info-side">
+      <div class="card shadow-sm mb-3 company-side-card">
+        <div class="card-body company-side-body">
+          <div class="mb-3 d-flex gap-2 flex-row company-logo-row">
+            <div class="position-relative d-inline-block company-logo-wrapper">
+              <img [src]="company?.logo || 'assets/logo1.png'" alt="Logo" class="rounded border bg-white company-logo-img" />
+              <button type="button" class="btn btn-light p-1 position-absolute bottom-0 end-0 border-0 shadow company-logo-btn"
+                (click)="openAvatarDialog()" aria-label="Thay đổi logo">
+                <i class="bi bi-camera-fill text-white" aria-hidden="true"></i>
               </button>
             </div>
-            <div class="ms-3 flex-grow-1">
-              <h5 class="fw-bold text-primary mb-1">Công ty: {{ companyForm.get('name')?.value || 'Tên công ty' }}</h5>
-              <span class="badge bg-success">Đang hoạt động</span>
+            <div class="ms-3 flex-grow-1 company-side-meta">
+              <h5 class="fw-bold text-primary mb-1 company-side-name">Công ty: {{ companyForm.get('name')?.value || 'Tên công ty' }}</h5>
+              <span class="badge bg-success company-side-status">Đang hoạt động</span>
             </div>
           </div>
         </div>

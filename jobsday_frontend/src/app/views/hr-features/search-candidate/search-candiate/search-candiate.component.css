@@ -18,3 +18,32 @@
   border: 1.5px solid #0d6efd;
   cursor: pointer;
 }
+
+@media (max-width: 1199.98px) {
+  .search-bar-sticky { padding-top: 3.5rem !important; padding-bottom: 3.5rem !important; }
+}
+
+@media (max-width: 991.98px) {
+  .search-bar-sticky { padding-top: 3rem !important; padding-bottom: 3rem !important; }
+  .sidebar-sticky { position: static; top: auto; height: auto !important; }
+  .sidebar-sticky h5 { font-size: 1rem; }
+}
+
+@media (max-width: 767.98px) {
+  .search-bar-sticky { padding: 2.2rem 0 !important; }
+  .search-bar-sticky .rounded-pill { height: 44px !important; }
+  .search-bar-sticky input.form-control { font-size: .85rem; }
+
+  .candidate-card .card-body { flex-direction: column; align-items: flex-start !important; gap: 12px !important; }
+  .candidate-card img { width: 72px !important; height: 72px !important; }
+  .candidate-card h6 { font-size: 1.1rem !important; }
+  .candidate-card button.btn { width: 100%; }
+  .candidate-card button.btn + button.btn { margin-top: 6px; }
+}
+
+@media (max-width: 575.98px) {
+  .search-bar-sticky { padding: 1.8rem 0 !important; }
+  .candidate-card img { width: 64px !important; height: 64px !important; }
+  .candidate-card h6 { font-size: 1rem !important; }
+}
+

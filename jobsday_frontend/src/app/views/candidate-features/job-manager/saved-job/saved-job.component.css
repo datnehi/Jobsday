@@ -7,3 +7,34 @@
   border: 1.5px solid #0d6efd;
   cursor: pointer;
 }
+
+@media (max-width: 1199.98px) {
+  .card-header { padding: 1.25rem !important; }
+}
+
+@media (max-width: 991.98px) {
+  .container { padding-left: 16px; padding-right: 16px; }
+  .job-card .card-body { gap: 1rem !important; }
+  .job-card img[alt="Logo"] { width: 96px !important; height: 96px !important; }
+  .job-card h3.h6 { font-size: 1rem; }
+  .job-card .d-flex.gap-4 { gap: 1rem !important; flex-wrap: wrap; }
+  .job-card .d-flex.justify-content-between.align-items-center { height: auto !important; position: relative; }
+  .job-card .d-flex.justify-content-between.align-items-center > div:last-child { position: static !important; display: flex; flex-wrap: wrap; row-gap: 6px; }
+  .job-card span.text-muted.small[style*="position: absolute"] { position: static !important; display: block; width: 100%; text-align: right; margin-top: .25rem; }
+  .card-header h2 { font-size: 1.5rem; }
+}
+
+@media (max-width: 767.98px) {
+  .job-card .card-body { flex-wrap: wrap; }
+  .job-card img[alt="Logo"] { width: 80px !important; height: 80px !important; }
+  .job-card h3.h6 { font-size: .95rem; }
+  .job-card .text-muted, .job-card .text-primary { font-size: 13px; }
+  .badge { font-size: 12px; }
+}
+
+@media (max-width: 575.98px) {
+  .job-card img[alt="Logo"] { width: 72px !important; height: 72px !important; }
+  .job-card h3.h6 { font-size: .9rem; }
+  .job-card .text-muted, .job-card .text-primary { font-size: 12px; }
+  .badge { font-size: 11px; }
+}

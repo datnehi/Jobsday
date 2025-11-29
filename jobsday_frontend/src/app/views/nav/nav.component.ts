@@ -23,9 +23,12 @@ export class NavComponent {
   user: User | null = null;
   member: CompanyMember | null = null;
   showNotificationDropdown = false;
+  showMobileMenu = false;
   notifications: Notification[] = [];
   baseUrl: string = 'http://localhost:4200/';
   unreadConversationsCount: number = 0;
+  openDropdown: string | null = null;
+  showProfileDropdown: boolean = false;
 
   constructor(
     public authService: AuthService,
@@ -69,6 +72,37 @@ export class NavComponent {
 
   toggleNotificationDropdown() {
     this.showNotificationDropdown = !this.showNotificationDropdown;
+    if (this.showNotificationDropdown) {
+      this.showProfileDropdown = false;
+    }
+  }
+
+  toggleMobileMenu() {
+    this.showMobileMenu = !this.showMobileMenu;
+  }
+
+  toggleProfileDropdown(event?: Event) {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
+    this.showProfileDropdown = !this.showProfileDropdown;
+    if (this.showProfileDropdown) {
+      this.showNotificationDropdown = false;
+    }
+  }
+
+  handleTopLevelClick(event: Event, key: string, routePath: string) {
+    const isMobile = window.innerWidth <= 600;
+    if (!isMobile) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (this.openDropdown === key) {
+      this.openDropdown = null;
+      return;
+    }
+    this.openDropdown = key;
+  }
+
+  isDropdownOpen(key: string): boolean {
+    return this.openDropdown === key;
   }
 
   @HostListener('document:click', ['$event'])
@@ -76,6 +110,17 @@ export class NavComponent {
     const target = event.target as HTMLElement;
     if (!target.closest('.icon-item.dropdown')) {
       this.showNotificationDropdown = false;
+    }
+    if (!target.closest('.profile-dropdown-area')) {
+      this.showProfileDropdown = false;
+    }
+    const isMobile = window.innerWidth <= 600;
+    if (!target.closest('nav.navbar')) {
+      this.showMobileMenu = false;
+      this.openDropdown = null;
+    } else if (isMobile && this.openDropdown && !target.closest('.navbar-item.dropdown.open')) {
+      // Tap somewhere else inside nav: close open dropdown
+      this.openDropdown = null;
     }
   }
 

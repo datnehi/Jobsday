@@ -1,45 +1,47 @@
-<div class="container py-4">
-  <h3 class="mb-4 fw-bold text-primary text-center">Duyệt yêu cầu vào công ty</h3>
-  <div class="table-responsive">
-    <table class="table table-bordered align-middle text-center">
-      <thead class="table-primary">
-        <tr>
-          <th>Họ tên</th>
-          <th>Email</th>
-          <th>Vị trí</th>
-          <th>Ngày gửi yêu cầu</th>
-          <th style="width: 160px;">Thao tác</th>
+<div class="container py-4 approve-member-wrapper">
+  <h3 class="mb-4 fw-bold text-primary text-center approve-member-title">Duyệt yêu cầu vào công ty</h3>
+  <div class="table-responsive approve-table-wrapper">
+    <table class="table table-bordered align-middle text-center approve-table">
+      <thead class="table-primary approve-table-head">
+        <tr class="approve-table-head-row">
+          <th class="approve-th">Họ tên</th>
+          <th class="approve-th">Email</th>
+          <th class="approve-th">Vị trí</th>
+          <th class="approve-th">Ngày gửi yêu cầu</th>
+          <th class="approve-th approve-th-actions">Thao tác</th>
         </tr>
       </thead>
-      <tbody>
-        <tr *ngFor="let request of requests">
-          <td>{{ request.fullName }}</td>
-          <td>{{ request.email }}</td>
-          <td>{{ request.position }}</td>
-          <td>{{ request.updatedAt | date:'dd/MM/yyyy HH:mm:ss' }}</td>
-          <td>
-            <button class="btn btn-sm btn-success me-2" [disabled]="request.status !== 'PENDING'"
-              (click)="confirmMember(request.id, 'approve')">Duyệt</button>
-            <button class="btn btn-sm btn-danger" [disabled]="request.status !== 'PENDING'"
-              (click)="confirmMember(request.id, 'reject')">Từ chối</button>
+      <tbody class="approve-table-body">
+        <tr *ngFor="let request of requests" class="approve-row">
+          <td class="approve-td" data-label="Họ tên">{{ request.fullName }}</td>
+          <td class="approve-td" data-label="Email">{{ request.email }}</td>
+          <td class="approve-td" data-label="Vị trí">{{ request.position }}</td>
+          <td class="approve-td" data-label="Ngày gửi">{{ request.updatedAt | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+          <td class="approve-td approve-actions" data-label="Thao tác">
+            <div class="approve-action-buttons">
+              <button class="btn btn-sm btn-success approve-btn approve-btn-approve" [disabled]="request.status !== 'PENDING'"
+                (click)="confirmMember(request.id, 'approve')">Duyệt</button>
+              <button class="btn btn-sm btn-danger approve-btn approve-btn-reject" [disabled]="request.status !== 'PENDING'"
+                (click)="confirmMember(request.id, 'reject')">Từ chối</button>
+            </div>
           </td>
         </tr>
-        <tr *ngIf="requests.length === 0">
-          <td colspan="6" class="text-center text-muted">Không có yêu cầu nào.</td>
+        <tr *ngIf="requests.length === 0" class="approve-row-empty">
+          <td colspan="6" class="text-center text-muted approve-empty-cell">Không có yêu cầu nào.</td>
         </tr>
       </tbody>
     </table>
   </div>
-  <div *ngIf="totalPages > 1" class="d-flex justify-content-center align-items-center gap-3">
-    <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage === 0"
-      (click)="changePage(currentPage - 1)" style="width: 36px; height: 36px;" aria-label="Trang trước">
+  <div *ngIf="totalPages > 1" class="d-flex justify-content-center align-items-center gap-3 approve-pagination">
+    <button class="btn btn-outline-primary rounded-circle px-2 approve-page-btn prev-btn" [disabled]="currentPage === 0"
+      (click)="changePage(currentPage - 1)" aria-label="Trang trước">
       <i class="bi bi-chevron-left"></i>
     </button>
-    <span class="fw-bold text-primary" style="font-size: 1.1rem;">
+    <span class="fw-bold text-primary approve-page-info">
       {{ currentPage + 1 }} <span class="text-muted">/ {{ totalPages }} trang</span>
     </span>
-    <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage + 1 >= totalPages"
-      (click)="changePage(currentPage + 1)" style="width: 36px; height: 36px;" aria-label="Trang sau">
+    <button class="btn btn-outline-primary rounded-circle px-2 approve-page-btn next-btn" [disabled]="currentPage + 1 >= totalPages"
+      (click)="changePage(currentPage + 1)" aria-label="Trang sau">
       <i class="bi bi-chevron-right"></i>
     </button>
   </div>

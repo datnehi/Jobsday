@@ -1,0 +1,79 @@
+.hr-view-wrapper {
+	max-width: 1200px;
+}
+
+.hr-view-row {
+	--gap: 1.5rem;
+}
+
+.hr-summary-desc { font-size: .95rem; line-height: 1.4; }
+.hr-update-btn { transition: background-color .25s ease, box-shadow .25s ease; }
+.hr-update-btn:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: 2px; }
+
+.hr-summary-count {
+	width: 150px;
+	height: 120px;
+	font-size: 2.5rem;
+}
+.hr-summary-count-number { font-size: 2.8rem; line-height: 1; }
+.hr-summary-count-label { font-size: 1.1rem; }
+
+.hr-ntd-card { border: 1px solid #e9ecef; }
+.hr-ntd-logo { width: 48px; height: 48px; object-fit: cover; }
+.hr-ntd-company { cursor: pointer; }
+.hr-ntd-company:hover { text-decoration: underline; }
+.hr-empty-text { font-size: .95rem; }
+
+.hr-page-btn { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; }
+.hr-page-info { font-size: 1.05rem; }
+
+.hr-side-avatar { width: 48px; height: 48px; object-fit: cover; }
+.hr-side-welcome { font-size: 1.15rem; }
+.hr-ntd-checkbox { cursor: pointer; }
+.hr-ntd-info { font-size: .85rem; }
+
+@media (max-width: 1024px) {
+	.hr-view-side { order: -1; }
+	.hr-summary-count { width: 130px; height: 110px; font-size: 2.2rem; }
+	.hr-summary-count-number { font-size: 2.5rem; }
+	.hr-summary-count-label { font-size: 1rem; }
+	.hr-side-welcome { font-size: 1.05rem; }
+}
+
+@media (max-width: 768px) {
+	.hr-summary-row { flex-direction: column; align-items: flex-start; gap: 1.25rem; }
+	.hr-summary-count { width: 40%; height: auto; padding: 1.25rem 1rem; border-radius: 16px; font-size: 2.2rem; }
+	.hr-summary-count { flex-direction: row; }
+	.hr-summary-count-number { font-size: 2.4rem; margin-right: .75rem; }
+	.hr-summary-count-label { font-size: 1rem; }
+	.hr-ntd-row { flex-direction: column; align-items: flex-start; gap: .5rem; }
+	.hr-ntd-viewed { align-self: flex-end; }
+	.hr-page-info { font-size: .95rem; }
+}
+
+@media (max-width: 600px) {
+	.hr-view-wrapper { padding-left: .75rem !important; padding-right: .75rem !important; }
+	.hr-update-btn { width: 100%; }
+	.hr-ntd-logo { width: 40px; height: 40px; }
+	.hr-side-avatar { width: 40px; height: 40px; }
+	.hr-side-welcome { font-size: 1rem; }
+	.hr-pagination { gap: .5rem !important; }
+	.hr-page-btn { width: 40px; height: 40px; }
+	.hr-page-info { font-size: .9rem; }
+}
+
+@media (max-width: 420px) {
+	.hr-summary-title { font-size: 1.05rem !important; }
+	.hr-summary-desc { font-size: .85rem; }
+	.hr-summary-count-number { font-size: 2.1rem; }
+	.hr-summary-count-label { font-size: .9rem; }
+	.hr-ntd-card { padding: .75rem !important; }
+	.hr-ntd-name { font-size: .95rem; }
+	.hr-ntd-company { font-size: .75rem; }
+	.hr-empty-text { font-size: .85rem; }
+	.hr-page-btn { width: 38px; height: 38px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.hr-update-btn { transition: none; }
+}

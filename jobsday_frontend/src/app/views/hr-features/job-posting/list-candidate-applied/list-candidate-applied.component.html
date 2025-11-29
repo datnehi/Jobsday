@@ -1,31 +1,31 @@
-<div class="container mt-4">
-  <h2 class="mb-4 text-center">Danh sách ứng viên đã ứng tuyển</h2>
-  <div class="table-responsive" style="height: 46em;">
-    <table class="table table-bordered table-hover align-middle">
-      <thead class="table-primary">
-        <tr>
-          <th scope="col" class="text-center">STT</th>
-          <th scope="col" class="text-center" style="width: 16em;">Họ tên</th>
-          <th scope="col" class="text-center" style="width: 16em;">Email</th>
-          <th scope="col" class="text-center">Số điện thoại</th>
-          <th scope="col" class="text-center">CV</th>
-          <th scope="col" class="text-center">Ngày ứng tuyển</th>
-          <th scope="col" class="text-center">Trạng thái</th>
-          <th scope="col" class="text-center">Hành động</th>
+<div class="container mt-4 candidate-applied-wrapper">
+  <h2 class="mb-4 text-center candidate-applied-title">Danh sách ứng viên đã ứng tuyển</h2>
+  <div class="table-responsive candidate-table-wrapper">
+    <table class="table table-bordered table-hover align-middle candidate-table">
+      <thead class="table-primary candidate-table-head">
+        <tr class="candidate-table-head-row">
+          <th scope="col" class="text-center candidate-th">STT</th>
+          <th scope="col" class="text-center candidate-th candidate-th-name">Họ tên</th>
+          <th scope="col" class="text-center candidate-th candidate-th-email">Email</th>
+          <th scope="col" class="text-center candidate-th">Số điện thoại</th>
+          <th scope="col" class="text-center candidate-th">CV</th>
+          <th scope="col" class="text-center candidate-th">Ngày ứng tuyển</th>
+          <th scope="col" class="text-center candidate-th">Trạng thái</th>
+          <th scope="col" class="text-center candidate-th candidate-th-actions">Hành động</th>
         </tr>
       </thead>
-      <tbody>
-        <tr *ngFor="let application of applications; let i = index" (click)="viewDetail(application)" style="cursor: pointer;">
-          <th scope="row" class="text-center align-middle">{{ i + 1 }}</th>
-          <td class="text-center align-middle">{{ application.candidateName }}</td>
-          <td class="text-center align-middle">{{ application.candidateEmail }}</td>
-          <td class="text-center align-middle">{{ application.candidatePhone }}</td>
-          <td class="text-center align-middle">
-            <a (click)="viewCv(application.applicationId); $event.stopPropagation();" class="btn btn-sm btn-outline-primary">Xem CV</a>
+      <tbody class="candidate-table-body">
+        <tr *ngFor="let application of applications; let i = index" class="candidate-row" (click)="viewDetail(application)">
+          <th scope="row" class="text-center align-middle candidate-td candidate-index" data-label="STT">{{ i + 1 }}</th>
+          <td class="text-center align-middle candidate-td candidate-name" data-label="Họ tên">{{ application.candidateName }}</td>
+          <td class="text-center align-middle candidate-td candidate-email" data-label="Email">{{ application.candidateEmail }}</td>
+          <td class="text-center align-middle candidate-td candidate-phone" data-label="SĐT">{{ application.candidatePhone }}</td>
+          <td class="text-center align-middle candidate-td candidate-cv" data-label="CV">
+            <a (click)="viewCv(application.applicationId); $event.stopPropagation();" class="btn btn-sm btn-outline-primary candidate-cv-btn" aria-label="Xem CV">Xem CV</a>
           </td>
-          <td class="text-center align-middle">{{ application.appliedAt | date:'dd/MM/yyyy hh:mm' }}</td>
-          <td class="text-center align-middle">
-            <span class="status-badge" [ngClass]="{
+          <td class="text-center align-middle candidate-td candidate-applied" data-label="Ngày ứng tuyển">{{ application.appliedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td class="text-center align-middle candidate-td candidate-status" data-label="Trạng thái">
+            <span class="status-badge candidate-status-badge" [ngClass]="{
               'status-applied': application.status === 'APPLIED',
               'status-viewed': application.status === 'VIEWED',
               'status-suitable': application.status === 'SUITABLE',
@@ -34,81 +34,76 @@
               {{ application.status }}
             </span>
           </td>
-          <td class="text-center align-middle" style="width: 12em;">
-            <button class="btn btn-outline-info btn-sm me-2" title="Nhắn tin" (click)="openChatWithCandidate(application); $event.stopPropagation();">
-              <i class="bi bi-chat"></i>
-            </button>
-            <button class="btn btn-outline-primary btn-sm me-2" (click)="viewDetail(application); $event.stopPropagation();" title="Chi tiết">
-              <i class="bi bi-eye"></i>
-            </button>
-            <button class="btn btn-outline-success btn-sm me-2" (click)="acceptCandidate(application.applicationId); $event.stopPropagation();" title="Duyệt">
-              <i class="bi bi-check-lg"></i>
-            </button>
-            <button class="btn btn-outline-danger btn-sm" (click)="rejectCandidate(application.applicationId); $event.stopPropagation();" title="Từ chối">
-              <i class="bi bi-x-lg"></i>
-            </button>
+          <td class="text-center align-middle candidate-td candidate-actions" data-label="Hành động">
+            <div class="candidate-action-buttons">
+              <button class="btn btn-outline-info btn-sm candidate-action-btn" title="Nhắn tin" (click)="openChatWithCandidate(application); $event.stopPropagation();" aria-label="Nhắn tin">
+                <i class="bi bi-chat"></i>
+              </button>
+              <button class="btn btn-outline-primary btn-sm candidate-action-btn" (click)="viewDetail(application); $event.stopPropagation();" title="Chi tiết" aria-label="Xem chi tiết">
+                <i class="bi bi-eye"></i>
+              </button>
+              <button class="btn btn-outline-success btn-sm candidate-action-btn" (click)="acceptCandidate(application.applicationId); $event.stopPropagation();" title="Duyệt" aria-label="Duyệt ứng viên">
+                <i class="bi bi-check-lg"></i>
+              </button>
+              <button class="btn btn-outline-danger btn-sm candidate-action-btn" (click)="rejectCandidate(application.applicationId); $event.stopPropagation();" title="Từ chối" aria-label="Từ chối ứng viên">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
           </td>
         </tr>
-        <tr *ngIf="applications.length === 0">
-          <td colspan="8" class="text-center align-middle">Chưa có ứng viên nào ứng tuyển</td>
+        <tr *ngIf="applications.length === 0" class="candidate-row-empty">
+          <td colspan="8" class="text-center align-middle candidate-empty-cell">Chưa có ứng viên nào ứng tuyển</td>
         </tr>
       </tbody>
     </table>
   </div>
-  <div *ngIf="totalPages > 1"
-    class="d-flex justify-content-center align-items-center gap-3">
-    <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage === 0"
-      (click)="changePage(currentPage - 1)" style="width: 36px; height: 36px;"
-      aria-label="Trang trước">
+  <div *ngIf="totalPages > 1" class="d-flex justify-content-center align-items-center gap-3 candidate-pagination">
+    <button class="btn btn-outline-primary rounded-circle px-2 candidate-page-btn prev-btn" [disabled]="currentPage === 0"
+      (click)="changePage(currentPage - 1)" aria-label="Trang trước">
       <i class="bi bi-chevron-left"></i>
     </button>
-    <span class="fw-bold text-primary" style="font-size: 1.1rem;">
+    <span class="fw-bold text-primary candidate-page-info">
       {{ currentPage + 1 }} <span class="text-muted">/ {{ totalPages }} trang</span>
     </span>
-    <button class="btn btn-outline-primary rounded-circle px-2"
+    <button class="btn btn-outline-primary rounded-circle px-2 candidate-page-btn next-btn"
       [disabled]="currentPage + 1 >= totalPages"
-      (click)="changePage(currentPage + 1)" style="width: 36px; height: 36px;"
-      aria-label="Trang sau">
+      (click)="changePage(currentPage + 1)" aria-label="Trang sau">
       <i class="bi bi-chevron-right"></i>
     </button>
   </div>
 </div>
 
-<div class="modal fade"
-     tabindex="-1"
-     [class.show]="showDetailDialog"
+<div class="modal fade candidate-detail-modal" tabindex="-1" [class.show]="showDetailDialog"
      [style.display]="showDetailDialog ? 'block' : 'none'"
-     style="background: rgba(0,0,0,0.2); z-index: 1051;"
-     *ngIf="showDetailDialog"
-     (click)="closeDetailDialog()">
-  <div class="modal-dialog modal-dialog-centered modal-lg"
-       (click)="$event.stopPropagation()">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title">Chi tiết ứng viên</h5>
-        <button type="button" class="btn-close btn-outline" (click)="closeDetailDialog()"></button>
+     *ngIf="showDetailDialog" (click)="closeDetailDialog()">
+  <div class="modal-dialog modal-dialog-centered modal-lg candidate-detail-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-content candidate-detail-content">
+      <div class="modal-header bg-primary text-white candidate-detail-header">
+        <h5 class="modal-title candidate-detail-title">Chi tiết ứng viên</h5>
+        <button type="button" class="btn-close btn-outline candidate-detail-close" (click)="closeDetailDialog()" aria-label="Đóng"></button>
       </div>
-      <div class="modal-body" *ngIf="selectedApplication">
-        <div class="row">
-          <div class="col-md-4 d-flex flex-column align-items-center border-end justify-content-center">
-            <img [src]="selectedApplication.candidateAvatar || 'assets/user.jpg'" alt="Avatar" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
-            <div class="fw-bold fs-5 mb-2">{{ selectedApplication.candidateName }}</div>
-            <div class="mb-2" *ngIf="selectedApplication.candidateEmail"><i class="bi bi-envelope"></i> {{ selectedApplication.candidateEmail }}</div>
-            <div class="mb-2" *ngIf="selectedApplication.candidatePhone"><i class="bi bi-telephone"></i> {{ selectedApplication.candidatePhone }}</div>
+      <div class="modal-body candidate-detail-body" *ngIf="selectedApplication">
+        <div class="row candidate-detail-row">
+          <div class="col-md-4 d-flex flex-column align-items-center border-end justify-content-center candidate-detail-left">
+            <img [src]="selectedApplication.candidateAvatar || 'assets/user.jpg'" alt="Avatar" class="rounded-circle mb-3 candidate-detail-avatar" />
+            <div class="fw-bold fs-5 mb-2 candidate-detail-name">{{ selectedApplication.candidateName }}</div>
+            <div class="mb-2 candidate-detail-email" *ngIf="selectedApplication.candidateEmail"><i class="bi bi-envelope"></i> {{ selectedApplication.candidateEmail }}</div>
+            <div class="mb-2 candidate-detail-phone" *ngIf="selectedApplication.candidatePhone"><i class="bi bi-telephone"></i> {{ selectedApplication.candidatePhone }}</div>
           </div>
-          <div class="col-md-8">
-            <div class="mb-2"><strong>CV: </strong> <a (click)="viewCv(selectedApplication.applicationId)" class="text-primary" style="cursor: pointer;">Xem CV</a></div>
-            <div class="mb-2"><strong>Thư ứng tuyển:</strong>
-              <div class="border rounded p-2" style="height: 200px;">
+          <div class="col-md-8 candidate-detail-right">
+            <div class="mb-2 candidate-detail-cv"><strong>CV: </strong> <a (click)="viewCv(selectedApplication.applicationId)" class="text-primary candidate-detail-cv-link">Xem CV</a></div>
+            <div class="mb-2 candidate-detail-cover">
+              <strong>Thư ứng tuyển:</strong>
+              <div class="border rounded p-2 candidate-detail-cover-box">
                 <span [innerHTML]="selectedApplication.coverLetter | newlineToBr"></span>
               </div>
             </div>
-            <div class="mb-2"><strong>Ngày ứng tuyển:</strong> {{ selectedApplication.appliedAt | date:'dd/MM/yyyy HH:mm' }}</div>
+            <div class="mb-2 candidate-detail-applied"><strong>Ngày ứng tuyển:</strong> {{ selectedApplication.appliedAt | date:'dd/MM/yyyy HH:mm' }}</div>
           </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="closeDetailDialog()">Đóng</button>
+      <div class="modal-footer candidate-detail-footer">
+        <button class="btn btn-secondary candidate-detail-close-btn" (click)="closeDetailDialog()">Đóng</button>
       </div>
     </div>
   </div>

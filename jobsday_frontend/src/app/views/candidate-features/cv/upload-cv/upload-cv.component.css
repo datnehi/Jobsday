@@ -1,0 +1,64 @@
+.upload-cv-wrapper { max-width: 1200px; }
+.upload-cv-header-title { line-height: 1.25; }
+.upload-cv-header-sub { font-size: .95rem; }
+.upload-cv-intro { font-size: .95rem; line-height: 1.5; }
+
+.upload-cv-dropzone { cursor: pointer; background: var(--bs-light); transition: border-color .25s ease, background-color .25s ease; position: relative; }
+.upload-cv-dropzone.drag-over { background: #eef6ff; border-color: var(--bs-primary); }
+.upload-cv-drop-inner { min-height: 50px; }
+.upload-cv-drop-icon { font-size: 48px; }
+.upload-cv-drop-text { font-size: .95rem; }
+.upload-cv-hint { font-size: .75rem; }
+.upload-cv-file-name { font-size: .85rem; }
+.upload-cv-remove-btn { line-height: 1; }
+.upload-cv-action { margin-top: 1rem; }
+.upload-cv-submit-btn { min-width: 220px; }
+
+.upload-cv-benefit-card { transition: transform .25s ease, box-shadow .25s ease; }
+.upload-cv-benefit-card:hover { transform: translateY(-2px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.08); }
+.upload-cv-benefit-icon { width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 2rem; }
+.upload-cv-benefit-icon-inner { font-size: 2rem; }
+.upload-cv-benefit-title { font-size: 1.05rem; }
+.upload-cv-benefit-text { line-height: 1.4; }
+
+.upload-cv-dropzone:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: 2px; }
+.upload-cv-select-btn:focus-visible, .upload-cv-submit-btn:focus-visible { outline: 2px solid var(--bs-primary); outline-offset: 2px; }
+
+@media (max-width: 1024px) {
+	.upload-cv-header-title { font-size: 1.5rem; }
+	.upload-cv-benefit-title { font-size: 1rem; }
+}
+
+@media (max-width: 768px) {
+	.upload-cv-wrapper { padding-left: 1rem !important; padding-right: 1rem !important; }
+	.upload-cv-drop-icon { font-size: 40px; }
+	.upload-cv-drop-inner { flex-direction: column; gap: .5rem; }
+	.upload-cv-submit-btn { width: 100%; }
+	.upload-cv-benefits > .col-md-6 { flex: 0 0 50%; max-width: 50%; }
+}
+
+@media (max-width: 600px) {
+	.upload-cv-header { padding: 1.5rem !important; }
+	.upload-cv-header-title { font-size: 1.35rem; }
+	.upload-cv-intro { font-size: .9rem; }
+	.upload-cv-drop-text { font-size: .85rem; }
+	.upload-cv-benefits { padding: 1.25rem !important; }
+	.upload-cv-benefits > .col-md-6 { flex: 0 0 100%; max-width: 100%; }
+	.upload-cv-benefit-card { min-height: auto; }
+	.upload-cv-benefit-icon { width: 60px; height: 60px; font-size: 1.6rem; }
+	.upload-cv-benefit-icon-inner { font-size: 1.6rem; }
+}
+
+@media (max-width: 420px) {
+	.upload-cv-header-title { font-size: 1.2rem; }
+	.upload-cv-header-sub { font-size: .75rem; }
+	.upload-cv-drop-icon { font-size: 36px; }
+	.upload-cv-drop-text { font-size: .8rem; }
+	.upload-cv-file-name { font-size: .75rem; }
+	.upload-cv-benefit-title { font-size: .95rem; }
+	.upload-cv-benefit-text { font-size: .7rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.upload-cv-benefit-card, .upload-cv-dropzone { transition: none; }
+}

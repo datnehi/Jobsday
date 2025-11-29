@@ -1,91 +1,92 @@
-<div class="container py-4" style="max-width:1200px;">
-  <div class="card shadow-sm mb-4">
-    <div class="card-header bg-primary p-4">
-      <h3 class="fw-bold text-white">Upload CV để các cơ hội việc làm tự tìm đến bạn</h3>
-      <div class="text-white">Giảm đến 50% thời gian cần thiết để tìm được một công việc phù hợp</div>
+<div class="container py-4 upload-cv-wrapper">
+  <div class="card shadow-sm mb-4 upload-cv-card">
+    <div class="card-header bg-primary p-4 upload-cv-header">
+      <h3 class="fw-bold text-white upload-cv-header-title">Upload CV để các cơ hội việc làm tự tìm đến bạn</h3>
+      <div class="text-white upload-cv-header-sub">Giảm đến 50% thời gian cần thiết để tìm được một công việc phù hợp</div>
     </div>
-    <div class="card-body">
-      <div class="mb-4 ms-2">Bạn đã có sẵn CV của mình, chỉ cần tải CV lên, hệ thống sẽ tự động đề xuất CV của bạn tới
+    <div class="card-body upload-cv-body">
+      <div class="mb-4 ms-2 upload-cv-intro">Bạn đã có sẵn CV của mình, chỉ cần tải CV lên, hệ thống sẽ tự động đề xuất CV của bạn tới
         những nhà tuyển dụng uy tín.<br>
         Tiết kiệm thời gian, tìm việc thông minh, nắm bắt cơ hội và làm chủ đường đua nghề nghiệp của chính mình.
       </div>
-      <div class="border rounded p-4 mb-4 bg-light text-center" style="cursor: pointer;" (click)="cvInput.click()"
+      <div class="border rounded p-4 mb-4 upload-cv-dropzone text-center"
+        (click)="cvInput.click()"
         (dragover)="onDragOver($event)" (drop)="onDrop($event)" (dragleave)="onDragLeave($event)"
-        [class.bg-light]="isDragOver">
-        <div class="d-flex justify-content-center align-items-center" style="height: 50px;">
-          <i class="bi bi-cloud-arrow-up text-primary me-2" style="font-size: 48px;"></i>
-          <span class="fw-bold text-center">Tải lên CV từ máy tính, chọn hoặc kéo thả</span>
+        [class.drag-over]="isDragOver" aria-label="Khu vực tải CV">
+        <div class="d-flex justify-content-center align-items-center upload-cv-drop-inner">
+          <i class="bi bi-cloud-arrow-up text-primary me-2 upload-cv-drop-icon" aria-hidden="true"></i>
+          <span class="fw-bold text-center upload-cv-drop-text">Tải lên CV từ máy tính, chọn hoặc kéo thả</span>
         </div>
-        <div class="text-muted mb-2">Hỗ trợ định dạng .doc, .docx, pdf có kích thước dưới 5MB</div>
-        <input #cvInput type="file" class="d-none" accept=".pdf,.doc,.docx" (change)="onCVFileChange($event)">
-        <div *ngIf="uploadedCVName" class="d-flex justify-content-center align-items-center gap-2 mb-3">
-          <span class="text-primary fw-bold">
-            <i class="bi bi-file-earmark-text"></i> {{ uploadedCVName }}
+        <div class="text-muted mb-2 upload-cv-hint">Hỗ trợ định dạng .doc, .docx, pdf có kích thước dưới 5MB</div>
+        <input #cvInput type="file" class="d-none" accept=".pdf,.doc,.docx" (change)="onCVFileChange($event)" aria-label="Chọn file CV">
+        <div *ngIf="uploadedCVName" class="d-flex justify-content-center align-items-center gap-2 mb-3 upload-cv-file-row">
+          <span class="text-primary fw-bold upload-cv-file-name">
+            <i class="bi bi-file-earmark-text" aria-hidden="true"></i> {{ uploadedCVName }}
           </span>
-          <button type="button" class="btn btn-link text-danger p-0"
-            (click)="removeUploadedCV(); $event.stopPropagation();">
-            <i class="bi bi-trash"></i>
+          <button type="button" class="btn btn-link text-danger p-0 upload-cv-remove-btn"
+            (click)="removeUploadedCV(); $event.stopPropagation();" aria-label="Xóa file CV">
+            <i class="bi bi-trash" aria-hidden="true"></i>
           </button>
-          <button type="button" class="btn btn-primary btn-sm fw-bold"
-            (click)="cvInput.click(); $event.stopPropagation();">
+          <button type="button" class="btn btn-primary btn-sm fw-bold upload-cv-select-btn"
+            (click)="cvInput.click(); $event.stopPropagation();" aria-label="Chọn lại CV">
             Chọn CV
           </button>
         </div>
-        <div *ngIf="!uploadedCVName" class="d-flex justify-content-center">
-          <button type="button" class="btn btn-primary btn-sm fw-bold"
-            (click)="cvInput.click(); $event.stopPropagation();">
+        <div *ngIf="!uploadedCVName" class="d-flex justify-content-center upload-cv-empty-row">
+          <button type="button" class="btn btn-primary btn-sm fw-bold upload-cv-select-btn"
+            (click)="cvInput.click(); $event.stopPropagation();" aria-label="Chọn CV">
             Chọn CV
           </button>
         </div>
       </div>
-      <div class="text-center">
-        <button class="btn btn-primary px-5 py-2 fw-bold" (click)="upLoadCv()" [disabled]="isUploading">Tải CV lên</button>
+      <div class="text-center upload-cv-action">
+        <button class="btn btn-primary px-5 py-2 fw-bold upload-cv-submit-btn" (click)="upLoadCv()" [disabled]="isUploading">Tải CV lên</button>
       </div>
     </div>
-    <div class="row g-4 p-4 mb-4">
+    <div class="row g-4 p-4 mb-4 upload-cv-benefits">
       <div class="col-md-6">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body text-center">
-            <div class="bg-success bg-opacity-10 rounded-circle d-inline-block p-3 mb-2">
-              <i class="bi bi-clipboard-check fs-2 text-success"></i>
+        <div class="card h-100 shadow-sm upload-cv-benefit-card">
+          <div class="card-body text-center upload-cv-benefit-body">
+            <div class="rounded-circle d-inline-block upload-cv-benefit-icon bg-success bg-opacity-10">
+              <i class="bi bi-clipboard-check text-success upload-cv-benefit-icon-inner"></i>
             </div>
-            <h5 class="fw-bold mb-2">Nhận về các cơ hội tốt nhất</h5>
-            <div class="text-muted small">CV của bạn sẽ được ưu tiên hiển thị với các nhà tuyển dụng đã xác thực. Nhận
+            <h5 class="fw-bold mb-2 upload-cv-benefit-title">Nhận về các cơ hội tốt nhất</h5>
+            <div class="text-muted small upload-cv-benefit-text">CV của bạn sẽ được ưu tiên hiển thị với các nhà tuyển dụng đã xác thực. Nhận
               được lời mời với những cơ hội việc làm hấp dẫn từ các doanh nghiệp uy tín.</div>
           </div>
         </div>
       </div>
       <div class="col-md-6">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body text-center">
-            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-block p-3 mb-2">
-              <i class="bi bi-bar-chart-line fs-2 text-warning"></i>
+        <div class="card h-100 shadow-sm upload-cv-benefit-card">
+          <div class="card-body text-center upload-cv-benefit-body">
+            <div class="rounded-circle d-inline-block upload-cv-benefit-icon bg-warning bg-opacity-10">
+              <i class="bi bi-bar-chart-line text-warning upload-cv-benefit-icon-inner"></i>
             </div>
-            <h5 class="fw-bold mb-2">Theo dõi số liệu, tối ưu CV</h5>
-            <div class="text-muted small">Theo dõi số lượt xem CV. Biết chính xác nhà tuyển dụng nào trên TopCV đang
+            <h5 class="fw-bold mb-2 upload-cv-benefit-title">Theo dõi số liệu, tối ưu CV</h5>
+            <div class="text-muted small upload-cv-benefit-text">Theo dõi số lượt xem CV. Biết chính xác nhà tuyển dụng nào trên TopCV đang
               quan tâm đến CV của bạn.</div>
           </div>
         </div>
       </div>
       <div class="col-md-6">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body text-center">
-            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-block p-3 mb-2">
-              <i class="bi bi-send fs-2 text-primary"></i>
+        <div class="card h-100 shadow-sm upload-cv-benefit-card">
+          <div class="card-body text-center upload-cv-benefit-body">
+            <div class="rounded-circle d-inline-block upload-cv-benefit-icon bg-primary bg-opacity-10">
+              <i class="bi bi-send text-primary upload-cv-benefit-icon-inner"></i>
             </div>
-            <h5 class="fw-bold mb-2">Chia sẻ CV bất cứ nơi đâu</h5>
-            <div class="text-muted small">Upload một lần và sử dụng đường link gửi tới nhiều nhà tuyển dụng.</div>
+            <h5 class="fw-bold mb-2 upload-cv-benefit-title">Chia sẻ CV bất cứ nơi đâu</h5>
+            <div class="text-muted small upload-cv-benefit-text">Upload một lần và sử dụng đường link gửi tới nhiều nhà tuyển dụng.</div>
           </div>
         </div>
       </div>
       <div class="col-md-6">
-        <div class="card h-100 shadow-sm">
-          <div class="card-body text-center">
-            <div class="bg-danger bg-opacity-10 rounded-circle d-inline-block p-3 mb-2">
-              <i class="bi bi-person-check fs-2 text-danger"></i>
+        <div class="card h-100 shadow-sm upload-cv-benefit-card">
+          <div class="card-body text-center upload-cv-benefit-body">
+            <div class="rounded-circle d-inline-block upload-cv-benefit-icon bg-danger bg-opacity-10">
+              <i class="bi bi-person-check text-danger upload-cv-benefit-icon-inner"></i>
             </div>
-            <h5 class="fw-bold mb-2">Kết nối nhanh chóng với nhà tuyển dụng</h5>
-            <div class="text-muted small">Dễ dàng kết nối với các nhà tuyển dụng nào xem và quan tâm tới CV của bạn.
+            <h5 class="fw-bold mb-2 upload-cv-benefit-title">Kết nối nhanh chóng với nhà tuyển dụng</h5>
+            <div class="text-muted small upload-cv-benefit-text">Dễ dàng kết nối với các nhà tuyển dụng nào xem và quan tâm tới CV của bạn.
             </div>
           </div>
         </div>

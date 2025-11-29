@@ -1,5 +1,5 @@
-<div class="container py-3">
-  <div class="controls-row d-flex justify-content-center justify-content-md-end mb-3">
+<div class="container py-3 analytics-hr-wrapper">
+  <div class="controls-row d-flex justify-content-center justify-content-md-end mb-3 analytics-controls">
     <mat-button-toggle-group [value]="range" (change)="setRange($event.value)">
       <mat-button-toggle [value]="7">7 ngày</mat-button-toggle>
       <mat-button-toggle [value]="30">30 ngày</mat-button-toggle>
@@ -8,10 +8,10 @@
   </div>
 
   <div *ngIf="stats">
-    <div class="row g-3 mb-3">
+    <div class="row g-3 mb-3 metrics-row">
       <div class="col-6 col-md-3">
-        <div class="card metric-card metric-1 shadow-sm">
-          <div class="card-body">
+        <div class="card metric-card metric-1 shadow-sm analytics-metric-card">
+          <div class="card-body analytics-metric-body">
             <small class="metric-label">Tin tuyển dụng đang hoạt động</small>
             <div class="metric-value h4 mt-2">{{ stats.activeJobs }}</div>
           </div>
@@ -19,8 +19,8 @@
       </div>
 
       <div class="col-6 col-md-3">
-        <div class="card metric-card metric-2 shadow-sm">
-          <div class="card-body">
+        <div class="card metric-card metric-2 shadow-sm analytics-metric-card">
+          <div class="card-body analytics-metric-body">
             <small class="metric-label">Tổng ứng viên đã ứng tuyển</small>
             <div class="metric-value h4 mt-2">{{ stats.totalApplications }}</div>
           </div>
@@ -28,8 +28,8 @@
       </div>
 
       <div class="col-6 col-md-3">
-        <div class="card metric-card metric-4 shadow-sm">
-          <div class="card-body">
+        <div class="card metric-card metric-4 shadow-sm analytics-metric-card">
+          <div class="card-body analytics-metric-body">
             <small class="metric-label">Tỉ lệ phù hợp</small>
             <div class="metric-value h4 mt-2">{{ (stats.fitRate * 100) | number:'1.0-1' }}%</div>
           </div>
@@ -37,10 +37,10 @@
       </div>
     </div>
 
-    <div class="card mb-3">
-      <div class="card-body">
-        <h5 class="card-title">Biểu đồ tăng trưởng ứng viên</h5>
-        <div style="height: 320px;">
+    <div class="card mb-3 analytics-growth-card">
+      <div class="card-body analytics-growth-body">
+        <h5 class="card-title analytics-chart-title">Biểu đồ tăng trưởng ứng viên</h5>
+        <div class="analytics-chart-box analytics-chart-box--growth">
           <apx-chart [series]="growthSeries" [chart]="growthChart" [stroke]="growthStroke" [xaxis]="growthXAxis"
             [colors]="growthColors" [tooltip]="growthTooltip" [grid]="growthGrid" type="line" height="320">
           </apx-chart>
@@ -50,10 +50,10 @@
 
     <div class="row g-3">
       <div class="col-lg-6">
-        <div class="card h-100">
-          <div class="card-body">
-            <h6 class="card-title">Top 10 job nhiều ứng tuyển</h6>
-            <div style="height: 360px;">
+        <div class="card h-100 analytics-topjobs-card">
+          <div class="card-body analytics-topjobs-body">
+            <h6 class="card-title analytics-chart-title">Top 10 job nhiều ứng tuyển</h6>
+            <div class="analytics-chart-box analytics-chart-box--bar">
               <apx-chart [series]="topJobsSeries" [chart]="topJobsChart" [plotOptions]="topJobsPlotOptions"
                 [dataLabels]="topJobsDataLabels" [xaxis]="topJobsXAxis" [yaxis]="topJobsYAxis" [colors]="topJobsColors"
                 [grid]="topJobsGrid" [tooltip]="topJobsTooltip" type="bar" height="360">
@@ -64,10 +64,10 @@
       </div>
 
       <div class="col-lg-6">
-        <div class="card h-100">
-          <div class="card-body">
-            <h6 class="card-title">Top 10 HR có số CV phù hợp</h6>
-            <div style="height: 360px;">
+        <div class="card h-100 analytics-tophr-card">
+          <div class="card-body analytics-tophr-body">
+            <h6 class="card-title analytics-chart-title">Top 10 HR có số CV phù hợp</h6>
+            <div class="analytics-chart-box analytics-chart-box--bar">
               <apx-chart [series]="topHrSeries" [chart]="topHrChart" [plotOptions]="topHrPlotOptions"
                 [dataLabels]="topHrDataLabels" [xaxis]="topHrXAxis" [yaxis]="topHrYAxis" [colors]="topHrColors"
                 [grid]="topHrGrid" [tooltip]="topHrTooltip" type="bar" height="360">

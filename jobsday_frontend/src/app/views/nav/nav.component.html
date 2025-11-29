@@ -1,16 +1,20 @@
 <nav class="navbar">
+  <button class="navbar-toggle" (click)="toggleMobileMenu()">
+    <i class="bi bi-list"></i>
+  </button>
   <div class="navbar-logo">
     <a routerLink="/">
       <img src="assets/baner.png" alt="Logo">
     </a>
   </div>
 
-  <ul class="navbar-menu">
+  <ul class="navbar-menu" [class.open]="showMobileMenu">
     <li *ngIf="isLogging == false || user?.role == 'CANDIDATE'"
         class="navbar-item dropdown"
+        [class.open]="isDropdownOpen('jobsday')"
         routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
-      <a routerLink="/jobsday">Việc làm <i *ngIf="isLogging == true || user?.role == 'CANDIDATE'" class="bi bi-chevron-down"></i></a>
-      <ul class="dropdown-menu" style="width: max-content;" *ngIf="isLogging == true || user?.role == 'CANDIDATE'">
+      <a routerLink="/jobsday" (click)="handleTopLevelClick($event, 'jobsday', '/jobsday')">Việc làm <i *ngIf="isLogging == true || user?.role == 'CANDIDATE'" class="bi bi-chevron-down"></i></a>
+      <ul class="dropdown-menu" [class.show]="isDropdownOpen('jobsday')" style="width: max-content;" *ngIf="isLogging == true || user?.role == 'CANDIDATE'">
         <li><a routerLink="/jobsday" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Tìm việc làm</a></li>
         <li><a routerLink="/saved-jobs" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Việc làm đã lưu</a></li>
         <li><a routerLink="/applied-history" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Việc làm đã ứng tuyển</a></li>
@@ -18,9 +22,10 @@
     </li>
 
     <li *ngIf="user?.role == 'CANDIDATE'" class="navbar-item dropdown"
+        [class.open]="isDropdownOpen('cv')"
         routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
-      <a routerLink="/quan-ly-cv">Quản lý CV <i class="bi bi-chevron-down"></i></a>
-      <ul class="dropdown-menu" style="width: max-content;">
+      <a routerLink="/quan-ly-cv" (click)="handleTopLevelClick($event, 'cv', '/quan-ly-cv')">Quản lý CV <i class="bi bi-chevron-down"></i></a>
+      <ul class="dropdown-menu" [class.show]="isDropdownOpen('cv')" style="width: max-content;">
         <li><a routerLink="/quan-ly-cv" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">CV của tôi</a></li>
         <li><a routerLink="/upload-cv" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Tải CV lên</a></li>
         <li><a routerLink="/xem-ho-so" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Nhà tuyển dụng xem hồ sơ</a></li>
@@ -32,9 +37,10 @@
     </li>
 
     <li *ngIf="user?.role == 'HR'" class="navbar-item dropdown"
+        [class.open]="isDropdownOpen('job')"
         routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
-      <a routerLink="/quan-ly-job">Quản lý Job<i class="bi bi-chevron-down"></i></a>
-      <ul class="dropdown-menu">
+      <a routerLink="/quan-ly-job" (click)="handleTopLevelClick($event, 'job', '/quan-ly-job')">Quản lý Job<i class="bi bi-chevron-down"></i></a>
+      <ul class="dropdown-menu" [class.show]="isDropdownOpen('job')">
         <li><a routerLink="/quan-ly-job" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Danh sách Job</a></li>
         <li><a routerLink="/create-job" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Đăng tin mới</a></li>
       </ul>
@@ -45,9 +51,10 @@
     </li>
 
     <li *ngIf="user?.role == 'HR' && member?.isAdmin == true" class="navbar-item dropdown"
+        [class.open]="isDropdownOpen('company')"
         routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
-      <a routerLink="/company-manager">Quản lý Công ty <i class="bi bi-chevron-down"></i></a>
-      <ul class="dropdown-menu" style="width: max-content;">
+      <a routerLink="/company-manager" (click)="handleTopLevelClick($event, 'company', '/company-manager')">Quản lý Công ty <i class="bi bi-chevron-down"></i></a>
+      <ul class="dropdown-menu" [class.show]="isDropdownOpen('company')" style="width: max-content;">
         <li><a routerLink="/company-manager" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Quản lý thành viên</a></li>
         <li><a routerLink="/approve-member" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Duyệt thành viên</a></li>
         <li><a routerLink="/company-info" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Thông tin công ty</a></li>
@@ -67,41 +74,36 @@
     </li>
   </ul>
 
-  <ul class="navbar-right">
+  <ul class="navbar-right" [class.open]="showMobileMenu">
     <ng-container *ngIf="isLogging; else loggedOut">
       <li class="icon-item dropdown" *ngIf="user?.role != 'ADMIN'">
-        <button class="icon-content position-relative" (click)="toggleNotificationDropdown()">
+        <button class="icon-content position-relative" (click)="toggleNotificationDropdown()" aria-haspopup="true" [attr.aria-expanded]="showNotificationDropdown">
           <div class="icon-container">
             <i class="bi bi-bell"></i>
             <span *ngIf="notifications.length > 0" class="notify-badge">{{ notifications.length }}</span>
           </div>
         </button>
-        <div class="dropdown-menu" [class.show]="showNotificationDropdown" *ngIf="showNotificationDropdown"
-          style="width: 400px;">
-          <div class="d-flex align-items-center justify-content-between fw-bold px-3 py-2 border-bottom bg-light"
-            style="position: sticky; top: 0; z-index: 1; background: #f8f9fa;">
-            <span>Thông báo</span>
-            <button class="btn btn-link p-0 fw-normal" (click)="markAllAsRead()" style="font-size: 0.95rem;">
-              Đánh dấu đã đọc
-            </button>
+        <div class="dropdown-menu notification-dropdown" [class.show]="showNotificationDropdown" *ngIf="showNotificationDropdown">
+          <div class="notification-header">
+            <span class="title">Thông báo</span>
+            <button class="mark-read" (click)="markAllAsRead()">Đánh dấu đã đọc</button>
           </div>
-          <div style="max-height: 45vh; overflow-y: auto;">
+          <div class="notification-list" role="list">
             <ng-container *ngIf="notifications.length > 0; else noNotify">
-              <div *ngFor="let notify of notifications" class="px-3 py-2 border-bottom" style="cursor: pointer;"
-                (click)="goToLink(notify)">
-                <div style="font-size: small; font-weight: 600;">{{ notify.title }}</div>
-                <div>{{ notify.message }}</div>
-                <div class="text-muted small">{{ notify.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
+              <div *ngFor="let notify of notifications" class="notification-item" role="listitem" (click)="goToLink(notify)">
+                <div class="notify-title">{{ notify.title }}</div>
+                <div class="notify-msg">{{ notify.message }}</div>
+                <div class="notify-time">{{ notify.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
               </div>
             </ng-container>
             <ng-template #noNotify>
-              <div class="px-3 py-4 text-center text-muted">Không có thông báo mới nào</div>
+              <div class="notification-empty">Không có thông báo mới nào</div>
             </ng-template>
           </div>
         </div>
       </li>
       <li class="icon-item" *ngIf="user?.role != 'ADMIN'">
-        <button class="icon-content position-relative" (click)="openChatModal()">
+        <button class="icon-content position-relative" (click)="openChatModal(); $event.stopPropagation();">
           <div class="icon-container">
             <i class="bi bi-chat-dots"></i>
             <span *ngIf="unreadConversationsCount > 0" class="notify-badge">
@@ -110,14 +112,14 @@
           </div>
         </button>
       </li>
-      <li class="icon-item dropdown">
-        <a routerLink="/profile" class="user-link">
+      <li class="icon-item dropdown profile-item" [class.open]="showProfileDropdown">
+        <a href="#" class="user-link" (click)="toggleProfileDropdown($event)">
           <img [src]="user?.avatarUrl || 'assets/user.jpg'" alt="Avatar" class="avatar">
           <div class="small-icon">
             <i class="bi bi-chevron-down"></i>
           </div>
         </a>
-        <ul class="dropdown-menu p-0" style="min-width: 260px;">
+        <ul class="dropdown-menu p-0" [class.show]="showProfileDropdown" style="min-width: 260px;">
           <li class="px-3 py-3 border-bottom">
             <div class="d-flex align-items-center gap-3">
               <img [src]="user?.avatarUrl || 'assets/user.jpg'" alt="Avatar" width="48" height="48"

@@ -1,56 +1,53 @@
-<div class="container py-4" style="max-width:1200px;">
-  <div class="row">
-    <div class="col-lg-8 mb-4">
-      <div class="card shadow-sm mb-4">
+<div class="container py-4 hr-view-wrapper">
+  <div class="row hr-view-row">
+    <div class="col-lg-8 mb-4 hr-view-main">
+      <div class="card shadow-sm mb-4 hr-summary-card">
         <div class="card-body">
-          <div class="d-flex align-items-center gap-4">
-            <div class="flex-grow-1">
-              <div class="fw-bold fs-5 text-primary mb-2">NTD đã xem CV của bạn trong tuần qua</div>
-              <div class="text-muted mb-2">
+          <div class="d-flex align-items-center gap-4 hr-summary-row">
+            <div class="flex-grow-1 hr-summary-text">
+              <div class="fw-bold fs-5 text-primary mb-2 hr-summary-title">NTD đã xem CV của bạn trong tuần qua</div>
+              <div class="text-muted mb-2 hr-summary-desc">
                 Bạn có biết mỗi lượt Nhà tuyển dụng xem CV mang đến một cơ hội cho bạn gần hơn với công việc phù
                 hợp?<br>
                 Cập nhật thường xuyên để được nhà tuyển dụng xem CV nhiều hơn.
               </div>
-              <button class="btn btn-primary fw-bold px-4" routerLink="/quan-ly-cv">Cập nhật CV ngay</button>
+              <button class="btn btn-primary fw-bold px-4 hr-update-btn" routerLink="/quan-ly-cv">Cập nhật CV ngay</button>
             </div>
-            <div
-              class="rounded-circle bg-primary text-white d-flex flex-column align-items-center justify-content-center"
-              style="width: 150px; height: 120px; font-size: 2.5rem;">
-              <div class="fw-bold" style="font-size: 2.8rem;">{{ hrViewed.length }}</div>
-              <div style="font-size: 1.1rem;">lượt</div>
+            <div class="rounded-circle bg-primary text-white d-flex flex-column align-items-center justify-content-center hr-summary-count">
+              <div class="fw-bold hr-summary-count-number">{{ hrViewed.length }}</div>
+              <div class="hr-summary-count-label">lượt</div>
             </div>
           </div>
         </div>
       </div>
-      <div class="card shadow-sm">
+      <div class="card shadow-sm hr-list-card">
         <div class="card-body">
-          <div class="fw-bold fs-5 mb-3">Danh sách Nhà tuyển dụng xem CV</div>
-          <div *ngFor="let ntd of hrViewed" class="card mb-3 p-3">
-            <div class="d-flex justify-content-between align-items-center">
-              <div class="d-flex align-items-center gap-3">
-                <img [src]="ntd.companyLogo || 'assets/logo1.png'" alt="Logo" width="48" height="48" class="bg-white border rounded" />
-                <div>
-                  <div class="fw-bold text-primary">{{ ntd.hrName }}</div>
-                  <div class="text-muted small" style="cursor: pointer;" (click)="viewCompanyProfile(ntd.companyId)">{{ ntd.companyName }}</div>
+          <div class="fw-bold fs-5 mb-3 hr-list-title">Danh sách Nhà tuyển dụng xem CV</div>
+          <div *ngFor="let ntd of hrViewed" class="card mb-3 p-3 hr-ntd-card">
+            <div class="d-flex justify-content-between align-items-center hr-ntd-row">
+              <div class="d-flex align-items-center gap-3 hr-ntd-left">
+                <img [src]="ntd.companyLogo || 'assets/logo1.png'" alt="Logo" class="bg-white border rounded hr-ntd-logo" />
+                <div class="hr-ntd-info">
+                  <div class="fw-bold text-primary hr-ntd-name">{{ ntd.hrName }}</div>
+                  <div class="text-muted small hr-ntd-company" (click)="viewCompanyProfile(ntd.companyId)">{{ ntd.companyName }}</div>
                 </div>
               </div>
-              <div class="text-muted small">{{ getViewedLabel(ntd.viewedAt) }}</div>
+              <div class="text-muted small hr-ntd-viewed">{{ getViewedLabel(ntd.viewedAt) }}</div>
             </div>
           </div>
-          <div *ngIf="hrViewed.length === 0" class="text-center text-muted fw-bold py-5">
+          <div *ngIf="hrViewed.length === 0" class="text-center text-muted fw-bold py-5 hr-empty-text">
             Chưa có Nhà tuyển dụng nào xem CV của bạn trong tuần qua. Hãy cập nhật CV để tăng cơ hội được xem nhé!
           </div>
-          <div *ngIf="totalPages > 1"
-            class="d-flex justify-content-center align-items-center gap-3 my-3">
-            <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage === 0"
-              (click)="changePage(currentPage - 1)" style="width: 36px; height: 36px;" aria-label="Trang trước">
+          <div *ngIf="totalPages > 1" class="d-flex justify-content-center align-items-center gap-3 my-3 hr-pagination">
+            <button class="btn btn-outline-primary rounded-circle px-2 hr-page-btn prev-btn" [disabled]="currentPage === 0"
+              (click)="changePage(currentPage - 1)" aria-label="Trang trước">
               <i class="bi bi-chevron-left"></i>
             </button>
-            <span class="fw-bold text-primary" style="font-size: 1.1rem;">
+            <span class="fw-bold text-primary hr-page-info">
               {{ currentPage + 1 }} <span class="text-muted">/ {{ totalPages }} trang</span>
             </span>
-            <button class="btn btn-outline-primary rounded-circle px-2" [disabled]="currentPage + 1 >= totalPages"
-              (click)="changePage(currentPage + 1)" style="width: 36px; height: 36px;" aria-label="Trang sau">
+            <button class="btn btn-outline-primary rounded-circle px-2 hr-page-btn next-btn" [disabled]="currentPage + 1 >= totalPages"
+              (click)="changePage(currentPage + 1)" aria-label="Trang sau">
               <i class="bi bi-chevron-right"></i>
             </button>
           </div>
@@ -58,23 +55,22 @@
       </div>
     </div>
 
-    <div class="col-lg-4 mb-4">
-      <div class="card shadow-sm mb-3">
+    <div class="col-lg-4 mb-4 hr-view-side">
+      <div class="card shadow-sm mb-3 hr-side-card">
         <div class="card-body">
           <div class="mb-3 d-flex align-items-center gap-3">
-            <img [src]="user.avatarUrl || 'assets/user.jpg'" alt=" Avatar" width="48" height="48"
-              class="rounded-circle border" />
-            <h4 class="fw-bold text-primary mb-1 mb-0">Chào bạn trở lại, <b>{{ user.fullName }}</b></h4>
+            <img [src]="user.avatarUrl || 'assets/user.jpg'" alt=" Avatar" class="rounded-circle border hr-side-avatar" />
+            <h4 class="fw-bold text-primary mb-1 mb-0 hr-side-welcome">Chào bạn trở lại, <b>{{ user.fullName }}</b></h4>
           </div>
           <div>
             <div class="form-check form-switch d-flex align-items-center mb-2">
-              <input class="form-check-input me-2" type="checkbox" style="cursor: pointer;" [(ngModel)]="allowNTDSearch"
+              <input class="form-check-input me-2 hr-ntd-checkbox" type="checkbox" [(ngModel)]="allowNTDSearch"
                 id="ntdSearch" (change)="toggleSearchChange()" />
               <label class="form-check-label fw-bold text-primary" for="ntdSearch">
                 Cho phép NTD tìm kiếm hồ sơ
               </label>
             </div>
-            <ul class="mt-2 text-muted ps-3">
+            <ul class="mt-2 text-muted ps-3 hr-ntd-info">
               <li>Nhắn tin qua Jobsday</li>
               <li>Email và Số điện thoại của bạn</li>
             </ul>

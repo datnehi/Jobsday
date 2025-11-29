@@ -40,3 +40,33 @@
 ::ng-deep .ng-select .ng-dropdown-panel-items {
   background: transparent !important;
 }
+
+@media (max-width: 1199.98px) {
+  form.card-body { padding: 24px 28px !important; }
+}
+
+@media (max-width: 991.98px) {
+  .container { padding-left: 20px; padding-right: 20px; }
+  form.card-body { padding: 20px 22px !important; }
+  ::ng-deep .ng-dropdown-panel .ng-option { flex: 0 0 calc(50% - 12px); font-size: 0.85rem; }
+  ::ng-deep .skill-option { font-size: 0.85rem; }
+}
+
+@media (max-width: 767.98px) {
+  .container { padding-left: 14px; padding-right: 14px; }
+  .card-header h5 { font-size: 1rem; }
+  form.card-body { padding: 16px 16px !important; }
+  .row > [class*='col-'] { margin-bottom: 14px; }
+  label.form-label { font-size: 0.85rem; }
+  input.form-control, select.form-select, textarea.form-control { font-size: 0.85rem; }
+  ::ng-deep .ng-dropdown-panel .ng-option { flex: 0 0 100%; padding: 6px 10px; }
+  ::ng-deep .skill-option { font-size: 0.8rem; }
+  .d-flex.gap-2 { flex-wrap: wrap; }
+  .d-flex.gap-2 > .btn { flex: 1 0 48%; }
+}
+
+@media (max-width: 575.98px) {
+  form.card-body { padding: 14px 12px !important; }
+  .d-flex.gap-2 > .btn { flex: 1 0 100%; }
+}
+

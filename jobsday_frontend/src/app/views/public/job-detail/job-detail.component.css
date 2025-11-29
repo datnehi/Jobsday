@@ -7,3 +7,22 @@
   border: 1.5px solid #0d6efd;
   cursor: pointer;
 }
+
+.job-meta { gap: 1.5rem !important; }
+
+.action-row .btn { flex: 0 0 auto; }
+
+.job-card img { object-fit: cover; }
+
+@media (max-width: 1024px) {
+  .job-meta { flex-wrap: wrap; gap: 1rem !important; }
+  .action-row { width: 100%; flex-wrap: wrap; }
+  .action-row .btn { flex: 1 1 auto; }
+}
+
+@media (max-width: 600px) {
+  .action-row .btn { flex: 1 1 100%; }
+  .apply-modal-dialog { width: 95vw !important; max-width: 95vw !important; margin: 0 auto; }
+  .job-card .card-body { gap: 12px !important; }
+  .job-card [style*="width: 120px"] { width:72px !important; height:72px !important; }
+}

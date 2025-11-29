@@ -12,7 +12,7 @@ export class ChatService {
   private client!: Client;
   private connected = false;
   messages$ = new Subject<MessageDto>();
-  seen$ = new Subject<any>(); // <-- thêm
+  seen$ = new Subject<any>(); 
   errors$ = new Subject<{ code?: number; message?: string;[k: string]: any }>();
   presence$ = new Subject<PresenceDto>();
   private subMap = new Map<number, any>();

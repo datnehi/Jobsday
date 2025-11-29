@@ -1,13 +1,13 @@
-<div class="container py-4" style="max-width:900px;">
-  <div class="card shadow-sm">
-    <div class="card-header bg-primary text-white">
-      <h5 class="mb-0 fw-bold">Tạo tin tuyển dụng</h5>
+<div class="container py-4 create-job-wrapper">
+  <div class="card shadow-sm create-job-card">
+    <div class="card-header bg-primary text-white create-job-header">
+      <h5 class="mb-0 fw-bold create-job-title">Tạo tin tuyển dụng</h5>
     </div>
-    <form [formGroup]="jobForm" (ngSubmit)="onSubmit()" class="card-body">
-      <div class="row mb-3">
+    <form [formGroup]="jobForm" (ngSubmit)="onSubmit()" class="card-body create-job-body" novalidate>
+      <div class="row mb-3 create-job-grid">
         <div class="col-md-6 mb-3">
-          <label class="form-label fw-bold">Vị trí tuyển dụng</label>
-          <input type="text" class="form-control" formControlName="title" placeholder="Nhập vị trí tuyển dụng">
+          <label class="form-label fw-bold create-job-label">Vị trí tuyển dụng</label>
+          <input type="text" class="form-control create-job-input" formControlName="title" placeholder="Nhập vị trí tuyển dụng">
           <div *ngIf="jobForm.get('title')?.invalid && (jobForm.get('title')?.dirty || jobForm.get('title')?.touched)"
             class="text-danger">
             Vị trí tuyển dụng không được để trống.
@@ -16,8 +16,8 @@
         <div class="col-md-6 mb-3">
         </div>
         <div class="col-md-6 mb-3">
-          <label class="form-label fw-bold">Địa điểm</label>
-          <select class="form-select" formControlName="location">
+          <label class="form-label fw-bold create-job-label">Địa điểm</label>
+          <select class="form-select create-job-select" formControlName="location">
             <option value="">Chọn địa điểm</option>
             <option value="HANOI">Hà Nội</option>
             <option value="HOCHIMINH">Hồ Chí Minh</option>
@@ -30,8 +30,8 @@
           </div>
         </div>
         <div class="col-md-6 mb-3">
-          <label class="form-label fw-bold">Địa chỉ</label>
-          <input type="text" class="form-control" formControlName="address" placeholder="Nhập địa chỉ">
+          <label class="form-label fw-bold create-job-label">Địa chỉ</label>
+          <input type="text" class="form-control create-job-input" formControlName="address" placeholder="Nhập địa chỉ">
           <div
             *ngIf="jobForm.get('address')?.invalid && (jobForm.get('address')?.dirty || jobForm.get('address')?.touched)"
             class="text-danger">
@@ -39,8 +39,8 @@
           </div>
         </div>
         <div class="col-md-4 mb-3">
-          <label class="form-label fw-bold">Số lượng tuyển</label>
-          <input type="number" class="form-control" formControlName="quantity" min="1">
+          <label class="form-label fw-bold create-job-label">Số lượng tuyển</label>
+          <input type="number" class="form-control create-job-input" formControlName="quantity" min="1">
           <div
             *ngIf="jobForm.get('quantity')?.invalid && (jobForm.get('quantity')?.dirty || jobForm.get('quantity')?.touched)"
             class="text-danger">
@@ -48,8 +48,8 @@
           </div>
         </div>
         <div class="col-md-4 mb-3">
-          <label class="form-label fw-bold">Hạn ứng tuyển</label>
-          <input type="date" class="form-control" formControlName="deadline">
+          <label class="form-label fw-bold create-job-label">Hạn ứng tuyển</label>
+          <input type="date" class="form-control create-job-input" formControlName="deadline">
           <div
             *ngIf="jobForm.get('deadline')?.invalid && (jobForm.get('deadline')?.dirty || jobForm.get('deadline')?.touched)"
             class="text-danger">
@@ -57,8 +57,8 @@
           </div>
         </div>
         <div class="col-md-4 mb-3">
-          <label class="form-label fw-bold">Mức lương</label>
-          <select class="form-select" formControlName="salary">
+          <label class="form-label fw-bold create-job-label">Mức lương</label>
+          <select class="form-select create-job-select" formControlName="salary">
             <option value="">Chọn mức lương</option>
             <option value="THOA_THUAN">Thỏa thuận</option>
             <option value="DUOI_10_TRIEU">Dưới 10 triệu</option>
@@ -76,8 +76,8 @@
           </div>
         </div>
         <div class="col-md-4 mb-3">
-          <label class="form-label fw-bold">Loại hợp đồng</label>
-          <select class="form-select" formControlName="contractType">
+          <label class="form-label fw-bold create-job-label">Loại hợp đồng</label>
+          <select class="form-select create-job-select" formControlName="contractType">
             <option value="">Chọn loại hợp đồng</option>
             <option value="FULL_TIME">Toàn thời gian</option>
             <option value="PART_TIME">Bán thời gian</option>
@@ -89,8 +89,8 @@
           </div>
         </div>
         <div class="col-md-4 mb-3">
-          <label class="form-label fw-bold">Kinh nghiệm</label>
-          <select class="form-select" formControlName="experience">
+          <label class="form-label fw-bold create-job-label">Kinh nghiệm</label>
+          <select class="form-select create-job-select" formControlName="experience">
             <option value="">Chọn kinh nghiệm</option>
             <option value="KHONG_YEU_CAU">Không yêu cầu</option>
             <option value="DUOI_1_NAM">Dưới 1 năm</option>
@@ -108,8 +108,8 @@
           </div>
         </div>
         <div class="col-md-4 mb-3">
-          <label class="form-label fw-bold">Cấp bậc</label>
-          <select class="form-select" formControlName="level">
+          <label class="form-label fw-bold create-job-label">Cấp bậc</label>
+          <select class="form-select create-job-select" formControlName="level">
             <option value="">Chọn cấp bậc</option>
             <option value="INTERN">Intern</option>
             <option value="FRESHER">Fresher</option>
@@ -124,8 +124,8 @@
           </div>
         </div>
         <div class="col-md-6 mb-3">
-          <label class="form-label fw-bold">Hình thức làm việc</label>
-          <select class="form-select" formControlName="jobType">
+          <label class="form-label fw-bold create-job-label">Hình thức làm việc</label>
+          <select class="form-select create-job-select" formControlName="jobType">
             <option value="">Chọn hình thức</option>
             <option value="IN_OFFICE">Tại văn phòng</option>
             <option value="REMOTE">Remote</option>
@@ -138,8 +138,8 @@
           </div>
         </div>
         <div class="col-md-6 mb-3">
-          <label class="form-label fw-bold">Thời gian làm việc</label>
-          <textarea class="form-control" rows="1" formControlName="workingTime"
+          <label class="form-label fw-bold create-job-label">Thời gian làm việc</label>
+          <textarea class="form-control create-job-textarea" rows="1" formControlName="workingTime"
             placeholder="Ví dụ: Thứ 2 - Thứ 6, 8:00 - 17:00"></textarea>
           <div
             *ngIf="jobForm.get('workingTime')?.invalid && (jobForm.get('workingTime')?.dirty || jobForm.get('workingTime')?.touched)"
@@ -148,9 +148,9 @@
           </div>
         </div>
         <div class="col-md-12 mb-3">
-          <label class="form-label fw-bold">Kỹ năng yêu cầu</label>
+          <label class="form-label fw-bold create-job-label">Kỹ năng yêu cầu</label>
           <ng-select [items]="skillsList" bindLabel="name" bindValue="id" [multiple]="true" [searchable]="true"
-            formControlName="skills" class="form-control" [closeOnSelect]="false">
+            formControlName="skills" class="form-control create-job-skills-select" [closeOnSelect]="false">
 
             <ng-template ng-option-tmp let-item="item">
               <div class="skill-option">
@@ -164,8 +164,8 @@
 
         </div>
         <div class="col-md-12 mb-3">
-          <label class="form-label fw-bold">Mô tả công việc</label>
-          <textarea class="form-control" rows="3" formControlName="description"></textarea>
+          <label class="form-label fw-bold create-job-label">Mô tả công việc</label>
+          <textarea class="form-control create-job-textarea" rows="3" formControlName="description"></textarea>
           <div
             *ngIf="jobForm.get('description')?.invalid && (jobForm.get('description')?.dirty || jobForm.get('description')?.touched)"
             class="text-danger">
@@ -173,8 +173,8 @@
           </div>
         </div>
         <div class="col-md-12 mb-3">
-          <label class="form-label fw-bold">Yêu cầu ứng viên</label>
-          <textarea class="form-control" rows="3" formControlName="requirement"></textarea>
+          <label class="form-label fw-bold create-job-label">Yêu cầu ứng viên</label>
+          <textarea class="form-control create-job-textarea" rows="3" formControlName="requirement"></textarea>
           <div
             *ngIf="jobForm.get('requirement')?.invalid && (jobForm.get('requirement')?.dirty || jobForm.get('requirement')?.touched)"
             class="text-danger">
@@ -182,8 +182,8 @@
           </div>
         </div>
         <div class="col-md-12 mb-3">
-          <label class="form-label fw-bold">Quyền lợi</label>
-          <textarea class="form-control" rows="3" formControlName="benefit"></textarea>
+          <label class="form-label fw-bold create-job-label">Quyền lợi</label>
+          <textarea class="form-control create-job-textarea" rows="3" formControlName="benefit"></textarea>
           <div
             *ngIf="jobForm.get('benefit')?.invalid && (jobForm.get('benefit')?.dirty || jobForm.get('benefit')?.touched)"
             class="text-danger">
@@ -191,9 +191,9 @@
           </div>
         </div>
       </div>
-      <div class="d-flex justify-content-end gap-2">
-        <button type="button" class="btn btn-primary" [disabled]="jobForm.invalid" (click)="openConfirm('save')">Lưu thay đổi</button>
-        <button type="button" class="btn btn-secondary" (click)="openConfirm('cancel')">Hủy thay đổi</button>
+      <div class="d-flex justify-content-end gap-2 create-job-actions">
+        <button type="button" class="btn btn-primary create-job-save-btn" [disabled]="jobForm.invalid" (click)="openConfirm('save')">Lưu thay đổi</button>
+        <button type="button" class="btn btn-secondary create-job-cancel-btn" (click)="openConfirm('cancel')">Hủy thay đổi</button>
       </div>
     </form>
   </div>

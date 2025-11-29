@@ -1,12 +1,12 @@
 <div class="container py-4" style="max-width:1200px;">
-  <div class="position-relative mb-4" style="min-height: 250px;">
+  <div class="position-relative mb-4 company-header-wrapper" style="min-height: 250px;">
     <div style="
       background: url('assets/baner4.jpg') center center/cover no-repeat;
       height: 180px;
       border-radius: 8px;
       ">
     </div>
-    <div style="
+    <div class="company-header-band" style="
       background: #1b19a4;
       border-radius: 0 0 8px 8px;
       padding: 16px 18px 16px 180px;
@@ -28,7 +28,7 @@
           </a>
         </div>
       </div>
-      <img [src]="company?.logo || 'assets/logo1.png'" alt="Logo công ty" class="rounded-4 bg-white shadow" style="
+      <img [src]="company?.logo || 'assets/logo1.png'" alt="Logo công ty" class="rounded-4 bg-white shadow company-logo" style="
              width:120px;
              height:120px;
              border: 6px solid #fff;
@@ -59,7 +59,7 @@
           Tuyển dụng
         </div>
         <div class="card-body">
-          <div class="mb-3 d-flex gap-2">
+          <div class="mb-3 d-flex gap-2 jobs-search-row">
             <input type="text" class="form-control" placeholder="Tên công việc, vị trí tuyển..."
               style="max-width: 610px;" [(ngModel)]="searchText">
             <button class="btn btn-primary rounded-pill px-4 fw-bold" (click)="searchJobs()">Tìm kiếm</button>
@@ -171,7 +171,7 @@
         <div class="card-header bg-primary text-white fw-bold" style="font-size: 18px;">
           Chia sẻ công ty tới bạn bè
         </div>
-        <div class="card-body d-flex align-items-center gap-2">
+        <div class="card-body d-flex align-items-center gap-2 company-share-row">
           <input type="text" class="form-control mb-2" [value]="'http://localhost:4200/company-detail/' + company?.id"
             readonly id="companyShareLink">
           <button class="btn btn-outline-primary mb-2" type="button" (click)="copyCompanyLink()">

@@ -1,3 +1,60 @@
+.company-info-wrapper { max-width: 1200px; }
+.company-form-body { padding: 1.25rem 1.2rem; }
+.company-form-title { font-size: 1.35rem; }
+.company-form-required { font-size: .75rem; }
+.company-label { font-size: .85rem; text-transform: none; }
+.company-input, .company-select, .company-textarea { font-size: .85rem; }
+.company-skills-select { font-size: .85rem; }
+.company-form-actions { margin-top: .75rem; }
+.company-submit-btn { min-width: 160px; }
+
+.company-side-body { padding: 1rem 1rem; }
+.company-logo-wrapper { width: 120px; height: 120px; }
+.company-logo-img { width: 120px; height: 120px; object-fit: cover; }
+.company-logo-btn { border-radius: 50%; background: #0d6efd !important; display: flex; align-items: center; justify-content: center; }
+.company-logo-btn i { font-size: 1rem; }
+.company-side-name { font-size: 1.05rem; }
+.company-side-status { font-size: .65rem; }
+
+@media (max-width: 1024px) {
+  .company-info-side { order: -1; }
+  .company-side-body { padding: .9rem .9rem; }
+  .company-form-title { font-size: 1.25rem; }
+}
+
+@media (max-width: 768px) {
+  .company-form-body { padding: 1rem .9rem; }
+  .company-form-title { font-size: 1.15rem; }
+  .company-logo-wrapper, .company-logo-img { width: 100px; height: 100px; }
+  .company-side-name { font-size: .95rem; }
+  .company-side-status { font-size: .6rem; }
+  .company-input, .company-select, .company-textarea { font-size: .8rem; }
+  .company-label { font-size: .8rem; }
+  .company-submit-btn { width: 100%; }
+}
+
+@media (max-width: 600px) {
+  .company-info-wrapper { padding-left: .9rem !important; padding-right: .9rem !important; }
+  .company-form-title { font-size: 1.1rem; }
+  .company-form-required { font-size: .7rem; }
+  .company-logo-row { flex-direction: row; align-items: flex-start; }
+  .company-side-meta { margin-top: .25rem; }
+  .company-logo-wrapper { width: 90px; height: 90px; }
+  .company-logo-img { width: 90px; height: 90px; }
+  .company-side-name { font-size: .9rem; }
+}
+
+@media (max-width: 420px) {
+  .company-form-title { font-size: 1rem; }
+  .company-input, .company-select, .company-textarea { font-size: .75rem; }
+  .company-side-name { font-size: .85rem; }
+  .company-logo-wrapper { width: 80px; height: 80px; }
+  .company-logo-img { width: 80px; height: 80px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .company-submit-btn, .company-logo-btn { transition: none; }
+}
 ::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items.scroll-host > div:nth-child(2) {
   display: flex !important;
   flex-wrap: wrap !important;

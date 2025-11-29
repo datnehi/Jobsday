@@ -1,22 +1,24 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { AuthService } from '../services/auth.service';
 
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
   const token = localStorage.getItem('token');
+  if (!token) {
+    return next(req);
+  }
 
   const authReq = token
     ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
     : req;
-
-  const http = inject(HttpClient);
-  const router = inject(Router);
 
   return next(authReq).pipe(
     catchError((err: any) => {
@@ -26,66 +28,48 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         const refreshToken = localStorage.getItem('refresh_token');
 
         if (!refreshToken) {
-          const noRedirectPaths = [
-            /^\/login/,
-            /^\/register/,
-            /^\/forgot-password/,
-            /^\/jobsday/,
-            /^\/notfound/,
-            /^\/job(\/|$)/, // match /job and /job/:id
-            /^\/company-detail/,
-            /^\/$/
-          ];
-          const currentUrl = (router && (router as any).url) || (typeof window !== 'undefined' ? window.location.pathname : '');
-          const isOnNoRedirect = noRedirectPaths.some(regex => regex.test(currentUrl));
-
-          if (!isOnNoRedirect) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('refresh_token');
-            router.navigate(['/login']);
-          }
+          authService.clearUser();
+          router.navigate(['/login']);
           return throwError(() => err);
         }
-
         if (!isRefreshing) {
           isRefreshing = true;
           refreshTokenSubject.next(null);
 
-          return http.post<any>(`${environment.apiUrl}auth/refresh-token`, { refreshToken }).pipe(
-            switchMap(res => {
-              const newToken = res?.data.token;
-              const newRefresh = res?.data.refreshToken;
+          return authService.refreshToken(refreshToken).pipe(
+            switchMap((res) => {
+              isRefreshing = false;
 
-              if (!newToken) {
-                isRefreshing = false;
-                localStorage.removeItem('token');
-                localStorage.removeItem('refresh_token');
+              if (res.status != 200) {
+                authService.clearUser();
                 router.navigate(['/login']);
                 return throwError(() => err);
               }
+              if (res?.data) {
+                const newToken = res.data.token;
+                const newRefresh = res.data.refreshToken;
 
-              localStorage.setItem('token', newToken);
-              if (newRefresh) {
+                localStorage.setItem('token', newToken);
                 localStorage.setItem('refresh_token', newRefresh);
+
+                refreshTokenSubject.next(newToken);
+
+                return next(
+                  authReq.clone({
+                    setHeaders: { Authorization: `Bearer ${newToken}` }
+                  })
+                );
               }
 
-              refreshTokenSubject.next(newToken);
-              isRefreshing = false;
-
-              const retryReq = authReq.clone({
-                setHeaders: { Authorization: `Bearer ${newToken}` }
-              });
-
-              return next(retryReq);
-            }),
-
-            catchError(refreshErr => {
-              isRefreshing = false;
-              refreshTokenSubject.next(null);
-              localStorage.removeItem('token');
-              localStorage.removeItem('refresh_token');
+              authService.clearUser();
               router.navigate(['/login']);
-              return throwError(() => refreshErr);
+              return throwError(() => err);
+            }),
+            catchError(() => {
+              isRefreshing = false;
+              authService.clearUser();
+              router.navigate(['/login']);
+              return throwError(() => err);
             })
           );
         }
@@ -94,10 +78,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           filter(t => t != null),
           take(1),
           switchMap((t) => {
-            const retryReq = authReq.clone({
-              setHeaders: { Authorization: `Bearer ${t}` }
-            });
-            return next(retryReq);
+            return next(
+              authReq.clone({
+                setHeaders: { Authorization: `Bearer ${t}` }
+              })
+            );
           })
         );
       }

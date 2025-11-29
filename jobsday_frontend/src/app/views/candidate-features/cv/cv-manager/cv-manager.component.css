@@ -27,3 +27,60 @@
 .cv-tooltip-parent:hover .cv-tooltip {
   display: block;
 }
+
+.cv-manager-wrapper { max-width:1200px; margin:0 auto; }
+.cv-manager-header { gap:1rem; }
+.cv-upload-btn { border-radius:20px; }
+.cv-grid-item .cv-icon { width:96px; height:96px; }
+.cv-card { cursor:pointer; transition:background .2s, box-shadow .2s; }
+.cv-card:hover { background:#f8f9fa; box-shadow:0 4px 18px rgba(0,0,0,0.08); }
+.cv-action-row .btn { min-width:86px; }
+.cv-public-mark, .cv-set-main-mark { cursor:pointer; }
+.cv-empty-text { font-size:0.95rem; }
+
+.cv-rename-modal .cv-rename-content { border-radius:12px; }
+.cv-rename-title { font-size:1.05rem; }
+.cv-rename-input { min-height:42px; }
+.cv-rename-confirm, .cv-rename-cancel { min-width:110px; }
+
+.cv-side-card { border-radius:12px; }
+.cv-side-avatar { width:48px; height:48px; object-fit:cover; }
+.cv-ntd-info { font-size:0.85rem; }
+
+@media (max-width:1024px) {
+  .cv-manager-wrapper { padding-left:0.75rem; padding-right:0.75rem; }
+  .cv-manager-row .cv-manager-side { order:-1; }
+  .cv-manager-title { font-size:1.5rem; }
+  .cv-grid-item .cv-icon { width:88px; height:88px; }
+}
+
+@media (max-width:600px) {
+  .cv-manager-header { flex-direction:column; align-items:flex-start; }
+  .cv-upload-btn { width:100%; }
+  .cv-grid-item { flex:0 0 100%; max-width:100%; }
+  .cv-grid { row-gap:0.75rem; }
+  .cv-card { padding:1.25rem 1rem; }
+  .cv-title-text { font-size:0.95rem; }
+  .cv-updated-text { font-size:0.7rem; }
+  .cv-action-row { flex-wrap:wrap; gap:0.5rem; }
+  .cv-action-row .btn { flex:1 1 48%; min-width:0; }
+  .cv-side-avatar { width:56px; height:56px; }
+  .cv-side-welcome { font-size:1rem; }
+  .cv-ntd-info { font-size:0.8rem; }
+  .cv-manager-main-card, .cv-side-card { border-radius:10px; }
+  .cv-rename-modal .modal-dialog { margin:0.75rem auto; }
+  .cv-rename-title { font-size:0.95rem; }
+  .cv-rename-input { font-size:0.9rem; }
+  .cv-rename-confirm, .cv-rename-cancel { flex:1 1 48%; min-width:0; }
+  .cv-rename-footer { display:flex; gap:0.75rem; }
+}
+
+@media (max-width:420px) {
+  .cv-manager-title { font-size:1.35rem; }
+  .cv-title-text { font-size:0.9rem; }
+  .cv-upload-btn { font-size:0.85rem; padding:0.6rem 0.9rem; }
+  .cv-action-row .btn { font-size:0.7rem; padding:0.45rem 0.5rem; }
+  .cv-side-welcome { font-size:0.9rem; }
+  .cv-rename-title { font-size:0.9rem; }
+  .cv-rename-input { font-size:0.85rem; }
+}

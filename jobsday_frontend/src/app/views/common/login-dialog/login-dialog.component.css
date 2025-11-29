@@ -1,0 +1,38 @@
+.login-dialog-wrapper { max-width: 600px; }
+.login-dialog-content { border-radius: 12px; }
+.login-dialog-header { border-bottom: none; padding-bottom: 0; }
+.login-dialog-tabs .nav-link { padding: 0.75rem 1rem; }
+.login-tab-btn.active { border-bottom: 3px solid var(--bs-primary); }
+.login-dialog-body { padding-top: 1rem; }
+.login-submit-btn, .register-submit-btn, .verify-submit-btn { min-height: 44px; font-weight: 600; }
+.login-error-text, .register-error-text, .verify-error-text { font-size: 0.9rem; }
+
+.verify-code-row .verify-code-input { text-align: center; letter-spacing: 2px; }
+.resend-otp-btn[disabled] { opacity: 0.65; }
+.verify-title { font-size: 1.05rem; }
+
+@media (max-width: 1024px) {
+	.login-dialog-wrapper { max-width: 640px; }
+}
+
+@media (max-width: 600px) {
+	.login-dialog-wrapper { margin: 0 auto; }
+	.login-dialog-content { border-radius: 10px; }
+	.login-dialog-tabs .nav-link { font-size: 0.85rem; padding: 0.6rem 0.75rem; }
+	.login-dialog-body { padding-top: 0.5rem; }
+	.login-dialog-modal .modal-dialog { margin: 0.75rem auto; }
+	.login-submit-btn, .register-submit-btn, .verify-submit-btn { font-size: 0.9rem; }
+	.verify-code-row .verify-code-input-col { flex: 0 0 100%; max-width: 100%; margin-bottom: 0.5rem; }
+	.verify-code-row .verify-otp-btn-col { flex: 0 0 100%; max-width: 100%; }
+	.verify-title { font-size: 0.95rem; }
+	.verify-line { font-size: 0.85rem; }
+	.login-switch-links { font-size: 0.8rem; }
+}
+
+@media (max-width: 420px) {
+	.login-dialog-tabs .nav-link { font-size: 0.75rem; padding: 0.5rem 0.6rem; }
+	.login-submit-btn, .register-submit-btn, .verify-submit-btn { font-size: 0.85rem; min-height: 42px; }
+	.verify-title { font-size: 0.9rem; }
+	.verify-line { font-size: 0.8rem; }
+	.login-switch-links { font-size: 0.75rem; }
+}
