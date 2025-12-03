@@ -69,10 +69,7 @@
               <div class="mb-3">
                 <label for="dob" class="form-label">Ngày sinh</label>
                 <input type="date" max="{{ today | date: 'yyyy-MM-dd' }}" min="1900-01-01" id="dob" class="form-control"
-                  formControlName="dob" required>
-                <div *ngIf="registerForm.get('dob')?.invalid && registerForm.get('dob')?.touched" class="text-danger">
-                  Ngày sinh không được để trống
-                </div>
+                  formControlName="dob">
               </div>
               <div class="mb-3">
                 <label for="password" class="form-label">Mật khẩu</label>

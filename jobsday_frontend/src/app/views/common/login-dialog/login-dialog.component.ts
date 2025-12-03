@@ -31,7 +31,7 @@ export class LoginDialogComponent implements OnChanges {
     fullName: new FormControl('', Validators.required),
     email: new FormControl('', [Validators.required, Validators.email]),
     phone: new FormControl(''),
-    dob: new FormControl('', Validators.required),
+    dob: new FormControl(''),
     password: new FormControl('', Validators.required),
     confirmPassword: new FormControl('', Validators.required)
   });

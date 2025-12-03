@@ -28,7 +28,7 @@ import { ErrorDialogComponent } from "../../common/error-dialog/error-dialog.com
 export class DashboardComponent {
   experiences = ['Tất cả', 'Không yêu cầu', 'Dưới 1 năm', '2 năm', '3 năm', '4 năm', '5 năm', 'Trên 5 năm'];
   levels = ['Tất cả', 'Fresher', 'Intern', 'Junior', 'Middle', 'Senior'];
-  locations = ['Tất cả', 'Hà Nội', 'TP.Hồ Chí Minh', 'Đà Nẵng'];
+  locations = ['Tất cả', 'Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng'];
   salaries = ['Tất cả', 'Dưới 10 triệu', '10 - 15 triệu', '15 - 20 triệu', '20 - 25 triệu', '25 - 30 triệu', '30 - 50 triệu', 'trên 50 triệu', 'Thỏa thuận'];
   contractTypes = ['Tất cả', 'Full-time', 'Part-time', 'Freelance'];
   workTypes = ['Tất cả', 'In Office', 'Remote', 'Hybrid'];
