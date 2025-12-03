@@ -7,7 +7,8 @@
       <div class="row mb-2">
         <div class="col-md-4">
           <p><strong>Công ty: </strong><a routerLink="/company-related-info/{{company.id}}">{{ company.name }}</a></p>
-          <p><strong>Người phụ trách: </strong><a routerLink="/hr-related-info/{{member.id}}">{{user.fullName}}</a> - {{member.position}}</p>
+          <p><strong>Người phụ trách: </strong><a routerLink="/hr-related-info/{{member.id}}">{{user.fullName}}</a> -
+            {{member.position}}</p>
           <p><strong>Địa điểm:</strong> {{ job.location }}</p>
           <p><strong>Địa chỉ:</strong> {{ job.address }}</p>
           <p><strong>Thời gian làm việc:</strong> {{ job.workingTime }}</p>
@@ -242,7 +243,24 @@
 
             <div class="col-md-3 mb-2">
               <label class="form-label fw-bold">Hạn ứng tuyển</label>
-              <input type="date" class="form-control" formControlName="deadline">
+              <input type="date" class="form-control" formControlName="deadline" [attr.min]="today | date:'yyyy-MM-dd'">
+              <div
+                *ngIf="jobForm.get('deadline')?.invalid && (jobForm.get('deadline')?.dirty || jobForm.get('deadline')?.touched)"
+                class="text-danger">
+                <ng-container *ngIf="jobForm.get('deadline')?.errors?.['required']; else deadlineOtherErrors">
+                  Hạn ứng tuyển không được để trống.
+                </ng-container>
+                <ng-template #deadlineOtherErrors>
+                  <ng-container *ngIf="jobForm.get('deadline')?.errors?.['invalidDate']; else notPastOrToday">
+                    Hạn ứng tuyển không hợp lệ.
+                  </ng-container>
+                  <ng-template #notPastOrToday>
+                    <ng-container *ngIf="jobForm.get('deadline')?.errors?.['pastOrToday']">
+                      Hạn ứng tuyển phải lớn hơn ngày hiện tại.
+                    </ng-container>
+                  </ng-template>
+                </ng-template>
+              </div>
             </div>
 
             <div class="col-md-3 mb-2">

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { JobService } from '../../../../services/job.service';
 import { CompanyMemberService } from '../../../../services/company-member.service';
 import { Job } from '../../../../models/job';
@@ -42,6 +42,7 @@ export class UpdateJobComponent implements OnInit {
   showErrorDialog = false;
   errorTitle = '';
   errorMessage = '';
+  today: string = new Date().toISOString().split('T')[0];
 
   constructor(
     private fb: FormBuilder,
@@ -55,13 +56,21 @@ export class UpdateJobComponent implements OnInit {
 
   ngOnInit(): void {
     const jobId = Number(this.route.snapshot.paramMap.get('id'));
+    const futureDateValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+      const value = control.value;
+      if (!value) return null;
+      const d = new Date(value);
+      if (isNaN(d.getTime())) return { invalidDate: true };
+      if (d.getTime() <= Date.now()) return { pastOrToday: true };
+      return null;
+    };
     this.jobForm = this.fb.group({
       title: ['', Validators.required],
       memberName: ['', Validators.required],
       location: ['', Validators.required],
       address: ['', Validators.required],
       quantity: [1, [Validators.required, Validators.min(1)]],
-      deadline: ['', Validators.required],
+      deadline: ['', [Validators.required, futureDateValidator]],
       salary: ['', Validators.required],
       experience: ['', Validators.required],
       level: ['', Validators.required],
@@ -196,7 +205,7 @@ export class UpdateJobComponent implements OnInit {
         this.selectedSkills.splice(idx, 1);
       }
     }
-    this.jobForm.get('skills')?.setValue([...this.selectedSkills]); 
+    this.jobForm.get('skills')?.setValue([...this.selectedSkills]);
     this.jobForm.get('skills')?.markAsDirty();
   }
 

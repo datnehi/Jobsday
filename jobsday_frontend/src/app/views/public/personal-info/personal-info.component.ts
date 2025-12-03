@@ -40,6 +40,7 @@ export class PersonalInfoComponent {
   confirmMessage = '';
   isLoading = false;
   showAvatarEditor = false;
+  today: string = new Date().toISOString().split('T')[0];
 
   constructor(
     private authService: AuthService,

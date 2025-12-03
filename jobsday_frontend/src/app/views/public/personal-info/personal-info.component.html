@@ -17,7 +17,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label fw-bold">Ngày sinh</label>
-              <input type="date" class="form-control" formControlName="dob" name="dob">
+              <input type="date" class="form-control" formControlName="dob" name="dob" max="{{ today | date: 'yyyy-MM-dd' }}" min="1900-01-01">
             </div>
             <div class="mb-3">
               <label class="form-label fw-bold">Địa chỉ</label>

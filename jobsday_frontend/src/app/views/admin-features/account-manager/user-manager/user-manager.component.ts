@@ -49,6 +49,7 @@ export class UserManagerComponent implements OnInit {
   selectedFileUrl: string = '';
   previewUrl: string = '';
   user: any = null;
+  today: string = new Date().toISOString().split('T')[0];
 
   constructor(
     private userService: UserService,

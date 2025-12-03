@@ -17,7 +17,7 @@ import { ErrorDialogComponent } from "../../../common/error-dialog/error-dialog.
 import { LoadingComponent } from "../../../common/loading/loading.component";
 import { finalize } from 'rxjs';
 import { EmailService } from '../../../../services/email.service';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { Skills } from '../../../../models/skills';
 import { JobSkillsService } from '../../../../services/job-skills.service';
@@ -64,6 +64,7 @@ export class JobRelatedInfoComponent {
   selectedSkills: number[] = [];
   members: any[] = [];
   skillsList: Skills[] = [];
+  today: string = new Date().toISOString().split('T')[0];
 
   constructor(
     private jobService: JobService,
@@ -103,13 +104,21 @@ export class JobRelatedInfoComponent {
       });
       this.loadApplications(jobId, 0);
     });
+    const futureDateValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+      const value = control.value;
+      if (!value) return null;
+      const d = new Date(value);
+      if (isNaN(d.getTime())) return { invalidDate: true };
+      if (d.getTime() <= Date.now()) return { pastOrToday: true };
+      return null;
+    };
     this.jobForm = this.fb.group({
       title: ['', Validators.required],
       memberName: ['', Validators.required],
       location: ['', Validators.required],
       address: ['', Validators.required],
       quantity: [1, [Validators.required, Validators.min(1)]],
-      deadline: ['', Validators.required],
+      deadline: ['', [Validators.required, futureDateValidator]],
       salary: ['', Validators.required],
       experience: ['', Validators.required],
       level: ['', Validators.required],

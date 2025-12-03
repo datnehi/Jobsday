@@ -56,11 +56,23 @@
         </div>
         <div class="col-md-4 mb-3">
           <label class="form-label fw-bold">Hạn ứng tuyển</label>
-          <input type="date" class="form-control" formControlName="deadline">
+          <input type="date" class="form-control" formControlName="deadline" [attr.min]="today | date:'yyyy-MM-dd'">
           <div
             *ngIf="jobForm.get('deadline')?.invalid && (jobForm.get('deadline')?.dirty || jobForm.get('deadline')?.touched)"
             class="text-danger">
-            Hạn ứng tuyển không được để trống.
+            <ng-container *ngIf="jobForm.get('deadline')?.errors?.['required']; else deadlineOtherErrors">
+              Hạn ứng tuyển không được để trống.
+            </ng-container>
+            <ng-template #deadlineOtherErrors>
+              <ng-container *ngIf="jobForm.get('deadline')?.errors?.['invalidDate']; else notPastOrToday">
+                Hạn ứng tuyển không hợp lệ.
+              </ng-container>
+              <ng-template #notPastOrToday>
+                <ng-container *ngIf="jobForm.get('deadline')?.errors?.['pastOrToday']">
+                  Hạn ứng tuyển phải lớn hơn ngày hiện tại.
+                </ng-container>
+              </ng-template>
+            </ng-template>
           </div>
         </div>
         <div class="col-md-4 mb-3">
@@ -90,7 +102,8 @@
             <option value="PART_TIME">Bán thời gian</option>
             <option value="FREELANCE">Freelance</option>
           </select>
-          <div *ngIf="jobForm.get('contractType')?.invalid && (jobForm.get('contractType')?.dirty || jobForm.get('contractType')?.touched)"
+          <div
+            *ngIf="jobForm.get('contractType')?.invalid && (jobForm.get('contractType')?.dirty || jobForm.get('contractType')?.touched)"
             class="text-danger">
             Loại hợp đồng không được để trống.
           </div>
@@ -124,8 +137,7 @@
             <option value="MIDDLE">Middle</option>
             <option value="SENIOR">Senior</option>
           </select>
-          <div
-            *ngIf="jobForm.get('level')?.invalid && (jobForm.get('level')?.dirty || jobForm.get('level')?.touched)"
+          <div *ngIf="jobForm.get('level')?.invalid && (jobForm.get('level')?.dirty || jobForm.get('level')?.touched)"
             class="text-danger">
             Cấp bậc không được để trống.
           </div>
@@ -213,23 +225,16 @@
         </div>
       </div>
       <div class="d-flex justify-content-end gap-2">
-        <button type="button" class="btn btn-primary" [disabled]="jobForm.invalid" (click)="openConfirm('save')">Lưu thay đổi</button>
+        <button type="button" class="btn btn-primary" [disabled]="jobForm.invalid" (click)="openConfirm('save')">Lưu
+          thay đổi</button>
         <button type="button" class="btn btn-secondary" (click)="openConfirm('cancel')">Hủy thay đổi</button>
       </div>
     </form>
   </div>
 </div>
-<app-notification-dialog
-  *ngIf="showConfirmDialog"
-  [title]="confirmTitle"
-  [message]="confirmMessage"
-  (confirm)="handleConfirm()"
-  (cancel)="handleCancel()">
+<app-notification-dialog *ngIf="showConfirmDialog" [title]="confirmTitle" [message]="confirmMessage"
+  (confirm)="handleConfirm()" (cancel)="handleCancel()">
 </app-notification-dialog>
 
-<app-error-dialog
-  *ngIf="showErrorDialog"
-  [title]="errorTitle"
-  [message]="errorMessage"
-  (cancel)="handleCancelError()">
+<app-error-dialog *ngIf="showErrorDialog" [title]="errorTitle" [message]="errorMessage" (cancel)="handleCancelError()">
 </app-error-dialog>

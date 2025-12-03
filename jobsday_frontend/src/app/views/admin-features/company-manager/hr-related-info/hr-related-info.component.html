@@ -164,7 +164,8 @@
           <img [src]="company.logo || 'assets/logo1.png'" alt="Logo" width="96" height="96" class="mx-auto rounded" />
         </div>
 
-        <div class="fw-bold mb-1 text-truncate">Tên công ty: <a routerLink="/company-related-info/{{company.id}}">{{ company.name }}</a></div>
+        <div class="fw-bold mb-1 text-truncate">Tên công ty: <a routerLink="/company-related-info/{{company.id}}">{{
+            company.name }}</a></div>
         <div class="text-muted small mb-1">Chức danh: {{ member.position }}</div>
         <div class="text-muted small mb-2">Địa điểm: {{ company.location }} - {{ company.address }}</div>
       </div>
@@ -385,7 +386,24 @@
 
             <div class="col-md-3 mb-2">
               <label class="form-label fw-bold">Hạn ứng tuyển</label>
-              <input type="date" class="form-control" formControlName="deadline">
+              <input type="date" class="form-control" formControlName="deadline" [attr.min]="today | date:'yyyy-MM-dd'">
+              <div
+                *ngIf="jobForm.get('deadline')?.invalid && (jobForm.get('deadline')?.dirty || jobForm.get('deadline')?.touched)"
+                class="text-danger">
+                <ng-container *ngIf="jobForm.get('deadline')?.errors?.['required']; else deadlineOtherErrors">
+                  Hạn ứng tuyển không được để trống.
+                </ng-container>
+                <ng-template #deadlineOtherErrors>
+                  <ng-container *ngIf="jobForm.get('deadline')?.errors?.['invalidDate']; else notPastOrToday">
+                    Hạn ứng tuyển không hợp lệ.
+                  </ng-container>
+                  <ng-template #notPastOrToday>
+                    <ng-container *ngIf="jobForm.get('deadline')?.errors?.['pastOrToday']">
+                      Hạn ứng tuyển phải lớn hơn ngày hiện tại.
+                    </ng-container>
+                  </ng-template>
+                </ng-template>
+              </div>
             </div>
 
             <div class="col-md-3 mb-2">

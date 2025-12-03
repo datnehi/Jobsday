@@ -6,7 +6,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { NotificationDialogComponent } from "../../../common/notification-dialog/notification-dialog.component";
 import { ErrorDialogComponent } from "../../../common/error-dialog/error-dialog.component";
 import { LoadingComponent } from "../../../common/loading/loading.component";
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { AvatarEditorComponent } from "../../../common/avatar-editor/avatar-editor.component";
 import { Company } from '../../../../models/company';
@@ -95,6 +95,7 @@ export class HrRelatedInfoComponent {
   jobForm!: FormGroup;
   skillsList: Skills[] = [];
   selectedSkills: number[] = [];
+  today: string = new Date().toISOString().split('T')[0];
 
   constructor(
     private userService: UserService,
@@ -117,13 +118,21 @@ export class HrRelatedInfoComponent {
       status: ['ACTIVE', Validators.required],
       ntd_search: [false, Validators.required]
     });
+    const futureDateValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+      const value = control.value;
+      if (!value) return null;
+      const d = new Date(value);
+      if (isNaN(d.getTime())) return { invalidDate: true };
+      if (d.getTime() <= Date.now()) return { pastOrToday: true };
+      return null;
+    };
     this.jobForm = this.fb.group({
       title: ['', Validators.required],
       memberName: ['', Validators.required],
       location: ['', Validators.required],
       address: ['', Validators.required],
       quantity: [1, [Validators.required, Validators.min(1)]],
-      deadline: ['', Validators.required],
+      deadline: ['', [Validators.required, futureDateValidator]],
       salary: ['', Validators.required],
       experience: ['', Validators.required],
       level: ['', Validators.required],

@@ -55,6 +55,7 @@ export class CandidateRelatedInfoComponent {
   selectedApplication: any = null;
   showDetailDialog: boolean = false;
   showAvatarEditor: boolean = false;
+  today: string = new Date().toISOString().split('T')[0];
 
   constructor(
     private userService: UserService,

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { NotificationDialogComponent } from '../../../common/notification-dialog/notification-dialog.component';
 import { Skills } from '../../../../models/skills';
@@ -45,6 +45,7 @@ export class CreateJobComponent {
   errorTitle = '';
   errorMessage = '';
   isLoading = false;
+  today: string = new Date().toISOString().split('T')[0];
 
   constructor(
     private fb: FormBuilder,
@@ -56,12 +57,21 @@ export class CreateJobComponent {
   ) { }
 
   ngOnInit(): void {
+    const futureDateValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+      const value = control.value;
+      if (!value) return null;
+      const d = new Date(value);
+      if (isNaN(d.getTime())) return { invalidDate: true };
+      if (d.getTime() <= Date.now()) return { pastOrToday: true };
+      return null;
+    };
+
     this.jobForm = this.fb.group({
       title: ['', Validators.required],
       location: ['', Validators.required],
       address: ['', Validators.required],
       quantity: [1, [Validators.required, Validators.min(1)]],
-      deadline: ['', Validators.required],
+      deadline: ['', [Validators.required, futureDateValidator]],
       salary: ['', Validators.required],
       experience: ['', Validators.required],
       level: ['', Validators.required],

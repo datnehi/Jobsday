@@ -49,11 +49,21 @@
         </div>
         <div class="col-md-4 mb-3">
           <label class="form-label fw-bold create-job-label">Hạn ứng tuyển</label>
-          <input type="date" class="form-control create-job-input" formControlName="deadline">
-          <div
-            *ngIf="jobForm.get('deadline')?.invalid && (jobForm.get('deadline')?.dirty || jobForm.get('deadline')?.touched)"
-            class="text-danger">
-            Hạn ứng tuyển không được để trống.
+          <input type="date" class="form-control create-job-input" formControlName="deadline" [attr.min]="today | date:'yyyy-MM-dd'">
+          <div *ngIf="jobForm.get('deadline')?.invalid && (jobForm.get('deadline')?.dirty || jobForm.get('deadline')?.touched)" class="text-danger">
+            <ng-container *ngIf="jobForm.get('deadline')?.errors?.['required']; else deadlineOtherErrors">
+              Hạn ứng tuyển không được để trống.
+            </ng-container>
+            <ng-template #deadlineOtherErrors>
+              <ng-container *ngIf="jobForm.get('deadline')?.errors?.['invalidDate']; else notPastOrToday">
+                Hạn ứng tuyển không hợp lệ.
+              </ng-container>
+              <ng-template #notPastOrToday>
+                <ng-container *ngIf="jobForm.get('deadline')?.errors?.['pastOrToday']">
+                  Hạn ứng tuyển phải lớn hơn ngày hiện tại.
+                </ng-container>
+              </ng-template>
+            </ng-template>
           </div>
         </div>
         <div class="col-md-4 mb-3">
