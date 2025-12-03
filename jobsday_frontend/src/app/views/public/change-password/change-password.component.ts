@@ -37,7 +37,7 @@ export class ChangePasswordComponent {
         ]
       ],
       confirmPassword: ['', Validators.required],
-      email: [{value: '', disabled: true}],
+      email: [{ value: '', disabled: true }],
     }, { validators: this.passwordMatchValidator });
   }
 
@@ -56,8 +56,9 @@ export class ChangePasswordComponent {
   toggleSearchChange() {
     this.userService.updateNtdSearch(this.allowNTDSearch).subscribe(response => {
       if (response) {
-        this.authService.setUser(this.authService.token || '');
-        this.ngOnInit();
+        this.authService.loadUserBeforeApp().then(() => {
+          this.ngOnInit();
+        });
       }
     });
   }
@@ -66,8 +67,9 @@ export class ChangePasswordComponent {
     if (this.infoForm.valid) {
       this.userService.changePassword(this.infoForm.value.currentPassword, this.infoForm.value.newPassword).subscribe(response => {
         if (response) {
-          this.authService.setUser(this.authService.token || '');
-          this.ngOnInit();
+          this.authService.loadUserBeforeApp().then(() => {
+            this.ngOnInit();
+          });
           this.infoForm.reset();
         }
       });
@@ -75,21 +77,21 @@ export class ChangePasswordComponent {
   }
 
   passwordMatchValidator(form: FormGroup) {
-   const currentPassword = String(form.get('currentPassword')?.value || '');
-   const newPassword = String(form.get('newPassword')?.value || '');
-   const confirmPassword = String(form.get('confirmPassword')?.value || '');
+    const currentPassword = String(form.get('currentPassword')?.value || '');
+    const newPassword = String(form.get('newPassword')?.value || '');
+    const confirmPassword = String(form.get('confirmPassword')?.value || '');
 
-   const errors: { [key: string]: boolean } = {};
+    const errors: { [key: string]: boolean } = {};
 
-   if (newPassword !== confirmPassword) {
-     errors['passwordMismatch'] = true;
-   }
+    if (newPassword !== confirmPassword) {
+      errors['passwordMismatch'] = true;
+    }
 
-   if (newPassword && currentPassword && newPassword === currentPassword) {
-     errors['sameAsCurrent'] = true;
-   }
+    if (newPassword && currentPassword && newPassword === currentPassword) {
+      errors['sameAsCurrent'] = true;
+    }
 
-   return Object.keys(errors).length ? errors : null;
+    return Object.keys(errors).length ? errors : null;
   }
 }
 

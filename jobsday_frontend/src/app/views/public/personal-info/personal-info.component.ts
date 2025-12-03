@@ -130,9 +130,10 @@ export class PersonalInfoComponent {
       .pipe(finalize(() => this.isLoading = false))
       .subscribe(res => {
         if (res.status === 200) {
-          this.authService.setUser(this.authService.token || '');
+          this.authService.loadUserBeforeApp().then(() => {
+            this.ngOnInit();
+          });
           this.showAvatarEditor = false;
-          this.ngOnInit();
         } else {
           this.errorTitle = 'Lỗi';
           this.errorMessage = 'Cập nhật ảnh đại diện thất bại.';

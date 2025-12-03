@@ -32,12 +32,9 @@
     "express": "^4.18.2",
     "ng-apexcharts": "^1.7.4",
     "ngx-toastr": "^19.1.0",
-    "primeicons": "^7.0.0",
     "process": "^0.11.10",
     "rxjs": "~7.8.0",
-    "sockjs": "^0.3.24",
     "sockjs-client": "^1.6.1",
-    "stompjs": "^2.3.3",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
   },

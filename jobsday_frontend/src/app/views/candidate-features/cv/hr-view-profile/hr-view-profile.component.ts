@@ -56,8 +56,9 @@ export class HrViewProfileComponent {
   toggleSearchChange() {
     this.userService.updateNtdSearch(this.allowNTDSearch).subscribe(response => {
       if (response) {
-        this.authService.setUser(this.authService.token || '');
-        this.ngOnInit();
+        this.authService.loadUserBeforeApp().then(() => {
+          this.ngOnInit();
+        });
       }
     });
   }

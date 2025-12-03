@@ -30,7 +30,6 @@
               "src/favicon.ico"
             ],
             "styles": [
-              "node_modules/primeicons/primeicons.css",
               "node_modules/bootstrap-icons/font/bootstrap-icons.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css"
