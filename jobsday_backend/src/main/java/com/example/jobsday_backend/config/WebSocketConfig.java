@@ -32,7 +32,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/api/ws")
-                .setAllowedOriginPatterns("http://localhost:4200")
+                .setAllowedOriginPatterns("https://8a0a08c0.jobsday.pages.dev")
                 .addInterceptors(jwtHandshakeInterceptor)
                 .setHandshakeHandler(new CustomHandshakeHandler())
                 .withSockJS();
