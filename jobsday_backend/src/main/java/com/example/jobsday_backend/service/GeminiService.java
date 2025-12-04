@@ -30,12 +30,19 @@ public class GeminiService {
         if (cvText.length() > 5000) {
             cvText = cvText.substring(0, 5000);
         }
-
+        
         String prompt = """
                 Bạn là hệ thống ATS chuyên phân tích CV ứng viên Việt Nam.
-
-                Hãy đọc nội dung CV dưới đây và trích xuất thông tin theo ĐÚNG định dạng JSON sau:
-
+                
+                Nếu nội dung dưới đây **KHÔNG PHẢI CV**, chỉ trả về JSON rỗng:
+                {
+                    "jobTitle": null,
+                    "level": null,
+                    "experience": null,
+                    "skills": []
+                }
+                
+                Nếu là CV, hãy trích xuất thông tin theo định dạng JSON sau:
                 {
                     "jobTitle": "Tên vị trí ứng tuyển hoặc vị trí chính trong CV, ví dụ: Marketing Intern",
                     "level": "intern | fresher | junior | middle | senior",

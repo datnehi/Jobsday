@@ -4,9 +4,10 @@
       <h5 class="mb-0 fw-bold create-job-title">Tạo tin tuyển dụng</h5>
     </div>
     <form [formGroup]="jobForm" (ngSubmit)="onSubmit()" class="card-body create-job-body" novalidate>
+      <div class="mb-2 text-danger small"><span class="fw-bold">*</span> Các thông tin bắt buộc</div>
       <div class="row mb-3 create-job-grid">
         <div class="col-md-6 mb-3">
-          <label class="form-label fw-bold create-job-label">Vị trí tuyển dụng</label>
+          <label class="form-label fw-bold create-job-label">Vị trí tuyển dụng <span class="text-danger">*</span></label>
           <input type="text" class="form-control create-job-input" formControlName="title" placeholder="Nhập vị trí tuyển dụng">
           <div *ngIf="jobForm.get('title')?.invalid && (jobForm.get('title')?.dirty || jobForm.get('title')?.touched)"
             class="text-danger">
@@ -16,7 +17,7 @@
         <div class="col-md-6 mb-3">
         </div>
         <div class="col-md-6 mb-3">
-          <label class="form-label fw-bold create-job-label">Địa điểm</label>
+          <label class="form-label fw-bold create-job-label">Địa điểm <span class="text-danger">*</span></label>
           <select class="form-select create-job-select" formControlName="location">
             <option value="">Chọn địa điểm</option>
             <option value="HANOI">Hà Nội</option>
@@ -30,7 +31,7 @@
           </div>
         </div>
         <div class="col-md-6 mb-3">
-          <label class="form-label fw-bold create-job-label">Địa chỉ</label>
+          <label class="form-label fw-bold create-job-label">Địa chỉ <span class="text-danger">*</span></label>
           <input type="text" class="form-control create-job-input" formControlName="address" placeholder="Nhập địa chỉ">
           <div
             *ngIf="jobForm.get('address')?.invalid && (jobForm.get('address')?.dirty || jobForm.get('address')?.touched)"
@@ -39,7 +40,7 @@
           </div>
         </div>
         <div class="col-md-4 mb-3">
-          <label class="form-label fw-bold create-job-label">Số lượng tuyển</label>
+          <label class="form-label fw-bold create-job-label">Số lượng tuyển <span class="text-danger">*</span></label>
           <input type="number" class="form-control create-job-input" formControlName="quantity" min="1">
           <div
             *ngIf="jobForm.get('quantity')?.invalid && (jobForm.get('quantity')?.dirty || jobForm.get('quantity')?.touched)"
@@ -48,8 +49,8 @@
           </div>
         </div>
         <div class="col-md-4 mb-3">
-          <label class="form-label fw-bold create-job-label">Hạn ứng tuyển</label>
-          <input type="date" class="form-control create-job-input" formControlName="deadline" [attr.min]="today | date:'yyyy-MM-dd'">
+          <label class="form-label fw-bold create-job-label">Hạn ứng tuyển <span class="text-danger">*</span></label>
+          <input type="date" class="form-control create-job-input" formControlName="deadline" [min]="today">
           <div *ngIf="jobForm.get('deadline')?.invalid && (jobForm.get('deadline')?.dirty || jobForm.get('deadline')?.touched)" class="text-danger">
             <ng-container *ngIf="jobForm.get('deadline')?.errors?.['required']; else deadlineOtherErrors">
               Hạn ứng tuyển không được để trống.
@@ -67,7 +68,7 @@
           </div>
         </div>
         <div class="col-md-4 mb-3">
-          <label class="form-label fw-bold create-job-label">Mức lương</label>
+          <label class="form-label fw-bold create-job-label">Mức lương <span class="text-danger">*</span></label>
           <select class="form-select create-job-select" formControlName="salary">
             <option value="">Chọn mức lương</option>
             <option value="THOA_THUAN">Thỏa thuận</option>
@@ -86,7 +87,7 @@
           </div>
         </div>
         <div class="col-md-4 mb-3">
-          <label class="form-label fw-bold create-job-label">Loại hợp đồng</label>
+          <label class="form-label fw-bold create-job-label">Loại hợp đồng <span class="text-danger">*</span></label>
           <select class="form-select create-job-select" formControlName="contractType">
             <option value="">Chọn loại hợp đồng</option>
             <option value="FULL_TIME">Toàn thời gian</option>
@@ -99,7 +100,7 @@
           </div>
         </div>
         <div class="col-md-4 mb-3">
-          <label class="form-label fw-bold create-job-label">Kinh nghiệm</label>
+          <label class="form-label fw-bold create-job-label">Kinh nghiệm <span class="text-danger">*</span></label>
           <select class="form-select create-job-select" formControlName="experience">
             <option value="">Chọn kinh nghiệm</option>
             <option value="KHONG_YEU_CAU">Không yêu cầu</option>
@@ -118,7 +119,7 @@
           </div>
         </div>
         <div class="col-md-4 mb-3">
-          <label class="form-label fw-bold create-job-label">Cấp bậc</label>
+          <label class="form-label fw-bold create-job-label">Cấp bậc <span class="text-danger">*</span></label>
           <select class="form-select create-job-select" formControlName="level">
             <option value="">Chọn cấp bậc</option>
             <option value="INTERN">Intern</option>
@@ -134,7 +135,7 @@
           </div>
         </div>
         <div class="col-md-6 mb-3">
-          <label class="form-label fw-bold create-job-label">Hình thức làm việc</label>
+          <label class="form-label fw-bold create-job-label">Hình thức làm việc <span class="text-danger">*</span></label>
           <select class="form-select create-job-select" formControlName="jobType">
             <option value="">Chọn hình thức</option>
             <option value="IN_OFFICE">Tại văn phòng</option>
@@ -148,7 +149,7 @@
           </div>
         </div>
         <div class="col-md-6 mb-3">
-          <label class="form-label fw-bold create-job-label">Thời gian làm việc</label>
+          <label class="form-label fw-bold create-job-label">Thời gian làm việc <span class="text-danger">*</span></label>
           <textarea class="form-control create-job-textarea" rows="1" formControlName="workingTime"
             placeholder="Ví dụ: Thứ 2 - Thứ 6, 8:00 - 17:00"></textarea>
           <div
@@ -174,7 +175,7 @@
 
         </div>
         <div class="col-md-12 mb-3">
-          <label class="form-label fw-bold create-job-label">Mô tả công việc</label>
+          <label class="form-label fw-bold create-job-label">Mô tả công việc <span class="text-danger">*</span></label>
           <textarea class="form-control create-job-textarea" rows="3" formControlName="description"></textarea>
           <div
             *ngIf="jobForm.get('description')?.invalid && (jobForm.get('description')?.dirty || jobForm.get('description')?.touched)"
@@ -183,7 +184,7 @@
           </div>
         </div>
         <div class="col-md-12 mb-3">
-          <label class="form-label fw-bold create-job-label">Yêu cầu ứng viên</label>
+          <label class="form-label fw-bold create-job-label">Yêu cầu ứng viên <span class="text-danger">*</span></label>
           <textarea class="form-control create-job-textarea" rows="3" formControlName="requirement"></textarea>
           <div
             *ngIf="jobForm.get('requirement')?.invalid && (jobForm.get('requirement')?.dirty || jobForm.get('requirement')?.touched)"
@@ -192,7 +193,7 @@
           </div>
         </div>
         <div class="col-md-12 mb-3">
-          <label class="form-label fw-bold create-job-label">Quyền lợi</label>
+          <label class="form-label fw-bold create-job-label">Quyền lợi <span class="text-danger">*</span></label>
           <textarea class="form-control create-job-textarea" rows="3" formControlName="benefit"></textarea>
           <div
             *ngIf="jobForm.get('benefit')?.invalid && (jobForm.get('benefit')?.dirty || jobForm.get('benefit')?.touched)"

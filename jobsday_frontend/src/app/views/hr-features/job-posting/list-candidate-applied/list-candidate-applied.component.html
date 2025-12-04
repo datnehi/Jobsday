@@ -21,7 +21,7 @@
           <td class="text-center align-middle candidate-td candidate-email" data-label="Email">{{ application.candidateEmail }}</td>
           <td class="text-center align-middle candidate-td candidate-phone" data-label="SĐT">{{ application.candidatePhone }}</td>
           <td class="text-center align-middle candidate-td candidate-cv" data-label="CV">
-            <a (click)="viewCv(application.applicationId); $event.stopPropagation();" class="btn btn-sm btn-outline-primary candidate-cv-btn" aria-label="Xem CV">Xem CV</a>
+            <a (click)="viewCv(application.applicationId); $event.stopPropagation();" class="btn btn-sm btn-outline-primary candidate-cv-btn" style="white-space: nowrap;" aria-label="Xem CV">Xem CV</a>
           </td>
           <td class="text-center align-middle candidate-td candidate-applied" data-label="Ngày ứng tuyển">{{ application.appliedAt | date:'dd/MM/yyyy HH:mm' }}</td>
           <td class="text-center align-middle candidate-td candidate-status" data-label="Trạng thái">
@@ -35,7 +35,7 @@
             </span>
           </td>
           <td class="text-center align-middle candidate-td candidate-actions" data-label="Hành động">
-            <div class="candidate-action-buttons">
+            <div class="candidate-action-buttons d-flex justify-content-center gap-1">
               <button class="btn btn-outline-info btn-sm candidate-action-btn" title="Nhắn tin" (click)="openChatWithCandidate(application); $event.stopPropagation();" aria-label="Nhắn tin">
                 <i class="bi bi-chat"></i>
               </button>

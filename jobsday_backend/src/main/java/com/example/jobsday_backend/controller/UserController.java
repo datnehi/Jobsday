@@ -201,7 +201,34 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "User not found", null));
         }
-        userService.updateUser(user);
+        if (user.getFullName() != null) {
+            userInfo.setFullName(user.getFullName());
+        }
+        if (user.getPhone() != null) {
+            userInfo.setPhone(user.getPhone());
+        }
+        if (user.getDob() != null) {
+            userInfo.setDob(user.getDob());
+        }
+        if (user.getAddress() != null) {
+            userInfo.setAddress(user.getAddress());
+        }
+        if (user.getStatus() != null) {
+            userInfo.setStatus(user.getStatus());
+        }
+        if (user.getEmailVerified() != null) {
+            userInfo.setEmailVerified(user.getEmailVerified());
+        }
+        if (user.getNtdSearch() != null) {
+            userInfo.setNtdSearch(user.getNtdSearch());
+        }
+        if (user.getVerificationCode() != null) {
+            userInfo.setVerificationCode(user.getVerificationCode());
+        }
+        if (user.getVerificationExpiry() != null) {
+            userInfo.setVerificationExpiry(user.getVerificationExpiry());
+        }
+        userService.updateUser(userInfo);
         notificationService.sendNotification(1L, userInfo.getId(), "SYSTEM_ALERT", "Thông tin cá nhân của bạn đã được Jobsday thay đổi. Vui lòng cập nhật. Cảm ơn!");
         return ResponseEntity.ok(
                 new ResponseDto(HttpStatus.OK.value(), "Update user info successfully", user)

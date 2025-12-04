@@ -115,8 +115,7 @@ export class HrRelatedInfoComponent {
       phone: [''],
       dob: [''],
       address: [''],
-      status: ['ACTIVE', Validators.required],
-      ntd_search: [false, Validators.required]
+      status: ['ACTIVE', Validators.required]
     });
     const futureDateValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
       const value = control.value;
@@ -208,10 +207,12 @@ export class HrRelatedInfoComponent {
 
   editUser() {
     this.showUserDialog = true;
+    this.userForm.get('email')?.disable();
   }
 
   closeUserDialog() {
     this.showUserDialog = false;
+    this.userForm.get('email')?.enable();
   }
 
   saveUser() {
@@ -219,7 +220,6 @@ export class HrRelatedInfoComponent {
     this.isLoading = true;
     const userData: User = {
       ...this.user,
-      email: this.userForm.value.email,
       fullName: this.userForm.value.full_name,
       phone: this.userForm.value.phone,
       dob: this.userForm.value.dob,

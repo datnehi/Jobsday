@@ -103,6 +103,7 @@
         <div class="modal-body">
           <div class="row gx-3">
             <div class="col-12 col-md-7">
+              <div class="mb-1 text-danger small"><span class="fw-bold">*</span> Các thông tin bắt buộc</div>
               <div class="mb-3">
                 <label class="form-label">Email</label>
                 <input type="email" class="form-control" formControlName="email">
@@ -111,7 +112,7 @@
                 </div>
               </div>
               <div class="mb-3">
-                <label class="form-label">Họ tên</label>
+                <label class="form-label">Họ tên <span class="text-danger fw-bold">*</span></label>
                 <input type="text" class="form-control" formControlName="full_name">
                 <div *ngIf="userForm.get('full_name')?.invalid && userForm.get('full_name')?.touched" class="text-danger small">
                   Họ tên là bắt buộc
@@ -146,7 +147,7 @@
                   <option [ngValue]="false">Chưa xác thực</option>
                 </select>
               </div>
-              <div class="mb-3">
+              <div class="mb-3" *ngIf="userForm.get('role')?.value != 'HR'">
                 <label class="form-label">NTD Search</label>
                 <select class="form-select" formControlName="ntd_search">
                   <option [ngValue]="true">Có</option>

@@ -6,7 +6,8 @@
       <div class="card shadow register-card">
         <div class="card-body">
           <div *ngIf="step === 'REGISTER'">
-            <h3 class="mb-4 text-center">Đăng ký tài khoản</h3>
+            <h3 class="mb-2 text-center">Đăng ký tài khoản</h3>
+            <div class="mb-3 text-danger small"><span class="fw-bold">*</span> Các thông tin bắt buộc</div>
             <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
               <div class="mb-4 register-tabs">
                 <ul class="nav nav-tabs">
@@ -31,7 +32,7 @@
                 <div class="row">
                   <div class="col-md-6">
                     <div class="mb-3">
-                      <label for="fullName" class="form-label">Họ và tên</label>
+                      <label for="fullName" class="form-label">Họ và tên <span class="text-danger">*</span></label>
                       <input type="text" id="fullName" class="form-control" formControlName="fullName" required>
                       <div *ngIf="registerForm.get('fullName')?.invalid && registerForm.get('fullName')?.touched"
                         class="text-danger">
@@ -39,7 +40,7 @@
                       </div>
                     </div>
                     <div class="mb-3">
-                      <label for="email" class="form-label">Email</label>
+                      <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
                       <input type="email" id="email" class="form-control" formControlName="email" required>
                       <div *ngIf="registerForm.get('email')?.errors?.['required'] && registerForm.get('email')?.touched"
                         class="text-danger">
@@ -60,11 +61,10 @@
                     </div>
                     <div class="mb-3">
                       <label for="dob" class="form-label">Ngày sinh</label>
-                      <input type="date" id="dob" class="form-control" formControlName="dob" min="1900-01-01" max="{{ today | date: 'yyyy-MM-dd' }}"
-                        min="1900-01-01">
+                      <input type="date" id="dob" class="form-control" formControlName="dob" [min]="'1900-01-01'" [max]="today">
                     </div>
                     <div class="mb-3">
-                      <label for="password" class="form-label">Mật khẩu</label>
+                      <label for="password" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
                       <input type="password" id="password" class="form-control" formControlName="password" required>
                       <div
                         *ngIf="registerForm.get('password')?.errors?.['required'] && registerForm.get('password')?.touched"
@@ -78,7 +78,7 @@
                       </div>
                     </div>
                     <div class="mb-3">
-                      <label for="confirmPassword" class="form-label">Xác nhận mật khẩu</label>
+                      <label for="confirmPassword" class="form-label">Xác nhận mật khẩu <span class="text-danger">*</span></label>
                       <input type="password" id="confirmPassword" class="form-control" formControlName="confirmPassword"
                         required>
                       <div
@@ -111,7 +111,7 @@
                     </div>
                     <ng-container *ngIf="!companyExists">
                       <div class="mb-3">
-                        <label for="companyName" class="form-label">Tên công ty</label>
+                        <label for="companyName" class="form-label">Tên công ty <span class="text-danger">*</span></label>
                         <input type="text" id="companyName" class="form-control" formControlName="companyName" required>
                         <div
                           *ngIf="registerForm.get('companyName')?.invalid && registerForm.get('companyName')?.touched"
@@ -120,7 +120,7 @@
                         </div>
                       </div>
                       <div class="mb-3">
-                        <label for="companyLocation" class="form-label">Khu vực</label>
+                        <label for="companyLocation" class="form-label">Khu vực <span class="text-danger">*</span></label>
                         <select id="companyLocation" class="form-select" formControlName="companyLocation" required>
                           <option value="">-- Chọn khu vực --</option>
                           <option value="Hà Nội">Hà Nội</option>
@@ -134,7 +134,7 @@
                         </div>
                       </div>
                       <div class="mb-3">
-                        <label for="companyAddress" class="form-label">Địa chỉ công ty</label>
+                        <label for="companyAddress" class="form-label">Địa chỉ công ty <span class="text-danger">*</span></label>
                         <input type="text" id="companyAddress" class="form-control" formControlName="companyAddress">
                         <div
                           *ngIf="registerForm.get('companyAddress')?.invalid && registerForm.get('companyAddress')?.touched"
@@ -147,7 +147,7 @@
                         <input type="text" id="companyWebsite" class="form-control" formControlName="companyWebsite">
                       </div>
                       <div class="mb-3">
-                        <label for="companyTaxCode" class="form-label">Mã số thuế</label>
+                        <label for="companyTaxCode" class="form-label">Mã số thuế <span class="text-danger">*</span></label>
                         <input type="text" id="companyTaxCode" class="form-control" formControlName="companyTaxCode">
                         <div
                           *ngIf="registerForm.get('companyTaxCode')?.invalid && registerForm.get('companyTaxCode')?.touched"
@@ -167,7 +167,7 @@
 
               <ng-template #candidateForm>
                 <div class="mb-3">
-                  <label for="fullName" class="form-label">Họ và tên</label>
+                  <label for="fullName" class="form-label">Họ và tên <span class="text-danger">*</span></label>
                   <input type="text" id="fullName" class="form-control" formControlName="fullName" required>
                   <div *ngIf="registerForm.get('fullName')?.invalid && registerForm.get('fullName')?.touched"
                     class="text-danger">
@@ -175,7 +175,7 @@
                   </div>
                 </div>
                 <div class="mb-3">
-                  <label for="email" class="form-label">Email</label>
+                  <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
                   <input type="email" id="email" class="form-control" formControlName="email" required>
                   <div *ngIf="registerForm.get('email')?.errors?.['required'] && registerForm.get('email')?.touched"
                     class="text-danger">
@@ -192,11 +192,10 @@
                 </div>
                 <div class="mb-3">
                   <label for="dob" class="form-label">Ngày sinh</label>
-                  <input type="date" max="{{ today | date: 'yyyy-MM-dd' }}" min="1900-01-01" max="{{ today | date: 'yyyy-MM-dd' }}" id="dob"
-                    class="form-control" formControlName="dob">
+                  <input type="date" id="dob" class="form-control" formControlName="dob" [min]="'1900-01-01'" [max]="today">
                 </div>
                 <div class="mb-3">
-                  <label for="password" class="form-label">Mật khẩu</label>
+                  <label for="password" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
                   <input type="password" id="password" class="form-control" formControlName="password" required>
                   <div
                     *ngIf="registerForm.get('password')?.errors?.['required'] && registerForm.get('password')?.touched"
@@ -210,7 +209,7 @@
                   </div>
                 </div>
                 <div class="mb-3">
-                  <label for="confirmPassword" class="form-label">Xác nhận mật khẩu</label>
+                  <label for="confirmPassword" class="form-label">Xác nhận mật khẩu <span class="text-danger">*</span></label>
                   <input type="password" id="confirmPassword" class="form-control" formControlName="confirmPassword"
                     required>
                   <div

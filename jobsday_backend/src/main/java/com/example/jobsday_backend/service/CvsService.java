@@ -108,7 +108,7 @@ public class CvsService {
     }
 
     private Cvs.Level convertLevel(String level) {
-        if (level == null) return null;
+        if (level == null || level.isEmpty()) return null;
         String l = level.toLowerCase();
 
         if (l.contains("intern")) return Cvs.Level.INTERN;
@@ -120,7 +120,7 @@ public class CvsService {
     }
 
     private Cvs.Experience convertExperience(String exp) {
-        if (exp == null) return null;
+        if (exp == null || exp.isEmpty()) return null;
 
         String e = exp.trim().toLowerCase();
 

@@ -326,19 +326,19 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">Họ tên</label>
+            <label class="form-label fw-bold">Họ tên</label>
             <input type="text" class="form-control" [value]="this.editMemberData?.fullName" disabled>
           </div>
           <div class="mb-3">
-            <label class="form-label">Email</label>
+            <label class="form-label fw-bold ">Email</label>
             <input type="email" class="form-control" [value]="this.editMemberData?.email" disabled>
           </div>
           <div class="mb-3">
-            <label class="form-label">Vai trò</label>
+            <label class="form-label fw-bold">Vai trò</label>
             <input type="text" class="form-control" [(ngModel)]="this.editMemberData!.position">
           </div>
           <div class="mb-3">
-            <label class="form-label">Trạng thái</label>
+            <label class="form-label fw-bold">Trạng thái</label>
             <select class="form-select" [(ngModel)]="this.editMemberData!.status">
               <option value="APPROVED">Đang hoạt động</option>
               <option value="INACTIVE">Đã khóa</option>
@@ -461,8 +461,9 @@
 
         <div class="modal-body">
           <div class="row mb-2">
+            <div class="mb-1 text-danger small"><span class="fw-bold">*</span> Các thông tin bắt buộc</div>
             <div class="col-md-6 mb-2">
-              <label class="form-label fw-bold">Vị trí tuyển dụng</label>
+              <label class="form-label fw-bold">Vị trí tuyển dụng <span class="text-danger fw-bold">*</span></label>
               <input type="text" class="form-control" formControlName="title" placeholder="Nhập vị trí tuyển dụng">
               <div
                 *ngIf="jobForm.get('title')?.invalid && (jobForm.get('title')?.dirty || jobForm.get('title')?.touched)"
@@ -470,36 +471,57 @@
             </div>
 
             <div class="col-md-6 mb-2">
-              <label class="form-label fw-bold">Địa chỉ</label>
+              <label class="form-label fw-bold">Địa chỉ <span class="text-danger fw-bold">*</span></label>
               <input type="text" class="form-control" formControlName="address" placeholder="Nhập địa chỉ">
+              <div
+                *ngIf="jobForm.get('address')?.invalid && (jobForm.get('address')?.dirty || jobForm.get('address')?.touched)"
+                class="text-danger">Địa chỉ không được để trống.</div>
             </div>
 
             <div class="col-md-3 mb-2">
-              <label class="form-label fw-bold">Người phụ trách</label>
+              <label class="form-label fw-bold">Người phụ trách <span class="text-danger fw-bold">*</span></label>
               <select class="form-select" formControlName="memberName">
                 <option value="">Chọn người phụ trách</option>
                 <option *ngFor="let m of members" [value]="m.id">{{ m.fullName }} - {{ m.position }}</option>
               </select>
+              <div
+                *ngIf="jobForm.get('memberName')?.invalid && (jobForm.get('memberName')?.dirty || jobForm.get('memberName')?.touched)"
+                class="text-danger">Người phụ trách không được để trống.</div>
             </div>
 
             <div class="col-md-3 mb-2">
-              <label class="form-label fw-bold">Địa điểm</label>
+              <label class="form-label fw-bold">Địa điểm <span class="text-danger fw-bold">*</span></label>
               <select class="form-select" formControlName="location">
                 <option value="">Chọn địa điểm</option>
                 <option value="HANOI">Hà Nội</option>
                 <option value="HOCHIMINH">Hồ Chí Minh</option>
                 <option value="DANANG">Đà Nẵng</option>
               </select>
+              <div
+                *ngIf="jobForm.get('location')?.invalid && (jobForm.get('location')?.dirty || jobForm.get('location')?.touched)"
+                class="text-danger">Địa điểm không được để trống.</div>
             </div>
 
 
             <div class="col-md-3 mb-2">
-              <label class="form-label fw-bold">Số lượng tuyển</label>
+              <label class="form-label fw-bold">Số lượng tuyển <span class="text-danger fw-bold">*</span></label>
               <input type="number" class="form-control" formControlName="quantity" min="1">
+              <div
+                *ngIf="jobForm.get('quantity')?.invalid && (jobForm.get('quantity')?.dirty || jobForm.get('quantity')?.touched)"
+                class="text-danger">
+                <ng-container *ngIf="jobForm.get('quantity')?.errors?.['required']; else quantityOtherErrors">
+                  Số lượng tuyển không được để trống.
+                </ng-container>
+                <ng-template #quantityOtherErrors>
+                  <ng-container *ngIf="jobForm.get('quantity')?.errors?.['min']">
+                    Số lượng tuyển phải lớn hơn 0.
+                  </ng-container>
+                </ng-template>
+              </div>
             </div>
 
             <div class="col-md-3 mb-2">
-              <label class="form-label fw-bold">Hạn ứng tuyển</label>
+              <label class="form-label fw-bold">Hạn ứng tuyển <span class="text-danger fw-bold">*</span></label>
               <input type="date" class="form-control" formControlName="deadline" [attr.min]="today | date:'yyyy-MM-dd'">
               <div
                 *ngIf="jobForm.get('deadline')?.invalid && (jobForm.get('deadline')?.dirty || jobForm.get('deadline')?.touched)"
@@ -521,7 +543,7 @@
             </div>
 
             <div class="col-md-3 mb-2">
-              <label class="form-label fw-bold">Mức lương</label>
+              <label class="form-label fw-bold">Mức lương <span class="text-danger fw-bold">*</span></label>
               <select class="form-select" formControlName="salary">
                 <option value="">Chọn mức lương</option>
                 <option value="THOA_THUAN">Thỏa thuận</option>
@@ -533,20 +555,26 @@
                 <option value="TU_30_DEN_50_TRIEU">30 - 50 triệu</option>
                 <option value="HON_50_TRIEU">Trên 50 triệu</option>
               </select>
+              <div
+                *ngIf="jobForm.get('salary')?.invalid && (jobForm.get('salary')?.dirty || jobForm.get('salary')?.touched)"
+                class="text-danger">Mức lương không được để trống.</div>
             </div>
 
             <div class="col-md-3 mb-2">
-              <label class="form-label fw-bold">Loại hợp đồng</label>
+              <label class="form-label fw-bold">Loại hợp đồng <span class="text-danger fw-bold">*</span></label>
               <select class="form-select" formControlName="contractType">
                 <option value="">Chọn loại hợp đồng</option>
                 <option value="FULL_TIME">Toàn thời gian</option>
                 <option value="PART_TIME">Bán thời gian</option>
                 <option value="FREELANCE">Freelance</option>
               </select>
+              <div
+                *ngIf="jobForm.get('contractType')?.invalid && (jobForm.get('contractType')?.dirty || jobForm.get('contractType')?.touched)"
+                class="text-danger">Loại hợp đồng không được để trống.</div>
             </div>
 
             <div class="col-md-3 mb-2">
-              <label class="form-label fw-bold">Kinh nghiệm</label>
+              <label class="form-label fw-bold">Kinh nghiệm <span class="text-danger fw-bold">*</span></label>
               <select class="form-select" formControlName="experience">
                 <option value="">Chọn kinh nghiệm</option>
                 <option value="KHONG_YEU_CAU">Không yêu cầu</option>
@@ -558,10 +586,13 @@
                 <option value="NAM_NAM">5 năm</option>
                 <option value="TREN_5_NAM">Trên 5 năm</option>
               </select>
+              <div
+                *ngIf="jobForm.get('experience')?.invalid && (jobForm.get('experience')?.dirty || jobForm.get('experience')?.touched)"
+                class="text-danger">Kinh nghiệm không được để trống.</div>
             </div>
 
             <div class="col-md-3 mb-2">
-              <label class="form-label fw-bold">Cấp bậc</label>
+              <label class="form-label fw-bold">Cấp bậc <span class="text-danger fw-bold">*</span></label>
               <select class="form-select" formControlName="level">
                 <option value="">Chọn cấp bậc</option>
                 <option value="INTERN">Intern</option>
@@ -570,32 +601,44 @@
                 <option value="MIDDLE">Middle</option>
                 <option value="SENIOR">Senior</option>
               </select>
+              <div
+                *ngIf="jobForm.get('level')?.invalid && (jobForm.get('level')?.dirty || jobForm.get('level')?.touched)"
+                class="text-danger">Cấp bậc không được để trống.</div>
             </div>
 
             <div class="col-md-3 mb-2">
-              <label class="form-label fw-bold">Hình thức làm việc</label>
+              <label class="form-label fw-bold">Hình thức làm việc <span class="text-danger fw-bold">*</span></label>
               <select class="form-select" formControlName="jobType">
                 <option value="">Chọn hình thức</option>
                 <option value="IN_OFFICE">Tại văn phòng</option>
                 <option value="REMOTE">Remote</option>
                 <option value="HYBRID">Hybrid</option>
               </select>
+              <div
+                *ngIf="jobForm.get('jobType')?.invalid && (jobForm.get('jobType')?.dirty || jobForm.get('jobType')?.touched)"
+                class="text-danger">Hình thức làm việc không được để trống.</div>
             </div>
 
             <div class="col-md-6 mb-2">
-              <label class="form-label fw-bold">Thời gian làm việc</label>
+              <label class="form-label fw-bold">Thời gian làm việc <span class="text-danger fw-bold">*</span></label>
               <input class="form-control" formControlName="workingTime"
                 placeholder="Ví dụ: Thứ 2 - Thứ 6, 8:00 - 17:00">
+                <div
+                *ngIf="jobForm.get('workingTime')?.invalid && (jobForm.get('workingTime')?.dirty || jobForm.get('workingTime')?.touched)"
+                class="text-danger">Thời gian làm việc không được để trống.</div>
             </div>
 
             <div class="col-md-3 mb-2">
-              <label class="form-label fw-bold">Trạng thái</label>
+              <label class="form-label fw-bold">Trạng thái <span class="text-danger fw-bold">*</span></label>
               <select class="form-select" formControlName="status">
                 <option value="">Chọn trạng thái</option>
                 <option value="ACTIVE">Đang hoạt động</option>
                 <option value="HIDDEN">Ẩn</option>
                 <option value="CLOSED">Đã đóng</option>
               </select>
+              <div
+                *ngIf="jobForm.get('status')?.invalid && (jobForm.get('status')?.dirty || jobForm.get('status')?.touched)"
+                class="text-danger">Trạng thái không được để trống.</div>
             </div>
 
             <div class="col-md-12 mb-2">
@@ -613,18 +656,27 @@
             </div>
 
             <div class="col-md-12 mb-2">
-              <label class="form-label fw-bold">Mô tả công việc</label>
+              <label class="form-label fw-bold">Mô tả công việc <span class="text-danger fw-bold">*</span></label>
               <textarea class="form-control" rows="3" formControlName="description"></textarea>
+              <div
+                *ngIf="jobForm.get('description')?.invalid && (jobForm.get('description')?.dirty || jobForm.get('description')?.touched)"
+                class="text-danger">Mô tả công việc không được để trống.</div>
             </div>
 
             <div class="col-md-12 mb-2">
-              <label class="form-label fw-bold">Yêu cầu ứng viên</label>
+              <label class="form-label fw-bold">Yêu cầu ứng viên <span class="text-danger fw-bold">*</span></label>
               <textarea class="form-control" rows="3" formControlName="requirement"></textarea>
+              <div
+                *ngIf="jobForm.get('requirement')?.invalid && (jobForm.get('requirement')?.dirty || jobForm.get('requirement')?.touched)"
+                class="text-danger">Yêu cầu ứng viên không được để trống.</div>
             </div>
 
             <div class="col-md-12">
-              <label class="form-label fw-bold">Quyền lợi</label>
+              <label class="form-label fw-bold">Quyền lợi <span class="text-danger fw-bold">*</span></label>
               <textarea class="form-control" rows="3" formControlName="benefit"></textarea>
+              <div
+                *ngIf="jobForm.get('benefit')?.invalid && (jobForm.get('benefit')?.dirty || jobForm.get('benefit')?.touched)"
+                class="text-danger">Quyền lợi không được để trống.</div>
             </div>
           </div>
         </div>
@@ -650,6 +702,7 @@
 
         <div class="modal-body">
           <div class="row g-2">
+            <div class="mb-1 text-danger small"><span class="fw-bold">*</span> Các thông tin bắt buộc</div>
             <div class="col-md-12 mb-2">
               <label class="form-label fw-bold">Tên công ty <span class="text-danger">*</span></label>
               <input type="text" class="form-control" formControlName="name" placeholder="Tên công ty">

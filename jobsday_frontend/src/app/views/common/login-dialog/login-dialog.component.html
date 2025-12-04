@@ -40,10 +40,11 @@
           </form>
         </ng-container>
         <ng-container *ngIf="loginTab === 'register'">
+          <div class="mb-2 text-danger"><span class="fw-bold">*</span> Các thông tin bắt buộc</div>
           <ng-container *ngIf="registerStep === 'form'; else verifyBlock">
             <form [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit()">
               <div class="mb-3">
-                <label for="fullName" class="form-label">Họ và tên</label>
+                <label for="fullName" class="form-label">Họ và tên <span class="text-danger">*</span></label>
                 <input type="text" id="fullName" class="form-control" formControlName="fullName" required>
                 <div *ngIf="registerForm.get('fullName')?.invalid && registerForm.get('fullName')?.touched"
                   class="text-danger">
@@ -51,7 +52,7 @@
                 </div>
               </div>
               <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
+                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
                 <input type="email" id="email" class="form-control" formControlName="email" required>
                 <div *ngIf="registerForm.get('email')?.errors?.['required'] && registerForm.get('email')?.touched"
                   class="text-danger">
@@ -68,11 +69,11 @@
               </div>
               <div class="mb-3">
                 <label for="dob" class="form-label">Ngày sinh</label>
-                <input type="date" max="{{ today | date: 'yyyy-MM-dd' }}" min="1900-01-01" max="{{ today | date: 'yyyy-MM-dd' }}" id="dob" class="form-control"
-                  formControlName="dob">
+                <input type="date" id="dob" class="form-control" formControlName="dob" [min]="'1900-01-01'" [max]="today"
+                >
               </div>
               <div class="mb-3">
-                <label for="password" class="form-label">Mật khẩu</label>
+                <label for="password" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
                 <input type="password" id="password" class="form-control" formControlName="password" required>
                 <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
                   class="text-danger">
@@ -80,7 +81,7 @@
                 </div>
               </div>
               <div class="mb-3">
-                <label for="confirmPassword" class="form-label">Xác nhận mật khẩu</label>
+                <label for="confirmPassword" class="form-label">Xác nhận mật khẩu <span class="text-danger">*</span></label>
                 <input type="password" id="confirmPassword" class="form-control" formControlName="confirmPassword"
                   required>
                 <div

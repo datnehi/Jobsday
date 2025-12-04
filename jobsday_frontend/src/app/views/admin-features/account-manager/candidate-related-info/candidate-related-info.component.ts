@@ -32,7 +32,7 @@ import { NotificationService } from '../../../../services/notification.service';
   styleUrl: './candidate-related-info.component.css'
 })
 export class CandidateRelatedInfoComponent {
-  user: User = {} as User;
+  user: any = null;
   appliedJobs: any[] = [];
   cvs: Cvs[] = [];
 
@@ -124,10 +124,12 @@ export class CandidateRelatedInfoComponent {
 
   editUser() {
     this.showUserDialog = true;
+    this.userForm.get('email')?.disable();
   }
 
   closeUserDialog() {
     this.showUserDialog = false;
+    this.userForm.get('email')?.enable();
   }
 
   saveUser() {
@@ -135,7 +137,6 @@ export class CandidateRelatedInfoComponent {
     this.isLoading = true;
     const userData: User = {
       ...this.user,
-      email: this.userForm.value.email,
       fullName: this.userForm.value.full_name,
       phone: this.userForm.value.phone,
       dob: this.userForm.value.dob,

@@ -67,7 +67,8 @@ export class UserManagerComponent implements OnInit {
       email_verified: [false, Validators.required],
       verification_code: [''],
       verification_expiry: [''],
-      ntd_search: [false, Validators.required]
+      ntd_search: [false, Validators.required],
+      role: ['']
     });
   }
 
@@ -110,21 +111,24 @@ export class UserManagerComponent implements OnInit {
       email_verified: !!user.emailVerified,
       verification_code: user.verificationCode || user.verification_code,
       verification_expiry: user.verificationExpiry ? (new Date(user.verificationExpiry)).toISOString().slice(0, 16) : '',
-      ntd_search: !!user.ntdSearch
+      ntd_search: !!user.ntdSearch,
+      role: user.role
     });
     this.showUserDialog = true;
+    this.userForm.get('email')?.disable();
   }
 
   closeUserDialog() {
     this.showUserDialog = false;
+    this.userForm.get('email')?.enable();
   }
 
   saveUser() {
     if (this.userForm.invalid) return;
+    this.isLoading = true;
 
     const userData: User = {
       ...this.user,
-      email: this.userForm.value.email,
       fullName: this.userForm.value.full_name,
       phone: this.userForm.value.phone,
       dob: this.userForm.value.dob,
@@ -135,17 +139,19 @@ export class UserManagerComponent implements OnInit {
       verificationExpiry: this.userForm.value.verification_expiry ? new Date(this.userForm.value.verification_expiry) : null,
       ntdSearch: this.userForm.value.ntd_search
     };
-    this.userService.updateUserInfoByAdmin(userData).subscribe({
-      next: () => {
-        this.closeUserDialog();
-        this.loadUsers(this.currentPage);
-      },
-      error: (error) => {
-        this.errorTitle = 'Lỗi';
-        this.errorMessage = 'Cập nhật người dùng thất bại. Vui lòng thử lại.';
-        this.showErrorDialog = true;
-      }
-    });
+    this.userService.updateUserInfoByAdmin(userData)
+      .pipe(finalize(() => { this.isLoading = false; }))
+      .subscribe({
+        next: () => {
+          this.closeUserDialog();
+          this.loadUsers(this.currentPage);
+        },
+        error: (error) => {
+          this.errorTitle = 'Lỗi';
+          this.errorMessage = 'Cập nhật người dùng thất bại. Vui lòng thử lại.';
+          this.showErrorDialog = true;
+        }
+      });
   }
 
   handleCancelError() {
@@ -182,14 +188,17 @@ export class UserManagerComponent implements OnInit {
   }
 
   resetPassword(id: number) {
-    this.userService.resetPassword(id).subscribe({
-      next: () => { },
-      error: (error) => {
-        this.errorTitle = 'Lỗi';
-        this.errorMessage = 'Đặt lại mật khẩu thất bại. Vui lòng thử lại.';
-        this.showErrorDialog = true;
-      }
-    });
+    this.isLoading = true;
+    this.userService.resetPassword(id)
+      .pipe(finalize(() => { this.isLoading = false; }))
+      .subscribe({
+        next: () => { },
+        error: (error) => {
+          this.errorTitle = 'Lỗi';
+          this.errorMessage = 'Đặt lại mật khẩu thất bại. Vui lòng thử lại.';
+          this.showErrorDialog = true;
+        }
+      });
   }
 
   changePage(page: number) {

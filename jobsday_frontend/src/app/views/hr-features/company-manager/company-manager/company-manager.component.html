@@ -69,20 +69,21 @@
           <button type="button" class="btn-close company-edit-close" (click)="closeEditDialog()" aria-label="Đóng"></button>
         </div>
         <div class="modal-body company-edit-body">
+
           <div class="mb-3">
-            <label class="form-label">Họ tên</label>
+            <label class="form-label fw-bold">Họ tên</label>
             <input type="text" class="form-control" [value]="fullName" disabled>
           </div>
           <div class="mb-3">
-            <label class="form-label">Email</label>
+            <label class="form-label fw-bold">Email</label>
             <input type="email" class="form-control" [value]="email" disabled>
           </div>
           <div class="mb-3">
-            <label class="form-label">Vai trò</label>
+            <label class="form-label fw-bold">Vai trò</label>
             <input type="text" class="form-control" [(ngModel)]="editMemberData!.position">
           </div>
           <div class="mb-3">
-            <label class="form-label">Trạng thái</label>
+            <label class="form-label fw-bold">Trạng thái</label>
             <select class="form-select" [(ngModel)]="editMemberData!.status">
               <option value="APPROVED">Đang hoạt động</option>
               <option value="INACTIVE">Đã khóa</option>
