@@ -1,9 +1,10 @@
 import { ApplicationConfig, provideZoneChangeDetection, APP_INITIALIZER } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { AuthService } from './services/auth.service';
 import { routes } from './app.routes';
+import { RateLimitInterceptor } from './interceptors/rate-limit.interceptor';
 
 export function initApp(authService: AuthService) {
   return () => authService.loadUserBeforeApp();
@@ -22,6 +23,11 @@ export const appConfig: ApplicationConfig = {
       useFactory: initApp,
       deps: [AuthService],
       multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: RateLimitInterceptor,
+      multi: true
     }
   ]
 };
