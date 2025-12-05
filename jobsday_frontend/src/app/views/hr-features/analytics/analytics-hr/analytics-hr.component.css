@@ -1,16 +1,19 @@
-.mat-button-toggle-checked {
-  color: #0d6efd !important;
-  background-color: var(--accent) !important;
-  box-shadow: 0 2px 8px rgba(63,81,181,0.18) !important;
-  border-radius: 8px !important;
-}
-
-.mat-button-toggle-group {
+.btn-group {
   padding: 4px;
   display: inline-flex;
   gap: 6px;
   background: transparent;
   border-radius: 10px;
+}
+
+.btn-group .btn {
+  border-radius: 8px;
+}
+
+.btn-group .btn.active {
+  color: #fff;
+  background-color: #0d6efd;
+  box-shadow: 0 2px 8px rgba(13,110,253,0.18);
 }
 
 .metric-card {
@@ -54,8 +57,8 @@
 .analytics-chart-box--growth { height: 320px; }
 .analytics-chart-box--bar { height: 360px; }
 
-.mat-button-toggle-group { flex-wrap: nowrap; }
-.mat-button-toggle-group::-webkit-scrollbar { display: none; }
+.btn-group { flex-wrap: nowrap; }
+.btn-group::-webkit-scrollbar { display: none; }
 
 @media (max-width: 1024px) {
   .analytics-chart-box--growth { height: 300px; }
@@ -65,7 +68,7 @@
 @media (max-width: 768px) {
   .analytics-growth-body, .analytics-topjobs-body, .analytics-tophr-body { padding: .9rem .85rem; }
   .analytics-chart-title { font-size: .95rem; }
-  .mat-button-toggle-group { overflow-x: auto; }
+  .btn-group { overflow-x: auto; }
   .metrics-row .col-6.col-md-3 { flex: 0 0 50%; max-width: 50%; }
   .analytics-chart-box--growth { height: 260px; }
   .analytics-chart-box--bar { height: 300px; }

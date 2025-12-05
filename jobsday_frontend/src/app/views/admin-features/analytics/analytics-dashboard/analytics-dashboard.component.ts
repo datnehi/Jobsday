@@ -1,9 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgApexchartsModule, ApexAxisChartSeries, ApexChart, ApexXAxis, ApexStroke, ApexTooltip, ApexPlotOptions, ApexDataLabels } from 'ng-apexcharts';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatTableModule } from '@angular/material/table';
 import { finalize, forkJoin } from 'rxjs';
 import { DailyCount, TopCandidate, TopCompanyApplication, TopCompanyJob, TopJob, TopSkill } from '../../../../dto/analytics';
 import { AnalyticsService } from '../../../../services/analytics.service';
@@ -23,9 +20,6 @@ type LineOptions = {
   imports: [
     CommonModule,
     NgApexchartsModule,
-    MatCardModule,
-    MatButtonToggleModule,
-    MatTableModule,
     LoadingComponent
 ],
   templateUrl: './analytics-dashboard.component.html',

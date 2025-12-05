@@ -1,10 +1,10 @@
 <div class="container py-3 analytics-hr-wrapper">
   <div class="controls-row d-flex justify-content-center justify-content-md-end mb-3 analytics-controls">
-    <mat-button-toggle-group [value]="range" (change)="setRange($event.value)">
-      <mat-button-toggle [value]="7">7 ngày</mat-button-toggle>
-      <mat-button-toggle [value]="30">30 ngày</mat-button-toggle>
-      <mat-button-toggle [value]="90">90 ngày</mat-button-toggle>
-    </mat-button-toggle-group>
+    <div class="btn-group" role="group" aria-label="Chọn khoảng thời gian">
+      <button type="button" class="btn btn-outline-primary" [class.active]="range === 7" (click)="setRange(7)">7 ngày</button>
+      <button type="button" class="btn btn-outline-primary" [class.active]="range === 30" (click)="setRange(30)">30 ngày</button>
+      <button type="button" class="btn btn-outline-primary" [class.active]="range === 90" (click)="setRange(90)">90 ngày</button>
+    </div>
   </div>
 
   <div *ngIf="stats">

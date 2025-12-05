@@ -12,7 +12,6 @@ import {
   ApexDataLabels,
   ApexYAxis
 } from 'ng-apexcharts';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { AnalyticsService } from '../../../../services/analytics.service';
 import { CompanyMember } from '../../../../models/company_member';
 import { CompanyMemberService } from '../../../../services/company-member.service';
@@ -23,7 +22,7 @@ import { finalize } from 'rxjs';
 @Component({
   selector: 'app-analytics-hr',
   standalone: true,
-  imports: [CommonModule, NgApexchartsModule, MatButtonToggleModule, LoadingComponent],
+  imports: [CommonModule, NgApexchartsModule, LoadingComponent],
   templateUrl: './analytics-hr.component.html',
   styleUrls: ['./analytics-hr.component.css']
 })
