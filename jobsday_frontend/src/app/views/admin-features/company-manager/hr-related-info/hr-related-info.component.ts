@@ -327,7 +327,7 @@ export class HrRelatedInfoComponent {
           this.emailService.sendEmail({
             to: this.company.email,
             subject: 'Xóa job',
-            body: `Xin chào ${this.company.name},\n\nJob ${this.jobSelected?.title} của bạn đã được xóa.\n\nTrân trọng,\nĐội ngũ Jobsday`
+            body: `Xin chào ${this.company.name},\r\n\r\nJob ${this.jobSelected?.title} của bạn đã được xóa.\r\n\r\nTrân trọng,\r\n\r\nĐội ngũ Jobsday`
           }).subscribe();
           this.fetchJobs(0);
         }

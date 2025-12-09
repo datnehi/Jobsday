@@ -52,13 +52,16 @@ public class AuthService {
 
             userService.updateUser(userCheck);
 
-            emailService.sendEmail(
+            boolean send = emailService.sendEmail(
                     userCheck.getEmail(),
                     "Mã xác minh tài khoản",
-                    "Xin chào " + userCheck.getFullName() +
-                            ",\n\nMã OTP xác minh tài khoản của bạn là: " + otp +
-                            "\nMã có hiệu lực trong 10 phút.\n\nCảm ơn!"
+                    "Xin chào " + userCheck.getFullName() + ",\r\n\r\n" +
+                            "Mã OTP xác minh tài khoản của bạn là: " + otp + "\r\n" +
+                            "Mã có hiệu lực trong 10 phút.\r\n\r\nCảm ơn!"
             );
+            if (!send) {
+                throw new RuntimeException("Failed to send verification email");
+            }
         } else {
             User user = new User();
             user.setEmail(body.getEmail());
@@ -76,13 +79,17 @@ public class AuthService {
 
             userService.createUser(user);
 
-            emailService.sendEmail(
+            boolean send = emailService.sendEmail(
                     user.getEmail(),
                     "Mã xác minh tài khoản",
-                    "Xin chào " + user.getFullName() +
-                            ",\n\nMã OTP xác minh tài khoản của bạn là: " + otp +
-                            "\nMã có hiệu lực trong 10 phút.\n\nCảm ơn!"
+                    "Xin chào " + user.getFullName() + ",\r\n\r\n" +
+                            "Mã OTP xác minh tài khoản của bạn là: " + otp + "\r\n" +
+                            "Mã có hiệu lực trong 10 phút.\r\n\r\n" +
+                            "Cảm ơn!"
             );
+            if (!send) {
+                throw new RuntimeException("Failed to send verification email");
+            }
         }
     }
 
@@ -131,13 +138,17 @@ public class AuthService {
         user.setVerificationCode(otp);
         user.setVerificationExpiry(LocalDateTime.now().plusMinutes(10));
         userService.updateUser(user);
-        emailService.sendEmail(
+        boolean send = emailService.sendEmail(
                 user.getEmail(),
                 "Mã xác minh tài khoản",
-                "Xin chào " + user.getFullName() +
-                        ",\n\nMã OTP xác minh tài khoản của bạn là: " + otp +
-                        "\nMã có hiệu lực trong 10 phút.\n\nCảm ơn!"
+                "Xin chào " + user.getFullName() + ",\r\n\r\n" +
+                        "Mã OTP xác minh tài khoản của bạn là: " + otp + "\r\n" +
+                        "Mã có hiệu lực trong 10 phút.\r\n\r\n" +
+                        "Cảm ơn!"
         );
+        if (!send) {
+            throw new RuntimeException("Failed to send verification email");
+        }
     }
 
 }

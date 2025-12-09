@@ -125,13 +125,16 @@ public class CompanyService {
                 if (user != null) {
                     try {
                         userService.deleteUser(user.getId());
-                        emailService.sendEmail(
+                        boolean send = emailService.sendEmail(
                                 user.getEmail(),
                                 "Xóa tài khoản công ty",
-                                "Xin chào " + user.getFullName() +
-                                        ",\n\nChúng tôi xin thông báo rằng tài khoản công ty của bạn đã bị xóa nên tài khoản của bạn cũng bị xóa theo." +
-                                        "\nVui lòng liên hệ với chúng tôi nếu bạn cần hỗ trợ.\n\nCảm ơn!"
+                                "Xin chào " + user.getFullName() + ",\r\n\r\n" +
+                                        "Chúng tôi xin thông báo rằng tài khoản công ty của bạn đã bị xóa nên tài khoản của bạn cũng bị xóa theo.\r\n\r\n" +
+                                        "Vui lòng liên hệ với chúng tôi nếu bạn cần hỗ trợ.\r\n\r\nCảm ơn!"
                         );
+                        if (!send) {
+                            throw new RuntimeException("Lỗi khi gửi email đến user: " + user.getEmail());
+                        }
                     } catch (RuntimeException e) {
                         throw new RuntimeException("Lỗi khi xóa user liên quan đến công ty: " + user.getId(), e);
                     }
@@ -140,16 +143,15 @@ public class CompanyService {
         }
 
         if (company.getEmail() != null && !company.getEmail().isEmpty()) {
-            try {
-                emailService.sendEmail(
-                        company.getEmail(),
-                        "Xóa tài khoản công ty",
-                        "Xin chào " + company.getName() +
-                                ",\n\nChúng tôi xin thông báo rằng tài khoản công ty của bạn đã bị xóa." +
-                                "\nVui lòng liên hệ với chúng tôi nếu bạn cần hỗ trợ.\n\nCảm ơn!"
-                );
-            } catch (RuntimeException e) {
-                throw new RuntimeException("Lỗi khi gửi email đến công ty: " + company.getEmail(), e);
+            boolean send = emailService.sendEmail(
+                    company.getEmail(),
+                    "Xóa tài khoản công ty",
+                    "Xin chào " + company.getName() + ",\r\n\r\n" +
+                            "Chúng tôi xin thông báo rằng tài khoản công ty của bạn đã bị xóa.\r\n\r\n" +
+                            "Vui lòng liên hệ với chúng tôi nếu bạn cần hỗ trợ.\r\n\r\nCảm ơn!"
+            );
+            if (!send) {
+                throw new RuntimeException("Lỗi khi gửi email đến công ty: " + company.getEmail());
             }
         }
     }

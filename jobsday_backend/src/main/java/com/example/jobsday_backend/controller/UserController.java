@@ -165,13 +165,17 @@ public class UserController {
                     .body(new ResponseDto(HttpStatus.NOT_FOUND.value(), "User not found", null));
         }
         userService.resetPassword(user);
-        emailService.sendEmail(
+        boolean send = emailService.sendEmail(
                 user.getEmail(),
                 "Thay đổi mật khẩu",
-                "Xin chào " + user.getFullName() +
-                        ",\n\nMật khẩu tài khoản của bạn đã được đổi thành: Jobsday123@" +
-                        "\nVui lòng cập nhật.\n\nCảm ơn!"
+                "Xin chào " + user.getFullName() + ",\r\n\r\n" +
+                        "Mật khẩu tài khoản của bạn đã được đổi thành: Jobsday123@.\r\n\r\n" +
+                        "Vui lòng cập nhật.\r\n\r\nCảm ơn!"
         );
+        if (!send) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseDto(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Send email failed", null));
+        }
         return ResponseEntity.ok(
                 new ResponseDto(HttpStatus.OK.value(), "Reset password successfully", null)
         );

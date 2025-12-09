@@ -333,7 +333,7 @@ export class CompanyRelatedInfoComponent {
           this.emailService.sendEmail({
             to: this.company.email,
             subject: 'Xóa job',
-            body: `Xin chào ${this.company.name},\n\nJob ${job.title} của bạn đã được xóa.\n\nTrân trọng,\nĐội ngũ Jobsday`
+            body: `Xin chào ${this.company.name},\r\n\r\nJob ${job.title} của bạn đã được xóa.\r\n\r\nTrân trọng,\r\n\r\nĐội ngũ Jobsday`
           }).subscribe();
           this.fetchJobs(this.currentPageJob);
         }
@@ -389,7 +389,7 @@ export class CompanyRelatedInfoComponent {
           this.emailService.sendEmail({
             to: this.company.email,
             subject: 'Cập nhật thông tin công ty',
-            body: `Xin chào ${this.company.name},\n\nThông tin công ty của bạn đã được cập nhật thành công.\n\nTrân trọng,\nĐội ngũ Jobsday`
+            body: `Xin chào ${this.company.name},\r\n\r\nThông tin công ty của bạn đã được cập nhật thành công.\r\n\r\nTrân trọng,\r\n\r\nĐội ngũ Jobsday`
           }).subscribe();
           this.ngOnInit();
         },

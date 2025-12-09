@@ -115,13 +115,18 @@ public class AuthController {
 
         userService.updateUser(user);
 
-        emailService.sendEmail(
+        boolean send = emailService.sendEmail(
                 user.getEmail(),
                 "Mã xác minh tài khoản",
-                "Xin chào " + user.getFullName() +
-                        ",\n\nMã OTP xác minh tài khoản của bạn là: " + otp +
-                        "\nMã có hiệu lực trong 10 phút.\n\nCảm ơn!"
+                "Xin chào " + user.getFullName() + ",\r\n\r\n" +
+                        "Mã OTP xác minh tài khoản của bạn là: " + otp + "\r\n" +
+                        "Mã có hiệu lực trong 10 phút.\r\n\r\n" +
+                        "Cảm ơn!"
         );
+        if (!send) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseDto(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to send OTP email", null));
+        }
 
         return ResponseEntity.ok(new ResponseDto(HttpStatus.OK.value(), "Resend successfully", null));
     }

@@ -20,7 +20,11 @@ public class EmailControler {
 
     @PostMapping
     public ResponseEntity<ResponseDto> sendTestEmail(@RequestBody EmailRequestDto emailRequestDto) {
-        emailService.sendEmail(emailRequestDto.getTo(), emailRequestDto.getSubject(), emailRequestDto.getText());
+        boolean send = emailService.sendEmail(emailRequestDto.getTo(), emailRequestDto.getSubject(), emailRequestDto.getText());
+        if (!send) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseDto(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Send email failed", null));
+        }
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ResponseDto(HttpStatus.OK.value(), "Send email successfully", null));
     }
