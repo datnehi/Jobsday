@@ -5,7 +5,7 @@
         <div class="card-body">
           <h5 class="card-title">CV đã cập nhật</h5>
           <div class="row">
-            <div class="col-md-4 mb-4" *ngFor="let cv of cvs">
+            <div class="col-md-4 mb-2" *ngFor="let cv of cvs">
               <div class="card shadow-sm rounded h-100 text-center p-3 position-relative" style="cursor: pointer;"
                 (click)="viewCv(cv.id, 'view')">
                 <img src="assets/cv.png" alt="CV Folder" width="96" height="96" class="mx-auto mb-3" />
@@ -144,21 +144,13 @@
 
         <div class="modal-body">
           <div class="col-12">
-            <div class="mb-1 text-danger small"><span class="fw-bold">*</span> Các thông tin bắt buộc</div>
             <div class="mb-3">
               <label class="form-label">Email</label>
               <input type="email" class="form-control" formControlName="email">
-              <div *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched" class="text-danger small">
-                Email không hợp lệ
-              </div>
             </div>
             <div class="mb-3">
               <label class="form-label">Họ tên <span class="text-danger fw-bold">*</span></label>
               <input type="text" class="form-control" formControlName="full_name">
-              <div *ngIf="userForm.get('full_name')?.invalid && userForm.get('full_name')?.touched"
-                class="text-danger small">
-                Họ tên là bắt buộc
-              </div>
             </div>
             <div class="mb-3">
               <label class="form-label">SĐT</label>
