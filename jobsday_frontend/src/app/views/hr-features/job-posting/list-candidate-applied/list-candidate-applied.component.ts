@@ -9,15 +9,6 @@ import { NewlineToBrPipe } from "../../../../services/common/newline-to-br-pipe.
 import { NotificationService } from '../../../../services/notification.service';
 import { ConversationService } from '../../../../services/conversation.service';
 
-interface Candidate {
-  fullName: string;
-  email: string;
-  phone: string;
-  cvUrl: string;
-  appliedDate: Date;
-  status: string;
-}
-
 @Component({
   selector: 'app-list-candidate-applied',
   imports: [

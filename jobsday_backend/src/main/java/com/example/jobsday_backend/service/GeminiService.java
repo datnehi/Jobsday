@@ -27,8 +27,8 @@ public class GeminiService {
 
         if (cvText == null) cvText = "";
 
-        if (cvText.length() > 5000) {
-            cvText = cvText.substring(0, 5000);
+        if (cvText.length() > 10000) {
+            cvText = cvText.substring(0, 10000);
         }
         
         String prompt = """

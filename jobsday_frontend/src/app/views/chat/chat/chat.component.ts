@@ -218,10 +218,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  trackByConversation(_i: number, item: any) {
-    return item?.conversationId ?? item?.id ?? _i;
-  }
-
   selectConversation(conv: any) {
     const newConvId = conv?.conversationId ?? conv?.id;
     const oldConvId = this.selectedConversation?.conversationId ?? this.selectedConversation?.id;
