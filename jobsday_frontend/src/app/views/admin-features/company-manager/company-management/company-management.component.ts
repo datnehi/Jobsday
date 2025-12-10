@@ -163,6 +163,13 @@ export class CompanyManagementComponent {
       description: c.description,
       status: c.status
     });
+    this.companyForm.get('location')?.disable();
+    this.companyForm.get('name')?.disable();
+    this.companyForm.get('taxCode')?.disable();
+    this.companyForm.get('email')?.disable();
+    this.companyForm.get('address')?.disable();
+    this.companyForm.get('website')?.disable();
+    this.companyForm.get('description')?.disable();
   }
 
   approve() {
@@ -301,7 +308,7 @@ export class CompanyManagementComponent {
     this.isLoading = true;
     const updatedCompany: Company = {
       ...this.selectedCompany,
-      ...this.companyForm.value,
+      ...this.companyForm.getRawValue(),
       location: this.convertEnumService.mapLocationToEnum(this.companyForm.get('location')?.value)
     };
 

@@ -37,12 +37,6 @@
             <div style="width:40px; height:40px; margin:0 auto; position:relative;">
               <img [src]="user.avatarUrl || 'assets/user.jpg'" [alt]="'avatar'" class="rounded-circle border"
                 style="width:40px; height:40px; object-fit:cover; display:block;" />
-              <button type="button" class="btn btn-sm btn-light p-1 position-absolute bottom-0 end-0 border-0 shadow"
-                style="border-radius:50%; background:#0d6efd; transform: translate(25%,25%);"
-                (click)="openAvatarDialog(user); $event.stopPropagation()" title="Thay ảnh">
-                <i class="bi bi-camera-fill text-white" aria-hidden="true"></i>
-                <span class="visually-hidden">Thay ảnh</span>
-              </button>
             </div>
           </td>
           <td>{{ user.role === 'HR' ? 'Hr' : 'Ứng viên' }}</td>
@@ -103,20 +97,13 @@
         <div class="modal-body">
           <div class="row gx-3">
             <div class="col-12 col-md-7">
-              <div class="mb-1 text-danger small"><span class="fw-bold">*</span> Các thông tin bắt buộc</div>
               <div class="mb-3">
                 <label class="form-label">Email</label>
                 <input type="email" class="form-control" formControlName="email">
-                <div *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched" class="text-danger small">
-                  Email không hợp lệ
-                </div>
               </div>
               <div class="mb-3">
-                <label class="form-label">Họ tên <span class="text-danger fw-bold">*</span></label>
+                <label class="form-label">Họ tên</label>
                 <input type="text" class="form-control" formControlName="full_name">
-                <div *ngIf="userForm.get('full_name')?.invalid && userForm.get('full_name')?.touched" class="text-danger small">
-                  Họ tên là bắt buộc
-                </div>
               </div>
               <div class="mb-3">
                 <label class="form-label">SĐT</label>
@@ -174,45 +161,6 @@
     </div>
   </div>
 </ng-container>
-
-<div class="modal fade" id="avatarModal" tabindex="-1" aria-labelledby="avatarModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content" style="width: 670px;">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title w-100 text-center">CHỈNH SỬA ẢNH ĐẠI DIỆN</h5>
-      </div>
-      <div class="modal-body d-flex flex-wrap gap-4 justify-content-center align-items-start">
-        <div style="width: 65%;">
-          <div class="border border-primary border-dashed rounded mb-2 d-flex align-items-center justify-content-center"
-            style="width: 350px; height: 180px; cursor: pointer;" (click)="fileInput.click()">
-            <span *ngIf="!selectedFile">Click chọn ảnh để tải lên!</span>
-            <img *ngIf="selectedFileUrl" [src]="selectedFileUrl" alt="Ảnh gốc"
-              style="max-width: 100%; max-height: 100%;">
-            <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" hidden>
-          </div>
-          <div class="text-danger small">
-            Nếu ảnh của bạn có dung lượng trên 5MB, vui lòng <a href="https://compressor.io/compress" target="_blank">
-              bấm vào đây</a> để giảm dung lượng ảnh.
-          </div>
-        </div>
-        <div class="text-center">
-          <div class="mb-2">Ảnh hiển thị trên CV</div>
-          <img [src]="previewUrl || user?.avatarUrl || 'assets/user.jpg'" alt="Preview" width="120" height="120"
-            class="rounded-circle border">
-          <div class="mt-2 d-flex justify-content-center gap-2">
-            <button class="btn btn-primary btn-sm" (click)="fileInput.click()">Đổi ảnh</button>
-            <button class="btn btn-danger btn-sm" (click)="removeImage()" [disabled]="!selectedFile">Xóa ảnh</button>
-          </div>
-          <button class="btn btn-success btn-block mt-2" (click)="saveAvatar()" [disabled]="!selectedFile">Xong</button>
-          <div>
-            <a href="#" class="text-danger small" (click)="closeAvatarDialog(); $event.preventDefault()">Đóng lại (Không
-              lưu)</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
 <app-notification-dialog *ngIf="showConfirmDialog" [title]="confirmTitle" [message]="confirmMessage"
   (confirm)="handleConfirm(filter)" (cancel)="handleCancel()">

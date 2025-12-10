@@ -17,11 +17,8 @@ import { ErrorDialogComponent } from "../../../common/error-dialog/error-dialog.
 import { LoadingComponent } from "../../../common/loading/loading.component";
 import { finalize } from 'rxjs';
 import { EmailService } from '../../../../services/email.service';
-import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { Skills } from '../../../../models/skills';
-import { JobSkillsService } from '../../../../services/job-skills.service';
-import { SkillsService } from '../../../../services/skills.service';
 
 @Component({
   selector: 'app-job-related-info',
@@ -48,8 +45,6 @@ export class JobRelatedInfoComponent {
 
   totalPages = 1;
   currentPage = 0;
-  showDetailDialog = false;
-  selectedApplication: any = null;
   isLoading = false;
 
   showErrorDialog = false;
@@ -58,13 +53,7 @@ export class JobRelatedInfoComponent {
   showConfirmDialog = false;
   confirmTitle = '';
   confirmMessage = '';
-  confirmAction: 'deleteApplication' | 'deleteJob' | 'updateJob' | 'cancelUpdateJob' | null = null;
-  showUpdateJobModal = false;
-  jobForm!: FormGroup;
-  selectedSkills: number[] = [];
-  members: any[] = [];
-  skillsList: Skills[] = [];
-  today: string = new Date().toISOString().split('T')[0];
+  confirmAction: 'deleteJob' | null = null;
 
   constructor(
     private jobService: JobService,
@@ -76,9 +65,6 @@ export class JobRelatedInfoComponent {
     private applicationService: ApplicationService,
     private router: Router,
     private emailService: EmailService,
-    private fb: FormBuilder,
-    private jobSkillsService: JobSkillsService,
-    private skillsService: SkillsService
   ) { }
 
   ngOnInit() {
@@ -112,25 +98,6 @@ export class JobRelatedInfoComponent {
       if (d.getTime() <= Date.now()) return { pastOrToday: true };
       return null;
     };
-    this.jobForm = this.fb.group({
-      title: ['', Validators.required],
-      memberName: ['', Validators.required],
-      location: ['', Validators.required],
-      address: ['', Validators.required],
-      quantity: [1, [Validators.required, Validators.min(1)]],
-      deadline: ['', [Validators.required, futureDateValidator]],
-      salary: ['', Validators.required],
-      experience: ['', Validators.required],
-      level: ['', Validators.required],
-      jobType: ['', Validators.required],
-      contractType: ['', Validators.required],
-      workingTime: ['', Validators.required],
-      skills: [[]],
-      description: ['', Validators.required],
-      requirement: ['', Validators.required],
-      benefit: ['', Validators.required],
-      status: ['', Validators.required]
-    });
   }
 
   loadApplications(jobId: number, page: number) {
@@ -143,117 +110,29 @@ export class JobRelatedInfoComponent {
     });
   }
 
-  viewDetail(application: any) {
-    this.selectedApplication = application;
-    this.showDetailDialog = true;
-  }
-
-  viewCv(applicationId: number) {
-    if (!applicationId) return;
-    this.isLoading = true;
-    this.applicationService.downloadCv(applicationId).subscribe(response => {
-      const blob = response.body!;
-      const url = window.URL.createObjectURL(blob);
-
-      const contentType = response.headers.get('Content-Type');
-      const contentDisposition = response.headers.get('content-disposition');
-      let fileName = 'cv.pdf';
-      if (contentDisposition) {
-        const matches = /filename="?([^"]+)"?/.exec(contentDisposition);
-        if (matches && matches[1]) {
-          fileName = decodeURIComponent(matches[1]);
-        }
-      }
-
-      if (contentType?.includes('pdf')) {
-        const pdfWindow = window.open(url, '_blank');
-        if (!pdfWindow || pdfWindow.closed || typeof pdfWindow.closed == 'undefined') {
-          this.showErrorDialog = true;
-          this.errorTitle = 'Lỗi xem CV';
-          this.errorMessage = 'Trình duyệt đã chặn cửa sổ bật lên. Vui lòng cho phép cửa sổ bật lên để xem CV.';
-          this.isLoading = false;
-          return;
-        }
-      } else {
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        a.style.display = 'none';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        window.URL.revokeObjectURL(url);
-      }
-      this.isLoading = false;
-    }, () => {
-      this.showErrorDialog = true;
-      this.errorTitle = 'Lỗi xem CV';
-      this.errorMessage = 'Đã xảy ra lỗi khi tải CV để xem. Vui lòng thử lại sau.';
-      this.isLoading = false;
-    });
-  }
-
   changePage(page: number) {
     this.currentPage = page;
     this.loadApplications(this.job.id!, page);
-  }
-
-  deleteApplication(applicationId: number) {
-    this.isLoading = true;
-    this.applicationService.deleteByAdmin(applicationId)
-      .pipe(finalize(() => { this.isLoading = false; }))
-      .subscribe(response => {
-        if (response.status == 200) {
-          this.applications = this.applications.filter(app => app.applicationId !== applicationId);
-        } else {
-          this.errorTitle = 'Lỗi';
-          this.errorMessage = 'Xóa ứng tuyển thất bại. Vui lòng thử lại.';
-          this.showErrorDialog = true;
-        }
-      });
-  }
-
-  closeDetailDialog() {
-    this.showDetailDialog = false;
-    this.selectedApplication = null;
   }
 
   handleCancelError() {
     this.showErrorDialog = false;
   }
 
-  openConfirm(action: 'deleteApplication' | 'deleteJob' | 'updateJob' | 'cancelUpdateJob', application?: any) {
+  openConfirm(action: 'deleteJob') {
     this.confirmAction = action;
-    if (action === 'deleteApplication') {
-      this.selectedApplication = application;
-      this.confirmTitle = 'Xác nhận';
-      this.confirmMessage = 'Bạn có chắc chắn muốn xóa ứng tuyển này?';
-    } else if (action === 'deleteJob') {
+    if (action === 'deleteJob') {
       this.confirmTitle = 'Xác nhận';
       this.confirmMessage = 'Bạn có chắc chắn muốn xóa job này? Tất cả các ứng tuyển liên quan sẽ bị xóa.';
-    } else if (action === 'updateJob') {
-      this.confirmTitle = 'Xác nhận';
-      this.confirmMessage = 'Bạn có chắc chắn muốn cập nhật thông tin job này?';
-    } else if (action === 'cancelUpdateJob') {
-      this.confirmTitle = 'Xác nhận';
-      this.confirmMessage = 'Bạn có chắc chắn muốn hủy cập nhật thông tin job này? Mọi thay đổi sẽ không được lưu.';
     }
     this.showConfirmDialog = true;
   }
 
   handleConfirm() {
-    if (this.confirmAction === 'deleteApplication' && this.selectedApplication) {
-      this.deleteApplication(this.selectedApplication.applicationId);
-    } else if (this.confirmAction === 'deleteJob') {
+    if (this.confirmAction === 'deleteJob') {
       this.deleteJob();
-    } else if (this.confirmAction === 'updateJob') {
-      this.submitUpdateJob();
-    } else if (this.confirmAction === 'cancelUpdateJob') {
-      this.closeUpdateJobModal();
     }
     this.showConfirmDialog = false;
-    this.selectedApplication = null;
   }
 
   handleCancel() {
@@ -280,125 +159,4 @@ export class JobRelatedInfoComponent {
       });
   }
 
-  closeUpdateJobModal() {
-    this.jobForm.reset();
-    this.selectedSkills = [];
-    this.showUpdateJobModal = false;
-  }
-
-  openUpdateJob() {
-    this.populateForm(this.job);
-    this.jobSkillsService.getSkillsByJobId(this.job.id!).subscribe(res => {
-      if (res.data) {
-        this.selectedSkills = res.data.map((skill: any) => skill.id);
-        this.jobForm.patchValue({ skills: this.selectedSkills });
-      }
-    });
-    this.companyMemberService.getMemberOfCompany(this.job.companyId).subscribe(membersResponse => {
-      if (membersResponse.data) {
-        this.members = membersResponse.data;
-        const jobMember = this.members.find((m: any) => m.id === this.job?.memberId);
-        if (jobMember) {
-          this.jobForm.patchValue({ memberName: jobMember.id });
-        }
-      }
-    });
-    this.skillsService.getAllSkills().subscribe(response => {
-      if (response.data) {
-        this.skillsList = response.data;
-      }
-    });
-    this.showUpdateJobModal = true;
-  }
-
-  onSkillChange(skillId: number, event: any) {
-    if (event.target.checked) {
-      if (!this.selectedSkills.includes(skillId)) {
-        this.selectedSkills.push(skillId);
-      }
-    } else {
-      const idx = this.selectedSkills.indexOf(skillId);
-      if (idx > -1) {
-        this.selectedSkills.splice(idx, 1);
-      }
-    }
-    this.jobForm.get('skills')?.setValue([...this.selectedSkills]);
-    this.jobForm.get('skills')?.markAsDirty();
-  }
-
-  private populateForm(job: any): void {
-    if (job) {
-      this.jobForm.patchValue({
-        title: job.title,
-        location: this.convertEnumService.mapLocationToEnum(job.location),
-        address: job.address,
-        quantity: job.quantity,
-        deadline: job.deadline,
-        salary: this.convertEnumService.mapSalaryToEnum(job.salary),
-        experience: this.convertEnumService.mapExperienceToEnum(job.experience),
-        level: this.convertEnumService.mapLevelToEnum(job.level),
-        jobType: this.convertEnumService.mapWorkTypeToEnum(job.jobType),
-        contractType: this.convertEnumService.mapContractTypeToEnum(job.contractType),
-        workingTime: job.workingTime,
-        skills: job.skills,
-        description: job.description,
-        requirement: job.requirement,
-        benefit: job.benefit,
-        status: job.status
-      });
-    };
-  }
-
-  submitUpdateJob() {
-    if (this.jobForm.valid) {
-      const formValues = this.jobForm.getRawValue();
-      const updatedJob: Job = {
-        id: this.job.id,
-        companyId: this.company.id,
-        memberId: formValues.memberName,
-        title: formValues.title,
-        location: formValues.location,
-        address: formValues.address,
-        quantity: formValues.quantity,
-        deadline: formValues.deadline,
-        salary: formValues.salary,
-        experience: formValues.experience,
-        level: formValues.level,
-        jobType: formValues.jobType,
-        contractType: formValues.contractType,
-        workingTime: formValues.workingTime,
-        description: formValues.description,
-        requirement: formValues.requirement,
-        benefit: formValues.benefit,
-        status: formValues.status,
-      };
-      this.isLoading = true;
-      this.jobService.updateJob(updatedJob.id!, updatedJob)
-        .pipe(finalize(() => { this.isLoading = false; }))
-        .subscribe(response => {
-          if (response.data) {
-            const skillsToUpdate = formValues.skills;
-            this.jobSkillsService.updateSkillsForJob(updatedJob.id!, skillsToUpdate).subscribe(skillsResponse => {
-              if (skillsResponse.status === 200) {
-                this.emailService.sendEmail({
-                  to: this.company.email,
-                  subject: 'Cập nhật thông tin job',
-                  body: `Xin chào ${this.company.name},\n\nThông tin job ${updatedJob.title} của bạn đã được cập nhật thành công.\n\nTrân trọng,\nĐội ngũ Jobsday`
-                }).subscribe();
-                this.closeUpdateJobModal();
-                this.ngOnInit();
-              } else {
-                this.showErrorDialog = true;
-                this.errorTitle = 'Cập nhật job thất bại!';
-                this.errorMessage = 'Đã xảy ra lỗi khi cập nhật job. Vui lòng thử lại sau.';
-              }
-            });
-          } else {
-            this.showErrorDialog = true;
-            this.errorTitle = 'Cập nhật job thất bại!';
-            this.errorMessage = 'Đã xảy ra lỗi khi cập nhật job. Vui lòng thử lại sau.';
-          }
-        });
-    }
-  }
 }

@@ -8,16 +8,11 @@ import { Company } from '../../../../models/company';
 import { CompanyService } from '../../../../services/company.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ConvertEnumService } from '../../../../services/common/convert-enum.service';
-import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { CompanyMemberService } from '../../../../services/company-member.service';
 import { finalize } from 'rxjs';
-import { AvatarEditorComponent } from "../../../common/avatar-editor/avatar-editor.component";
 import { JobService } from '../../../../services/job.service';
-import { JobSkillsService } from '../../../../services/job-skills.service';
-import { SkillsService } from '../../../../services/skills.service';
 import { Job } from '../../../../models/job';
-import { CompanyMember } from '../../../../models/company_member';
-import { Skills } from '../../../../models/skills';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { NewlineToBrPipe } from "../../../../services/common/newline-to-br-pipe.service";
 import { EmailService } from '../../../../services/email.service';
@@ -31,7 +26,6 @@ import { EmailService } from '../../../../services/email.service';
     CommonModule,
     RouterModule,
     FormsModule,
-    AvatarEditorComponent,
     NgSelectModule,
     ReactiveFormsModule,
     NewlineToBrPipe
@@ -40,7 +34,6 @@ import { EmailService } from '../../../../services/email.service';
   styleUrl: './company-related-info.component.css'
 })
 export class CompanyRelatedInfoComponent {
-  jobForm!: FormGroup;
   companyForm!: FormGroup;
   company: Company = {} as Company;
   members: any[] = [];
@@ -50,7 +43,7 @@ export class CompanyRelatedInfoComponent {
   showConfirmDialog = false;
   confirmTitle = '';
   confirmMessage = '';
-  confirmAction: 'editMember' | 'cancel' | 'deleteMember' | 'deleteJob' | 'updateJob' | 'cancelUpdateJob' | 'editCompany' | 'cancelEditCompany' | 'deleteCompany' | null = null;
+  confirmAction: 'cancel' | 'deleteMember' | 'deleteJob' | 'editCompany' | 'cancelEditCompany' | 'deleteCompany' | null = null;
   showErrorDialog = false;
   errorTitle = '';
   errorMessage = '';
@@ -61,9 +54,6 @@ export class CompanyRelatedInfoComponent {
   totalPageMember = 1;
   currentPageMember = 0;
   pendingSearchTextMember = '';
-  editMemberData: any = {};
-  showEditDialog: boolean = false;
-  showAvatarEditor = false;
   jobSearchText = '';
   pendingSearchTextJob = '';
   currentPageJob = 0;
@@ -96,14 +86,8 @@ export class CompanyRelatedInfoComponent {
   showFullDescription = false;
   showFullRequirement = false;
   showFullBenefit = false;
-  showUpdateJobModal = false;
   jobSelected: Job | null = null;
-  memberSelected: CompanyMember | null = null;
-  member: CompanyMember | null = null;
-  skillsList: Skills[] = [];
-  selectedSkills: number[] = [];
   showEditCompanyModal = false;
-  today: string = new Date().toISOString().split('T')[0];
 
   constructor(
     private companyService: CompanyService,
@@ -114,8 +98,6 @@ export class CompanyRelatedInfoComponent {
     private jobService: JobService,
     private router: Router,
     private fb: FormBuilder,
-    private jobSkillsService: JobSkillsService,
-    private skillsService: SkillsService,
     private emailService: EmailService
   ) { }
 
@@ -135,40 +117,13 @@ export class CompanyRelatedInfoComponent {
       }
     });
 
-    const futureDateValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
-      const value = control.value;
-      if (!value) return null;
-      const d = new Date(value);
-      if (isNaN(d.getTime())) return { invalidDate: true };
-      if (d.getTime() <= Date.now()) return { pastOrToday: true };
-      return null;
-    };
-    this.jobForm = this.fb.group({
-      title: ['', Validators.required],
-      memberName: ['', Validators.required],
-      location: ['', Validators.required],
-      address: ['', Validators.required],
-      quantity: [1, [Validators.required, Validators.min(1)]],
-      deadline: ['', [Validators.required, futureDateValidator]],
-      salary: ['', Validators.required],
-      experience: ['', Validators.required],
-      level: ['', Validators.required],
-      jobType: ['', Validators.required],
-      contractType: ['', Validators.required],
-      workingTime: ['', Validators.required],
-      skills: [[]],
-      description: ['', Validators.required],
-      requirement: ['', Validators.required],
-      benefit: ['', Validators.required],
-      status: ['', Validators.required]
-    });
     this.companyForm = this.fb.group({
-      name: ['', Validators.required],
-      location: ['', Validators.required],
+      name: [''],
+      location: [''],
       address: [''],
       website: [''],
-      taxCode: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
+      taxCode: [''],
+      email: [''],
       description: [''],
       status: ['', Validators.required]
     });
@@ -237,17 +192,9 @@ export class CompanyRelatedInfoComponent {
       });
   }
 
-  updateJob(job: any) {
-    this.showJobDetail = false;
-    this.openUpdateJob(job);
-  }
-
-  openConfirm(action: 'editMember' | 'cancel' | 'deleteMember' | 'deleteJob' | 'updateJob' | 'cancelUpdateJob' | 'editCompany' | 'cancelEditCompany' | 'deleteCompany', payload?: any) {
+  openConfirm(action: 'cancel' | 'deleteMember' | 'deleteJob' | 'editCompany' | 'cancelEditCompany' | 'deleteCompany', payload?: any) {
     this.confirmAction = action;
-    if (action === 'editMember') {
-      this.confirmTitle = 'Xác nhận thay đổi';
-      this.confirmMessage = 'Bạn có chắc chắn muốn lưu thay đổi cho thành viên này không?';
-    } else if (action === 'cancel') {
+    if (action === 'cancel') {
       this.confirmTitle = 'Hủy thay đổi';
       this.confirmMessage = 'Bạn có chắc chắn muốn hủy các thay đổi không? Mọi thay đổi chưa lưu sẽ bị mất.';
     } else if (action === 'deleteMember') {
@@ -257,12 +204,6 @@ export class CompanyRelatedInfoComponent {
       this.jobSelected = payload;
       this.confirmTitle = 'Xóa việc làm';
       this.confirmMessage = 'Bạn có chắc chắn muốn xóa việc làm này không? Hành động này không thể hoàn tác.';
-    } else if (action === 'updateJob') {
-      this.confirmTitle = 'Cập nhật việc làm';
-      this.confirmMessage = 'Bạn có chắc chắn muốn cập nhật việc làm này không?';
-    } else if (action === 'cancelUpdateJob') {
-      this.confirmTitle = 'Hủy cập nhật việc làm';
-      this.confirmMessage = 'Bạn có chắc chắn muốn hủy các thay đổi không? Mọi thay đổi chưa lưu sẽ bị mất.';
     } else if (action === 'editCompany') {
       this.confirmTitle = 'Xác nhận thay đổi công ty';
       this.confirmMessage = 'Bạn có chắc chắn muốn lưu thay đổi cho công ty này không?';
@@ -277,14 +218,8 @@ export class CompanyRelatedInfoComponent {
   }
 
   handleConfirm() {
-    if (this.confirmAction === 'editMember' || this.confirmAction === 'deleteMember') {
-      this.saveEditMember();
-    } else if (this.confirmAction === 'cancel') {
+    if (this.confirmAction === 'cancel') {
       this.closeEditDialog();
-    } else if (this.confirmAction === 'updateJob') {
-      this.submitUpdateJob();
-    } else if (this.confirmAction === 'cancelUpdateJob') {
-      this.closeUpdateJobModal();
     } else if (this.confirmAction === 'deleteJob' && this.jobSelected) {
       this.onDeleteJob(this.jobSelected);
     } else if (this.confirmAction === 'editCompany') {
@@ -297,17 +232,14 @@ export class CompanyRelatedInfoComponent {
     this.jobSelected = null;
     this.showConfirmDialog = false;
     this.confirmAction = null;
-    this.editMemberData = {};
     this.jobDetail = null;
     this.companyForm.reset();
-    this.jobForm.reset();
   }
 
   handleCancel() {
     this.showConfirmDialog = false;
     this.confirmAction = null;
     this.jobDetail = null;
-    this.editMemberData = {};
     this.jobSelected = null;
   }
 
@@ -348,83 +280,8 @@ export class CompanyRelatedInfoComponent {
     }
   }
 
-  editMember(member: any) {
-    this.editMemberData = JSON.parse(JSON.stringify(member));
-    this.showEditDialog = true;
-  }
-
   closeEditDialog() {
-    this.editMemberData = {};
     this.jobDetail = null;
-    this.showEditDialog = false;
-  }
-
-  saveEditMember() {
-    this.isLoading = true;
-    this.companyMemberService.updateMember(this.editMemberData)
-      .pipe(finalize(() => { this.isLoading = false; }))
-      .subscribe({
-        next: (response) => {
-          this.showEditDialog = false;
-          this.emailService.sendEmail({
-            to: this.editMemberData.email,
-            subject: 'Cập nhật thông tin thành viên',
-            body: `Xin chào ${this.editMemberData.name},\n\nThông tin cá nhân ở công ty của bạn đã được cập nhật thành công.\n\nTrân trọng,\nĐội ngũ Jobsday`
-          }).subscribe();
-          this.fetchMembers(this.currentPageMember);
-          this.editMemberData = {};
-        },
-        error: (error) => {
-          this.errorTitle = 'Lỗi cập nhật thành viên';
-          this.errorMessage = error.message || 'Đã có lỗi xảy ra khi cập nhật thông tin thành viên.';
-          this.showErrorDialog = true;
-        }
-      });
-  }
-
-  deleteMember(member: any) {
-    this.editMemberData = JSON.parse(JSON.stringify(member));
-    if (this.editMemberData) {
-      this.editMemberData!.status = 'REJECTED';
-      this.openConfirm('deleteMember');
-    }
-  }
-
-  openAvatarDialog() {
-    this.showAvatarEditor = true;
-  }
-
-  async onAvatarSaved(file: File | null) {
-    if (!file) return;
-    this.isLoading = true;
-    this.companyService.updateLogo(this.company.id, file)
-      .pipe(finalize(() => { this.isLoading = false; }))
-      .subscribe({
-        next: (res) => {
-          if (res.status == 200) {
-            this.company.logo = res.data;
-            this.emailService.sendEmail({
-              to: this.company.email,
-              subject: 'Cập nhật ảnh đại diện công ty',
-              body: `Xin chào ${this.company.name},\n\nẢnh đại diện công ty của bạn đã được cập nhật thành công.\n\nTrân trọng,\nĐội ngũ Jobsday`
-            }).subscribe();
-          } else {
-            this.errorTitle = 'Lỗi';
-            this.errorMessage = 'Cập nhật ảnh đại diện thất bại.';
-            this.showErrorDialog = true;
-          }
-          this.showAvatarEditor = false;
-        },
-        error: () => {
-          this.errorTitle = 'Lỗi';
-          this.errorMessage = 'Cập nhật ảnh đại diện thất bại. Vui lòng thử lại.';
-          this.showErrorDialog = true;
-        }
-      });
-  }
-
-  onAvatarDialogClosed() {
-    this.showAvatarEditor = false;
   }
 
   onLocationChange(location: string) {
@@ -461,140 +318,10 @@ export class CompanyRelatedInfoComponent {
     this.jobDetail = null;
   }
 
-  openUpdateJob(job: any) {
-    this.jobSelected = job;
-    this.jobService.getJobById(job.id).subscribe(response => {
-      if (response.data) {
-        this.jobSelected = response.data;
-        this.populateForm(this.jobSelected);
-        if (this.jobSelected) {
-          this.jobSkillsService.getSkillsByJobId(this.jobSelected.id!).subscribe(skillsResponse => {
-            if (skillsResponse.data) {
-              this.selectedSkills = skillsResponse.data.map((skill: any) => skill.id);
-              this.jobForm.patchValue({ skills: this.selectedSkills });
-            }
-          });
-          this.companyMemberService.getMemberOfCompany(this.jobSelected.companyId).subscribe(membersResponse => {
-            if (membersResponse.data) {
-              this.members = membersResponse.data;
-              const jobMember = this.members.find((m: any) => m.id === this.jobSelected?.memberId);
-              if (jobMember) {
-                this.jobForm.patchValue({ memberName: jobMember.id });
-              }
-            }
-          });
-        }
-      }
-    });
-    this.skillsService.getAllSkills().subscribe(response => {
-      if (response.data) {
-        this.skillsList = response.data;
-      }
-    });
-    this.showUpdateJobModal = true;
-  }
 
   viewJobDetail(job: any) {
     this.jobDetail = job;
     this.showJobDetail = true;
-  }
-
-  private populateForm(job: any): void {
-    if (job) {
-      this.jobForm.patchValue({
-        title: job.title,
-        location: job.location,
-        address: job.address,
-        quantity: job.quantity,
-        deadline: job.deadline,
-        salary: job.salary,
-        experience: job.experience,
-        level: job.level,
-        jobType: job.jobType,
-        contractType: job.contractType,
-        workingTime: job.workingTime,
-        skills: job.skills,
-        description: job.description,
-        requirement: job.requirement,
-        benefit: job.benefit,
-        status: job.status
-      });
-    };
-  }
-
-  onSkillChange(skillId: number, event: any) {
-    if (event.target.checked) {
-      if (!this.selectedSkills.includes(skillId)) {
-        this.selectedSkills.push(skillId);
-      }
-    } else {
-      const idx = this.selectedSkills.indexOf(skillId);
-      if (idx > -1) {
-        this.selectedSkills.splice(idx, 1);
-      }
-    }
-    this.jobForm.get('skills')?.setValue([...this.selectedSkills]);
-    this.jobForm.get('skills')?.markAsDirty();
-  }
-
-  closeUpdateJobModal() {
-    this.jobSelected = null;
-    this.jobForm.reset();
-    this.selectedSkills = [];
-    this.showUpdateJobModal = false;
-  }
-
-  submitUpdateJob() {
-    if (this.jobForm.valid) {
-      const formValues = this.jobForm.getRawValue();
-      const updatedJob: Job = {
-        id: this.jobSelected ? this.jobSelected.id : 0,
-        companyId: this.company.id,
-        memberId: formValues.memberName,
-        title: formValues.title,
-        location: formValues.location,
-        address: formValues.address,
-        quantity: formValues.quantity,
-        deadline: formValues.deadline,
-        salary: formValues.salary,
-        experience: formValues.experience,
-        level: formValues.level,
-        jobType: formValues.jobType,
-        contractType: formValues.contractType,
-        workingTime: formValues.workingTime,
-        description: formValues.description,
-        requirement: formValues.requirement,
-        benefit: formValues.benefit,
-        status: formValues.status,
-      };
-      this.isLoading = true;
-      this.jobService.updateJob(updatedJob.id!, updatedJob)
-        .pipe(finalize(() => { this.isLoading = false; }))
-        .subscribe(response => {
-          if (response.data) {
-            const skillsToUpdate = formValues.skills;
-            this.jobSkillsService.updateSkillsForJob(updatedJob.id!, skillsToUpdate).subscribe(skillsResponse => {
-              if (skillsResponse.status === 200) {
-                this.emailService.sendEmail({
-                  to: this.company.email,
-                  subject: 'Cập nhật thông tin job',
-                  body: `Xin chào ${this.company.name},\n\nThông tin job ${updatedJob.title} của bạn đã được cập nhật thành công.\n\nTrân trọng,\nĐội ngũ Jobsday`
-                }).subscribe();
-                this.fetchJobs(this.currentPageJob);
-                this.closeUpdateJobModal();
-              } else {
-                this.showErrorDialog = true;
-                this.errorTitle = 'Cập nhật job thất bại!';
-                this.errorMessage = 'Đã xảy ra lỗi khi cập nhật job. Vui lòng thử lại sau.';
-              }
-            });
-          } else {
-            this.showErrorDialog = true;
-            this.errorTitle = 'Cập nhật job thất bại!';
-            this.errorMessage = 'Đã xảy ra lỗi khi cập nhật job. Vui lòng thử lại sau.';
-          }
-        });
-    }
   }
 
   onDeleteJob(job: Job) {
@@ -626,6 +353,13 @@ export class CompanyRelatedInfoComponent {
       status: this.company.status
     });
     this.showEditCompanyModal = true;
+    this.companyForm.get('location')?.disable();
+    this.companyForm.get('name')?.disable();
+    this.companyForm.get('taxCode')?.disable();
+    this.companyForm.get('email')?.disable();
+    this.companyForm.get('address')?.disable();
+    this.companyForm.get('website')?.disable();
+    this.companyForm.get('description')?.disable();
   }
 
   closeEditCompanyModal() {
@@ -643,7 +377,7 @@ export class CompanyRelatedInfoComponent {
     this.isLoading = true;
     const updatedCompany: Company = {
       ...this.company!,
-      ...this.companyForm.value,
+      ...this.companyForm.getRawValue(),
       location: this.convertEnumService.mapLocationToEnum(this.companyForm.get('location')?.value)
     };
 

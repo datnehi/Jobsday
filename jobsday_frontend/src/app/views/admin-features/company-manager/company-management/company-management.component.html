@@ -69,8 +69,7 @@
                   'bg-warning': c.status === 'INACTIVE'
                 }">{{ c.status }}</span></td>
                 <td>
-                  <button class="btn btn-sm btn-outline-primary me-1" (click)="openDetail(c); $event.stopPropagation()">Xem</button>
-                  <button class="btn btn-sm btn-outline-secondary me-1" (click)="editCompany(c); $event.stopPropagation()">Sửa</button>
+                  <button class="btn btn-sm btn-outline-primary me-1" (click)="editCompany(c); $event.stopPropagation()">Status</button>
                   <button class="btn btn-sm btn-outline-danger" (click)="onDeleteCompany(c.id); $event.stopPropagation()">Xóa</button>
                 </td>
               </tr>
@@ -275,7 +274,6 @@
             <div class="col-md-6 mb-2">
               <label class="form-label fw-bold">Khu vực <span class="text-danger">*</span></label>
               <select class="form-select" formControlName="location">
-                <option value="">-- Chọn khu vực --</option>
                 <option value="Hà Nội">Hà Nội</option>
                 <option value="Đà Nẵng">Đà Nẵng</option>
                 <option value="Hồ Chí Minh">Hồ Chí Minh</option>
@@ -311,7 +309,6 @@
             <div class="col-md-4 mb-2">
               <label class="form-label fw-bold">Trạng thái</label>
               <select class="form-select" formControlName="status">
-                <option value="">Chọn trạng thái</option>
                 <option value="APPROVED">Đang hoạt động</option>
                 <option value="INACTIVE">Ẩn</option>
               </select>

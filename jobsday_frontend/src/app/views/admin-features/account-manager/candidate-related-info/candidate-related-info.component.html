@@ -6,17 +6,10 @@
           <h5 class="card-title">CV đã cập nhật</h5>
           <div class="row">
             <div class="col-md-4 mb-2" *ngFor="let cv of cvs">
-              <div class="card shadow-sm rounded h-100 text-center p-3 position-relative" style="cursor: pointer;"
-                (click)="viewCv(cv.id, 'view')">
+              <div class="card shadow-sm rounded h-100 text-center p-3 position-relative" style="cursor: pointer;">
                 <img src="assets/cv.png" alt="CV Folder" width="96" height="96" class="mx-auto mb-3" />
                 <div class="fw-bold mb-1">{{ cv.title }}</div>
                 <div class="text-muted small mb-2">Cập nhật {{ cv.updatedAt | date:'dd-MM-yyyy HH:mm' }}</div>
-                <div class="d-flex justify-content-center gap-2 mb-2">
-                  <button class="btn btn-primary btn-sm px-3"
-                    (click)="viewCv(cv.id, 'download'); $event.stopPropagation()">Tải về</button>
-                  <button class="btn btn-outline-secondary btn-sm px-3" type="button"
-                    (click)="deleteCv(cv.id); $event.stopPropagation()">Xóa Cv</button>
-                </div>
               </div>
             </div>
             <div *ngIf="cvs.length === 0" class="text-center text-muted fw-bold py-5">
@@ -29,28 +22,6 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <h4 class="fw-bold mb-0">Việc làm đã ứng tuyển</h4>
-            <div class="mb-0 d-flex align-items-center gap-2 position-relative" style="width:200px;">
-              <div class="custom-dropdown w-100">
-                <div class="custom-dropdown-toggle form-control d-flex justify-content-between align-items-center"
-                  (click)="showStatusDropdown = !showStatusDropdown; $event.stopPropagation()">
-                  <span>
-                    {{ getStatusLabel(selectedStatus) || 'Trạng thái' }}
-                  </span>
-                  <i class="bi bi-chevron-down"></i>
-                </div>
-                <ul *ngIf="showStatusDropdown" class="custom-dropdown-menu shadow">
-                  <li (click)="onStatusChange('')" [class.active]="selectedStatus === ''">Trạng thái</li>
-                  <li (click)="onStatusChange('APPLIED')" [class.active]="selectedStatus === 'APPLIED'">Đã ứng tuyển
-                  </li>
-                  <li (click)="onStatusChange('VIEWED')" [class.active]="selectedStatus === 'VIEWED'">NTD đã xem hồ sơ
-                  </li>
-                  <li (click)="onStatusChange('SUITABLE')" [class.active]="selectedStatus === 'SUITABLE'">Hồ sơ phù hợp
-                  </li>
-                  <li (click)="onStatusChange('UNSUITABLE')" [class.active]="selectedStatus === 'UNSUITABLE'">Hồ sơ chưa
-                    phù hợp</li>
-                </ul>
-              </div>
-            </div>
           </div>
           <table *ngIf="appliedJobs.length; else noJobs" class="table table-bordered align-middle text-center">
             <thead class="table-primary">
@@ -58,8 +29,6 @@
                 <th style="width: 270px;">Vị trí</th>
                 <th style="width: 270px;">Công ty</th>
                 <th style="width: 150px;">Ngày ứng tuyển</th>
-                <th style="width: 120px;">Trạng thái</th>
-                <th style="width: 120px;">Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -67,15 +36,6 @@
                 <td><a routerLink="/job-related-info/{{ job.jobId }}">{{ job.title }}</a></td>
                 <td><a routerLink="/company-related-info/{{ job.companyId }}">{{ job.companyName }}</a></td>
                 <td>{{ job.appliedAt | date:'dd/MM/yyyy hh:mm:ss' }}</td>
-                <td>
-                  <span [ngClass]="getBadgeClass(job.status)">
-                    {{ job.status }}
-                  </span>
-                </td>
-                <td>
-                  <button class="btn btn-primary btn-sm me-2" (click)="viewDetail(job)">Xem</button>
-                  <button class="btn btn-secondary btn-sm" (click)="openConfirm('delete', job)">Xóa</button>
-                </td>
               </tr>
             </tbody>
           </table>
@@ -105,12 +65,6 @@
             <div class="position-relative" style="width: 100px; height: 100px;">
               <img [src]="user.avatarUrl || 'assets/user.jpg'" alt="Avatar" class="rounded-circle border w-100 h-100"
                 style="object-fit: cover;">
-              <button type="button" class="btn btn-sm btn-light p-1 position-absolute"
-                style="right: 0; bottom: 0; border-radius: 50%; background: #0d6efd;"
-                (click)="openAvatarDialog(); $event.stopPropagation()" title="Thay ảnh">
-                <i class="bi bi-camera-fill text-white" aria-hidden="true"></i>
-                <span class="visually-hidden">Thay ảnh</span>
-              </button>
             </div>
             <h2 class="card-title mb-2 text-center">{{ user.fullName }}</h2>
           </div>
@@ -191,13 +145,6 @@
   </div>
 </ng-container>
 
-<app-avatar-editor
-  [data]="user"
-  [visible]="showAvatarEditor"
-  (saved)="onAvatarSaved($event)"
-  (closed)="onAvatarDialogClosed()">
-</app-avatar-editor>
-
 <app-notification-dialog *ngIf="showConfirmDialog" [title]="confirmTitle" [message]="confirmMessage"
   (confirm)="handleConfirm()" (cancel)="handleCancel()">
 </app-notification-dialog>
@@ -206,30 +153,3 @@
 </app-error-dialog>
 
 <app-loading *ngIf="isLoading"></app-loading>
-
-<div class="modal fade" tabindex="-1" [class.show]="showDetailDialog"
-  [style.display]="showDetailDialog ? 'block' : 'none'" style="background: rgba(0,0,0,0.2); z-index: 1;"
-  *ngIf="showDetailDialog" (click)="closeDetailDialog()">
-  <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title">Chi tiết ứng tuyển</h5>
-        <button type="button" class="btn-close btn-outline" (click)="closeDetailDialog()"></button>
-      </div>
-      <div class="modal-body" *ngIf="selectedApplication">
-        <div class="mb-2"><strong>CV: </strong> <a (click)="viewApplicationCv(selectedApplication.id)"
-            class="text-primary" style="cursor: pointer;">Xem CV</a></div>
-        <div class="mb-2"><strong>Thư ứng tuyển:</strong>
-          <div class="border rounded p-2" style="height: 200px;">
-            <span [innerHTML]="selectedApplication.coverLetter | newlineToBr"></span>
-          </div>
-        </div>
-        <div class="mb-2"><strong>Ngày ứng tuyển:</strong> {{ selectedApplication.appliedAt | date:'dd/MM/yyyy HH:mm'}}
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="closeDetailDialog()">Đóng</button>
-      </div>
-    </div>
-  </div>
-</div>

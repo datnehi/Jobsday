@@ -44,10 +44,6 @@ export class UserManagerComponent implements OnInit {
   totalPages: number = 1;
   currentPage: number = 0;
   filter: any;
-
-  selectedFile: File | null = null;
-  selectedFileUrl: string = '';
-  previewUrl: string = '';
   user: any = null;
   today: string = new Date().toISOString().split('T')[0];
 
@@ -58,8 +54,8 @@ export class UserManagerComponent implements OnInit {
     private router: Router
   ) {
     this.userForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      full_name: ['', Validators.required],
+      email: [''],
+      full_name: [''],
       phone: [''],
       dob: [''],
       address: [''],
@@ -116,6 +112,11 @@ export class UserManagerComponent implements OnInit {
     });
     this.showUserDialog = true;
     this.userForm.get('email')?.disable();
+    this.userForm.get('full_name')?.disable();
+    this.userForm.get('role')?.disable();
+    this.userForm.get('phone')?.disable();
+    this.userForm.get('dob')?.disable();
+    this.userForm.get('address')?.disable();
   }
 
   closeUserDialog() {
@@ -207,74 +208,6 @@ export class UserManagerComponent implements OnInit {
     } else if (page >= 0 && page < this.totalPages) {
       this.loadUsers(page);
     }
-  }
-
-  openAvatarDialog(user: any) {
-    this.user = user;
-    const modal = document.getElementById('avatarModal');
-    if (modal) {
-      (window as any).bootstrap.Modal.getOrCreateInstance(modal).show();
-    }
-  }
-
-  closeAvatarDialog() {
-    this.selectedFile = null;
-    this.selectedFileUrl = '';
-    this.previewUrl = '';
-    const fileInput = document.querySelector('#avatarModal input[type="file"]') as HTMLInputElement;
-    if (fileInput) fileInput.value = '';
-    const modal = document.getElementById('avatarModal');
-    if (modal) {
-      (window as any).bootstrap.Modal.getOrCreateInstance(modal).hide();
-    }
-  }
-
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file && file.size > 5 * 1024 * 1024) {
-      this.showErrorDialog = true;
-      this.errorTitle = 'Lỗi';
-      this.errorMessage = 'Kích thước file vượt quá 5MB. Vui lòng chọn file khác.';
-      return;
-    }
-    if (file) {
-      this.selectedFile = file;
-      this.selectedFileUrl = URL.createObjectURL(file);
-      this.previewUrl = this.selectedFileUrl;
-    }
-  }
-
-  removeImage() {
-    this.selectedFile = null;
-    this.selectedFileUrl = '';
-    this.previewUrl = '';
-    const fileInput = document.querySelector('#avatarModal input[type="file"]') as HTMLInputElement;
-    if (fileInput) fileInput.value = '';
-  }
-
-  saveAvatar() {
-    if (!this.selectedFile || !this.user) return;
-
-    this.isLoading = true;
-    this.userService.updateAvatarUser(this.user.id, this.selectedFile)
-      .pipe(finalize(() => { this.isLoading = false; }))
-      .subscribe({
-        next: (res) => {
-          if (res.status === 200) {
-            this.closeAvatarDialog();
-            this.ngOnInit();
-          } else {
-            this.errorTitle = 'Lỗi';
-            this.errorMessage = 'Cập nhật ảnh đại diện thất bại.';
-            this.showErrorDialog = true;
-          }
-        },
-        error: () => {
-          this.errorTitle = 'Lỗi';
-          this.errorMessage = 'Cập nhật ảnh đại diện thất bại. Vui lòng thử lại.';
-          this.showErrorDialog = true;
-        }
-      });
   }
 
   viewCandidateInfo(user: any) {

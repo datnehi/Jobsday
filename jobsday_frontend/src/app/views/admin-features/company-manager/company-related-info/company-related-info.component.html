@@ -32,15 +32,8 @@
             <div class="col-md-6">
               <div class="d-flex align-items-center gap-3">
                 <div class="position-relative" style="width:150px; height:150px; flex: 0 0 150px;">
-                  <img [src]="company.logo || 'assets/logo1.png'" alt="Logo" class="rounded-circle"
+                  <img [src]="company.logo || 'assets/logo1.png'" alt="Logo" class="rounded-border"
                     style="width:100%; height:100%; object-fit:cover; display:block; border:4px solid #fff;">
-                  <button type="button"
-                    class="btn btn-primary position-absolute rounded-circle p-2 d-flex align-items-center justify-content-center"
-                    style="right: 8px; bottom: 8px; width:40px; height:40px; box-shadow:0 2px 6px rgba(0,0,0,0.15);"
-                    (click)="openAvatarDialog(); $event.stopPropagation()" title="Thay ảnh">
-                    <i class="bi bi-camera-fill text-white" aria-hidden="true"></i>
-                    <span class="visually-hidden">Thay ảnh</span>
-                  </button>
                 </div>
                 <div>
                   <h6 class="mb-1">{{ company.name }}</h6>
@@ -116,8 +109,6 @@
               <th>Email</th>
               <th style="width:80px" class="text-center">Vai trò</th>
               <th style="width:90px" class="text-center">Là admin</th>
-              <th style="width:100px" class="text-center">Trạng thái</th>
-              <th style="width:100px" class="text-center">Thao tác</th>
             </tr>
           </thead>
           <tbody>
@@ -127,24 +118,6 @@
               <td class="text-truncate mw-220">{{ m.email }}</td>
               <td class="text-center">{{ m.position }}</td>
               <td>{{ m.isAdmin ? 'Có' : 'Không' }}</td>
-              <td class="text-center">
-                <span class="badge" [ngClass]="{
-                  'bg-success': m.status === 'APPROVED',
-                  'bg-warning': m.status === 'INACTIVE'
-                }">
-                  {{ m.status }}
-                </span>
-              </td>
-              <td class="text-center">
-                <button class="btn btn-outline-secondary btn-sm me-2" (click)="editMember(m); $event.stopPropagation()"
-                  title="Sửa">
-                  <i class="bi bi-pencil"></i>
-                </button>
-                <button class="btn btn-outline-danger btn-sm" (click)="deleteMember(m); $event.stopPropagation()"
-                  title="Xóa">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </td>
             </tr>
 
             <tr *ngIf="members.length === 0">
@@ -238,7 +211,7 @@
               <th scope="col" class="text-center" style="width: 7%;">Số lượng</th>
               <th scope="col" class="text-center" style="width: 10%;">Hạn ứng tuyển</th>
               <th scope="col" class="text-center" style="width: 7%;">Trạng thái</th>
-              <th scope="col" class="text-center" style="width: 11%;">Hành động</th>
+              <th scope="col" class="text-center" style="width: 8%;">Hành động</th>
             </tr>
           </thead>
           <tbody>
@@ -268,10 +241,6 @@
                 <button class="btn btn-outline-primary btn-sm me-2"
                   (click)="viewJobDetail(job); $event.stopPropagation()">
                   <i class="bi bi-eye"></i>
-                </button>
-                <button class="btn btn-outline-secondary btn-sm me-2"
-                  (click)="openUpdateJob(job); $event.stopPropagation()">
-                  <i class="bi bi-pencil"></i>
                 </button>
                 <button class="btn btn-outline-danger btn-sm"
                   (click)="openConfirm('deleteJob', job); $event.stopPropagation()">
@@ -304,10 +273,6 @@
   </div>
 </div>
 
-<app-avatar-editor [data]="company" [visible]="showAvatarEditor" (saved)="onAvatarSaved($event)"
-  (closed)="onAvatarDialogClosed()">
-</app-avatar-editor>
-
 <app-notification-dialog *ngIf="showConfirmDialog" [title]="confirmTitle" [message]="confirmMessage"
   (confirm)="handleConfirm()" (cancel)="handleCancel()"></app-notification-dialog>
 
@@ -316,47 +281,6 @@
 
 <app-loading *ngIf="isLoading"></app-loading>
 
-<ng-template #editMemberDialog let-member>
-  <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.3);" (click)="closeEditDialog()">
-    <div class="modal-dialog" (click)="$event.stopPropagation()">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Sửa thông tin thành viên</h5>
-          <button type="button" class="btn-close" (click)="closeEditDialog()"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label fw-bold">Họ tên</label>
-            <input type="text" class="form-control" [value]="this.editMemberData?.fullName" disabled>
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-bold ">Email</label>
-            <input type="email" class="form-control" [value]="this.editMemberData?.email" disabled>
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-bold">Vai trò</label>
-            <input type="text" class="form-control" [(ngModel)]="this.editMemberData!.position">
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-bold">Trạng thái</label>
-            <select class="form-select" [(ngModel)]="this.editMemberData!.status">
-              <option value="APPROVED">Đang hoạt động</option>
-              <option value="INACTIVE">Đã khóa</option>
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" (click)="openConfirm('cancel')">Hủy</button>
-          <button class="btn btn-primary" (click)="openConfirm('editMember')">Lưu</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<ng-container *ngIf="showEditDialog">
-  <ng-container *ngTemplateOutlet="editMemberDialog; context: { member: editMemberData }"></ng-container>
-</ng-container>
 
 <div class="modal fade show" tabindex="-1" *ngIf="showJobDetail" style="display: block; background: rgba(0,0,0,0.2);"
   (click)="closeJobDetail()">
@@ -442,250 +366,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-primary" (click)="updateJob(jobDetail)">Chỉnh sửa</button>
         <button type="button" class="btn btn-secondary" (click)="closeJobDetail()">Đóng</button>
       </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade show d-block" *ngIf="showUpdateJobModal" style="background: rgba(0,0,0,0.3);"
-  (click)="closeUpdateJobModal()">
-  <div class="modal-dialog modal-xl modal-dialog-centered" (click)="$event.stopPropagation()">
-    <div class="modal-content">
-      <form [formGroup]="jobForm" (ngSubmit)="openConfirm('updateJob')">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title fw-bold">Chỉnh sửa tin tuyển dụng</h5>
-          <button type="button" class="btn-close" (click)="closeUpdateJobModal()"></button>
-        </div>
-
-        <div class="modal-body">
-          <div class="row mb-2">
-            <div class="mb-1 text-danger small"><span class="fw-bold">*</span> Các thông tin bắt buộc</div>
-            <div class="col-md-6 mb-2">
-              <label class="form-label fw-bold">Vị trí tuyển dụng <span class="text-danger fw-bold">*</span></label>
-              <input type="text" class="form-control" formControlName="title" placeholder="Nhập vị trí tuyển dụng">
-              <div
-                *ngIf="jobForm.get('title')?.invalid && (jobForm.get('title')?.dirty || jobForm.get('title')?.touched)"
-                class="text-danger">Vị trí tuyển dụng không được để trống.</div>
-            </div>
-
-            <div class="col-md-6 mb-2">
-              <label class="form-label fw-bold">Địa chỉ <span class="text-danger fw-bold">*</span></label>
-              <input type="text" class="form-control" formControlName="address" placeholder="Nhập địa chỉ">
-              <div
-                *ngIf="jobForm.get('address')?.invalid && (jobForm.get('address')?.dirty || jobForm.get('address')?.touched)"
-                class="text-danger">Địa chỉ không được để trống.</div>
-            </div>
-
-            <div class="col-md-3 mb-2">
-              <label class="form-label fw-bold">Người phụ trách <span class="text-danger fw-bold">*</span></label>
-              <select class="form-select" formControlName="memberName">
-                <option value="">Chọn người phụ trách</option>
-                <option *ngFor="let m of members" [value]="m.id">{{ m.fullName }} - {{ m.position }}</option>
-              </select>
-              <div
-                *ngIf="jobForm.get('memberName')?.invalid && (jobForm.get('memberName')?.dirty || jobForm.get('memberName')?.touched)"
-                class="text-danger">Người phụ trách không được để trống.</div>
-            </div>
-
-            <div class="col-md-3 mb-2">
-              <label class="form-label fw-bold">Địa điểm <span class="text-danger fw-bold">*</span></label>
-              <select class="form-select" formControlName="location">
-                <option value="">Chọn địa điểm</option>
-                <option value="HANOI">Hà Nội</option>
-                <option value="HOCHIMINH">Hồ Chí Minh</option>
-                <option value="DANANG">Đà Nẵng</option>
-              </select>
-              <div
-                *ngIf="jobForm.get('location')?.invalid && (jobForm.get('location')?.dirty || jobForm.get('location')?.touched)"
-                class="text-danger">Địa điểm không được để trống.</div>
-            </div>
-
-
-            <div class="col-md-3 mb-2">
-              <label class="form-label fw-bold">Số lượng tuyển <span class="text-danger fw-bold">*</span></label>
-              <input type="number" class="form-control" formControlName="quantity" min="1">
-              <div
-                *ngIf="jobForm.get('quantity')?.invalid && (jobForm.get('quantity')?.dirty || jobForm.get('quantity')?.touched)"
-                class="text-danger">
-                <ng-container *ngIf="jobForm.get('quantity')?.errors?.['required']; else quantityOtherErrors">
-                  Số lượng tuyển không được để trống.
-                </ng-container>
-                <ng-template #quantityOtherErrors>
-                  <ng-container *ngIf="jobForm.get('quantity')?.errors?.['min']">
-                    Số lượng tuyển phải lớn hơn 0.
-                  </ng-container>
-                </ng-template>
-              </div>
-            </div>
-
-            <div class="col-md-3 mb-2">
-              <label class="form-label fw-bold">Hạn ứng tuyển <span class="text-danger fw-bold">*</span></label>
-              <input type="date" class="form-control" formControlName="deadline" [attr.min]="today | date:'yyyy-MM-dd'">
-              <div
-                *ngIf="jobForm.get('deadline')?.invalid && (jobForm.get('deadline')?.dirty || jobForm.get('deadline')?.touched)"
-                class="text-danger">
-                <ng-container *ngIf="jobForm.get('deadline')?.errors?.['required']; else deadlineOtherErrors">
-                  Hạn ứng tuyển không được để trống.
-                </ng-container>
-                <ng-template #deadlineOtherErrors>
-                  <ng-container *ngIf="jobForm.get('deadline')?.errors?.['invalidDate']; else notPastOrToday">
-                    Hạn ứng tuyển không hợp lệ.
-                  </ng-container>
-                  <ng-template #notPastOrToday>
-                    <ng-container *ngIf="jobForm.get('deadline')?.errors?.['pastOrToday']">
-                      Hạn ứng tuyển phải lớn hơn ngày hiện tại.
-                    </ng-container>
-                  </ng-template>
-                </ng-template>
-              </div>
-            </div>
-
-            <div class="col-md-3 mb-2">
-              <label class="form-label fw-bold">Mức lương <span class="text-danger fw-bold">*</span></label>
-              <select class="form-select" formControlName="salary">
-                <option value="">Chọn mức lương</option>
-                <option value="THOA_THUAN">Thỏa thuận</option>
-                <option value="DUOI_10_TRIEU">Dưới 10 triệu</option>
-                <option value="TU_10_DEN_15_TRIEU">10 - 15 triệu</option>
-                <option value="TU_15_DEN_20_TRIEU">15 - 20 triệu</option>
-                <option value="TU_20_DEN_25_TRIEU">20 - 25 triệu</option>
-                <option value="TU_25_DEN_30_TRIEU">25 - 30 triệu</option>
-                <option value="TU_30_DEN_50_TRIEU">30 - 50 triệu</option>
-                <option value="HON_50_TRIEU">Trên 50 triệu</option>
-              </select>
-              <div
-                *ngIf="jobForm.get('salary')?.invalid && (jobForm.get('salary')?.dirty || jobForm.get('salary')?.touched)"
-                class="text-danger">Mức lương không được để trống.</div>
-            </div>
-
-            <div class="col-md-3 mb-2">
-              <label class="form-label fw-bold">Loại hợp đồng <span class="text-danger fw-bold">*</span></label>
-              <select class="form-select" formControlName="contractType">
-                <option value="">Chọn loại hợp đồng</option>
-                <option value="FULL_TIME">Toàn thời gian</option>
-                <option value="PART_TIME">Bán thời gian</option>
-                <option value="FREELANCE">Freelance</option>
-              </select>
-              <div
-                *ngIf="jobForm.get('contractType')?.invalid && (jobForm.get('contractType')?.dirty || jobForm.get('contractType')?.touched)"
-                class="text-danger">Loại hợp đồng không được để trống.</div>
-            </div>
-
-            <div class="col-md-3 mb-2">
-              <label class="form-label fw-bold">Kinh nghiệm <span class="text-danger fw-bold">*</span></label>
-              <select class="form-select" formControlName="experience">
-                <option value="">Chọn kinh nghiệm</option>
-                <option value="KHONG_YEU_CAU">Không yêu cầu</option>
-                <option value="DUOI_1_NAM">Dưới 1 năm</option>
-                <option value="MOT_NAM">1 năm</option>
-                <option value="HAI_NAM">2 năm</option>
-                <option value="BA_NAM">3 năm</option>
-                <option value="BON_NAM">4 năm</option>
-                <option value="NAM_NAM">5 năm</option>
-                <option value="TREN_5_NAM">Trên 5 năm</option>
-              </select>
-              <div
-                *ngIf="jobForm.get('experience')?.invalid && (jobForm.get('experience')?.dirty || jobForm.get('experience')?.touched)"
-                class="text-danger">Kinh nghiệm không được để trống.</div>
-            </div>
-
-            <div class="col-md-3 mb-2">
-              <label class="form-label fw-bold">Cấp bậc <span class="text-danger fw-bold">*</span></label>
-              <select class="form-select" formControlName="level">
-                <option value="">Chọn cấp bậc</option>
-                <option value="INTERN">Intern</option>
-                <option value="FRESHER">Fresher</option>
-                <option value="JUNIOR">Junior</option>
-                <option value="MIDDLE">Middle</option>
-                <option value="SENIOR">Senior</option>
-              </select>
-              <div
-                *ngIf="jobForm.get('level')?.invalid && (jobForm.get('level')?.dirty || jobForm.get('level')?.touched)"
-                class="text-danger">Cấp bậc không được để trống.</div>
-            </div>
-
-            <div class="col-md-3 mb-2">
-              <label class="form-label fw-bold">Hình thức làm việc <span class="text-danger fw-bold">*</span></label>
-              <select class="form-select" formControlName="jobType">
-                <option value="">Chọn hình thức</option>
-                <option value="IN_OFFICE">Tại văn phòng</option>
-                <option value="REMOTE">Remote</option>
-                <option value="HYBRID">Hybrid</option>
-              </select>
-              <div
-                *ngIf="jobForm.get('jobType')?.invalid && (jobForm.get('jobType')?.dirty || jobForm.get('jobType')?.touched)"
-                class="text-danger">Hình thức làm việc không được để trống.</div>
-            </div>
-
-            <div class="col-md-6 mb-2">
-              <label class="form-label fw-bold">Thời gian làm việc <span class="text-danger fw-bold">*</span></label>
-              <input class="form-control" formControlName="workingTime"
-                placeholder="Ví dụ: Thứ 2 - Thứ 6, 8:00 - 17:00">
-                <div
-                *ngIf="jobForm.get('workingTime')?.invalid && (jobForm.get('workingTime')?.dirty || jobForm.get('workingTime')?.touched)"
-                class="text-danger">Thời gian làm việc không được để trống.</div>
-            </div>
-
-            <div class="col-md-3 mb-2">
-              <label class="form-label fw-bold">Trạng thái <span class="text-danger fw-bold">*</span></label>
-              <select class="form-select" formControlName="status">
-                <option value="">Chọn trạng thái</option>
-                <option value="ACTIVE">Đang hoạt động</option>
-                <option value="HIDDEN">Ẩn</option>
-                <option value="CLOSED">Đã đóng</option>
-              </select>
-              <div
-                *ngIf="jobForm.get('status')?.invalid && (jobForm.get('status')?.dirty || jobForm.get('status')?.touched)"
-                class="text-danger">Trạng thái không được để trống.</div>
-            </div>
-
-            <div class="col-md-12 mb-2">
-              <label class="form-label fw-bold">Kỹ năng yêu cầu</label>
-              <ng-select *ngIf="skillsList" [items]="skillsList" bindLabel="name" bindValue="id" [multiple]="true"
-                formControlName="skills" class="form-control" [closeOnSelect]="false">
-                <ng-template ng-option-tmp let-item="item">
-                  <div class="skill-option">
-                    <input type="checkbox" [checked]="jobForm.value.skills?.includes(item.id)"
-                      (change)="onSkillChange(item.id, $event)" style="margin-right:8px;">
-                    {{ item.name }}
-                  </div>
-                </ng-template>
-              </ng-select>
-            </div>
-
-            <div class="col-md-12 mb-2">
-              <label class="form-label fw-bold">Mô tả công việc <span class="text-danger fw-bold">*</span></label>
-              <textarea class="form-control" rows="3" formControlName="description"></textarea>
-              <div
-                *ngIf="jobForm.get('description')?.invalid && (jobForm.get('description')?.dirty || jobForm.get('description')?.touched)"
-                class="text-danger">Mô tả công việc không được để trống.</div>
-            </div>
-
-            <div class="col-md-12 mb-2">
-              <label class="form-label fw-bold">Yêu cầu ứng viên <span class="text-danger fw-bold">*</span></label>
-              <textarea class="form-control" rows="3" formControlName="requirement"></textarea>
-              <div
-                *ngIf="jobForm.get('requirement')?.invalid && (jobForm.get('requirement')?.dirty || jobForm.get('requirement')?.touched)"
-                class="text-danger">Yêu cầu ứng viên không được để trống.</div>
-            </div>
-
-            <div class="col-md-12">
-              <label class="form-label fw-bold">Quyền lợi <span class="text-danger fw-bold">*</span></label>
-              <textarea class="form-control" rows="3" formControlName="benefit"></textarea>
-              <div
-                *ngIf="jobForm.get('benefit')?.invalid && (jobForm.get('benefit')?.dirty || jobForm.get('benefit')?.touched)"
-                class="text-danger">Quyền lợi không được để trống.</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary" [disabled]="jobForm.invalid">Lưu thay đổi</button>
-          <button type="button" class="btn btn-secondary" (click)="openConfirm('cancelUpdateJob')">Hủy</button>
-        </div>
-      </form>
     </div>
   </div>
 </div>
@@ -702,19 +384,14 @@
 
         <div class="modal-body">
           <div class="row g-2">
-            <div class="mb-1 text-danger small"><span class="fw-bold">*</span> Các thông tin bắt buộc</div>
             <div class="col-md-12 mb-2">
-              <label class="form-label fw-bold">Tên công ty <span class="text-danger">*</span></label>
+              <label class="form-label fw-bold">Tên công ty</label>
               <input type="text" class="form-control" formControlName="name" placeholder="Tên công ty">
-              <div
-                *ngIf="companyForm.get('name')?.invalid && (companyForm.get('name')?.touched || companyForm.get('name')?.dirty)"
-                class="text-danger">Tên công ty không được để trống</div>
             </div>
 
             <div class="col-md-6 mb-2">
-              <label class="form-label fw-bold">Khu vực <span class="text-danger">*</span></label>
+              <label class="form-label fw-bold">Khu vực</label>
               <select class="form-select" formControlName="location">
-                <option value="">-- Chọn khu vực --</option>
                 <option value="Hà Nội">Hà Nội</option>
                 <option value="Đà Nẵng">Đà Nẵng</option>
                 <option value="Hồ Chí Minh">Hồ Chí Minh</option>
@@ -750,7 +427,6 @@
             <div class="col-md-4 mb-2">
               <label class="form-label fw-bold">Trạng thái</label>
               <select class="form-select" formControlName="status">
-                <option value="">Chọn trạng thái</option>
                 <option value="APPROVED">Đang hoạt động</option>
                 <option value="INACTIVE">Ẩn</option>
               </select>
